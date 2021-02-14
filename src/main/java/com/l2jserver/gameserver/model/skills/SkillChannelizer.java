@@ -29,6 +29,7 @@ import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.ShotType;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.model.skills.targets.AffectScope;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.MagicSkillLaunched;
 import com.l2jserver.gameserver.util.Util;
@@ -42,6 +43,7 @@ public class SkillChannelizer implements Runnable {
 	
 	private final L2Character _channelizer;
 	private List<L2Character> _channelized;
+	private L2Character _initialChannelized;
 	
 	private Skill _skill;
 	private volatile ScheduledFuture<?> _task = null;
@@ -69,6 +71,16 @@ public class SkillChannelizer implements Runnable {
 			return;
 		}
 		
+		// If affect scope is SINGLE, save target to avoid target changing during channeling.
+		if (skill.getAffectScope() == AffectScope.SINGLE) {
+			final var creatures = skill.getTargets(_channelizer);
+			if (!creatures.isEmpty()) {
+				final var creature = creatures.get(0); // Get the first target to lock it on
+				_initialChannelized = ((L2Character) creature);
+				_initialChannelized.getSkillChannelized().addChannelizer(skill.getChannelingSkillId(), getChannelizer());
+			}
+		}
+		
 		// Start channeling.
 		_skill = skill;
 		_task = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(this, skill.getChannelingTickInitialDelay(), skill.getChannelingTickInterval());
@@ -85,13 +97,16 @@ public class SkillChannelizer implements Runnable {
 		_task.cancel(true);
 		_task = null;
 		
-		// Cancel target channelization and unset it.
+		// Recalculate channeling state, cancel target channelization and unset it.
 		if (_channelized != null) {
 			for (L2Character chars : _channelized) {
-				chars.getSkillChannelized().removeChannelizer(_skill.getChannelingSkillId(), getChannelizer());
+				cleanupChannelization(_skill, chars);
 			}
-			_channelized = null;
 		}
+		
+		// unset channelized
+		_channelized = null;
+		_initialChannelized = null;
 		
 		// unset skill.
 		_skill = null;
@@ -138,11 +153,18 @@ public class SkillChannelizer implements Runnable {
 				}
 				
 				final var targets = new LinkedList<L2Character>();
-				for (var object : _skill.getTargets(_channelizer)) {
-					if (object.isCharacter()) {
-						final var creature = (L2Character) object;
-						targets.add(creature);
-						creature.getSkillChannelized().addChannelizer(_skill.getChannelingSkillId(), getChannelizer());
+				
+				// If _singleChannelized exists, keep effects only on that target, else affect the new target.
+				if (_initialChannelized != null) {
+					targets.add(_initialChannelized);
+					_initialChannelized.getSkillChannelized().addChannelizer(_skill.getChannelingSkillId(), getChannelizer());
+				} else {
+					for (var object : _skill.getTargets(_channelizer)) {
+						if (object.isCharacter()) {
+							final var creature = (L2Character) object;
+							targets.add(creature);
+							creature.getSkillChannelized().addChannelizer(_skill.getChannelingSkillId(), getChannelizer());
+						}
 					}
 				}
 				
@@ -153,8 +175,16 @@ public class SkillChannelizer implements Runnable {
 				
 				for (L2Character character : _channelized) {
 					if (!Util.checkIfInRange(_skill.getEffectRange(), _channelizer, character, true)) {
+						if (_initialChannelized != null) {
+							_channelizer.abortCast();
+							_channelizer.sendPacket(SystemMessageId.TARGET_TOO_FAR);
+						}
 						continue;
 					} else if (!GeoData.getInstance().canSeeTarget(_channelizer, character)) {
+						if (_initialChannelized != null) {
+							_channelizer.abortCast();
+							_channelizer.sendPacket(SystemMessageId.CANT_SEE_TARGET);
+						}
 						continue;
 					} else {
 						final int maxSkillLevel = SkillData.getInstance().getMaxLevel(_skill.getChannelingSkillId());
@@ -193,5 +223,24 @@ public class SkillChannelizer implements Runnable {
 		} catch (Exception e) {
 			_log.warning("Error while channelizing skill: " + _skill + " channelizer: " + _channelizer + " channelized: " + _channelized + "; " + e.getMessage());
 		}
+	}
+	
+	private void cleanupChannelization(Skill skill, L2Character character) {
+		final BuffInfo info = character.getEffectList().getBuffInfoBySkillId(skill.getChannelingSkillId());
+		if (info != null) {
+			final int channerlizersSize = character.getSkillChannelized().getChannerlizersSize(skill.getChannelingSkillId());
+			// If this is the last channelizer for the target, remove attached effects, else decrease affecting skill level by 1.
+			if (channerlizersSize == 1) {
+				character.getEffectList().remove(false, info);
+			} else if (channerlizersSize > 1) {
+				final int maxSkillLevel = SkillData.getInstance().getMaxLevel(skill.getChannelingSkillId());
+				final int skillLevel = Math.min(character.getSkillChannelized().getChannerlizersSize(skill.getChannelingSkillId()), maxSkillLevel);
+				final Skill currentSkill = SkillData.getInstance().getSkill(skill.getChannelingSkillId(), skillLevel);
+				character.getEffectList().stopSkillEffects(true, currentSkill);
+				final Skill nextSkill = SkillData.getInstance().getSkill(skill.getChannelingSkillId(), skillLevel - 1);
+				nextSkill.applyEffects(getChannelizer(), character);
+			}
+		}
+		character.getSkillChannelized().removeChannelizer(skill.getChannelingSkillId(), getChannelizer());
 	}
 }
