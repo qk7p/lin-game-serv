@@ -53,7 +53,6 @@ import com.l2jserver.gameserver.model.AbsorberInfo;
 import com.l2jserver.gameserver.model.AggroInfo;
 import com.l2jserver.gameserver.model.DamageDoneInfo;
 import com.l2jserver.gameserver.model.L2CommandChannel;
-import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.L2Party;
 import com.l2jserver.gameserver.model.L2Seed;
 import com.l2jserver.gameserver.model.actor.instance.L2GrandBossInstance;
@@ -203,9 +202,9 @@ public class L2Attackable extends L2Npc {
 			}
 		}
 		
-		final L2Object target = skill.getFirstOfTargetList(this);
-		if (target != null) {
-			getAI().setIntention(CtrlIntention.AI_INTENTION_CAST, skill, target);
+		final var targets = skill.getTargets(this);
+		if (!targets.isEmpty()) {
+			getAI().setIntention(CtrlIntention.AI_INTENTION_CAST, skill, targets.get(0));
 		}
 	}
 	

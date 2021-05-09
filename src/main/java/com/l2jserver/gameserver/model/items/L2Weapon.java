@@ -18,6 +18,7 @@
  */
 package com.l2jserver.gameserver.model.items;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.l2jserver.gameserver.model.L2Object;
@@ -326,15 +327,11 @@ public final class L2Weapon extends L2Item {
 		
 		// notify quests of a skill use
 		if (caster instanceof L2PcInstance) {
-			L2Character[] targets = {
-				target
-			};
-			
 			caster.getKnownList().getKnownObjects().values().stream() //
 				.filter(Objects::nonNull) //
 				.filter(L2Object::isNpc) //
 				.filter(npc -> Util.checkIfInRange(1000, npc, caster, false)) //
-				.forEach(npc -> EventDispatcher.getInstance().notifyEventAsync(new OnNpcSkillSee((L2Npc) npc, caster.getActingPlayer(), onMagicSkill, targets, false), npc));
+				.forEach(npc -> EventDispatcher.getInstance().notifyEventAsync(new OnNpcSkillSee((L2Npc) npc, caster.getActingPlayer(), onMagicSkill, List.of(target), false), npc));
 		}
 		if (caster.isPlayer()) {
 			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_HAS_BEEN_ACTIVATED);

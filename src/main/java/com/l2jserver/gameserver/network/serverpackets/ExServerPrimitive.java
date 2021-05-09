@@ -414,44 +414,26 @@ public class ExServerPrimitive extends L2GameServerPacket {
 			_z = z;
 		}
 		
-		/**
-		 * @return the name
-		 */
 		public String getName() {
 			return _name;
 		}
 		
-		/**
-		 * @return the color
-		 */
 		public int getColor() {
 			return _color;
 		}
 		
-		/**
-		 * @return the isNameColored
-		 */
 		public boolean isNameColored() {
 			return _isNameColored;
 		}
 		
-		/**
-		 * @return the x
-		 */
 		public int getX() {
 			return _x;
 		}
 		
-		/**
-		 * @return the y
-		 */
 		public int getY() {
 			return _y;
 		}
 		
-		/**
-		 * @return the z
-		 */
 		public int getZ() {
 			return _z;
 		}
@@ -469,23 +451,14 @@ public class ExServerPrimitive extends L2GameServerPacket {
 			_z2 = z2;
 		}
 		
-		/**
-		 * @return the x2
-		 */
 		public int getX2() {
 			return _x2;
 		}
 		
-		/**
-		 * @return the y2
-		 */
 		public int getY2() {
 			return _y2;
 		}
 		
-		/**
-		 * @return the z2
-		 */
 		public int getZ2() {
 			return _z2;
 		}

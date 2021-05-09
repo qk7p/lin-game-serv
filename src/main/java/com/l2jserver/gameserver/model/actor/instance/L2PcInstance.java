@@ -6401,10 +6401,13 @@ public final class L2PcInstance extends L2Playable {
 		
 		// Check if the target is correct and Notify the AI with AI_INTENTION_CAST and target
 		L2Object target = switch (skill.getTargetType()) {
-			// AURA, SELF should be cast even if no target has been found
-			case AURA, FRONT_AURA, BEHIND_AURA, GROUND, SELF, AURA_CORPSE_MOB, COMMAND_CHANNEL, AURA_FRIENDLY, AURA_UNDEAD_ENEMY -> this;
+			// SELF should be cast even if no target has been found
+			case GROUND, SELF -> this;
 			// Get the first target of the list
-			default -> skill.getFirstOfTargetList(this);
+			default -> {
+				final var targets = skill.getTargets(this);
+				yield targets.isEmpty() ? null : targets.get(0);
+			}
 		};
 		
 		// Notify the AI with AI_INTENTION_CAST and target
@@ -6480,8 +6483,8 @@ public final class L2PcInstance extends L2Playable {
 		
 		// Target the player if skill type is AURA, PARTY, CLAN or SELF
 		target = switch (sklTargetType) {
-			case AURA, FRONT_AURA, BEHIND_AURA, PARTY, CLAN, PARTY_CLAN, GROUND, SELF, AREA_SUMMON, AURA_CORPSE_MOB, COMMAND_CHANNEL, AURA_FRIENDLY, AURA_UNDEAD_ENEMY -> this;
-			case PET, SERVITOR, SUMMON -> getSummon();
+			case PARTY, GROUND, SELF -> this;
+			case SUMMON -> getSummon();
 			default -> getTarget();
 		};
 		
@@ -6603,18 +6606,10 @@ public final class L2PcInstance extends L2Playable {
 			// Check if a Forced ATTACK is in progress on non-attackable target
 			if (!target.isAutoAttackable(this) && !forceUse) {
 				switch (sklTargetType) {
-					case AURA:
-					case FRONT_AURA:
-					case BEHIND_AURA:
-					case AURA_CORPSE_MOB:
-					case CLAN:
 					case PARTY:
 					case SELF:
 					case GROUND:
-					case AREA_SUMMON:
-					case UNLOCKABLE:
-					case AURA_FRIENDLY:
-					case AURA_UNDEAD_ENEMY:
+					case DOOR_TREASURE:
 						break;
 					default: // Send a Server->Client packet ActionFailed to the L2PcInstance
 						sendPacket(ActionFailed.STATIC_PACKET);
@@ -6654,13 +6649,6 @@ public final class L2PcInstance extends L2Playable {
 		// Check if this is a Pvp skill and target isn't a non-flagged/non-karma player
 		switch (sklTargetType) {
 			case PARTY:
-			case CLAN: // For such skills, checkPvpSkill() is called from L2Skill.getTargetList()
-			case PARTY_CLAN: // For such skills, checkPvpSkill() is called from L2Skill.getTargetList()
-			case AURA:
-			case FRONT_AURA:
-			case BEHIND_AURA:
-			case AREA_SUMMON:
-			case AURA_UNDEAD_ENEMY:
 			case GROUND:
 			case SELF:
 			case ENEMY:

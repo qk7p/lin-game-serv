@@ -383,13 +383,10 @@ public final class L2TamedBeastInstance extends L2FeedableBeastInstance {
 				if ((item != null) && (item.getCount() >= 1)) {
 					L2Object oldTarget = owner.getTarget();
 					owner.setTarget(_tamedBeast);
-					L2Object[] targets = {
-						_tamedBeast
-					};
 					
 					// emulate a call to the owner using food, but bypass all checks for range, etc
 					// this also causes a call to the AI tasks handling feeding, which may call onReceiveFood as required.
-					owner.callSkill(SkillData.getInstance().getSkill(foodTypeSkillId, 1), targets);
+					owner.callSkill(SkillData.getInstance().getSkill(foodTypeSkillId, 1), List.of(_tamedBeast));
 					owner.setTarget(oldTarget);
 				} else {
 					// if the owner has no food, the beast immediately despawns, except when it was only

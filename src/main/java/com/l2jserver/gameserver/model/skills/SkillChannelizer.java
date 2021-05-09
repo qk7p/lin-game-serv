@@ -18,7 +18,7 @@
  */
 package com.l2jserver.gameserver.model.skills;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.logging.Logger;
@@ -27,7 +27,6 @@ import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.ShotType;
-import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.SystemMessageId;
@@ -138,19 +137,19 @@ public class SkillChannelizer implements Runnable {
 					return;
 				}
 				
-				final List<L2Character> targetList = new ArrayList<>();
-				
-				for (L2Object chars : _skill.getTargetList(_channelizer)) {
-					if (chars.isCharacter()) {
-						targetList.add((L2Character) chars);
-						((L2Character) chars).getSkillChannelized().addChannelizer(_skill.getChannelingSkillId(), getChannelizer());
+				final var targets = new LinkedList<L2Character>();
+				for (var object : _skill.getTargets(_channelizer)) {
+					if (object.isCharacter()) {
+						final var creature = (L2Character) object;
+						targets.add(creature);
+						creature.getSkillChannelized().addChannelizer(_skill.getChannelingSkillId(), getChannelizer());
 					}
 				}
 				
-				if (targetList.isEmpty()) {
+				if (targets.isEmpty()) {
 					return;
 				}
-				_channelized = targetList;
+				_channelized = targets;
 				
 				for (L2Character character : _channelized) {
 					if (!Util.checkIfInRange(_skill.getEffectRange(), _channelizer, character, true)) {

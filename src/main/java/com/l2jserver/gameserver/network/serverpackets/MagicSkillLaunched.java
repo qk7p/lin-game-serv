@@ -18,7 +18,6 @@
  */
 package com.l2jserver.gameserver.network.serverpackets;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.l2jserver.gameserver.model.L2Object;
@@ -34,22 +33,19 @@ public class MagicSkillLaunched extends L2GameServerPacket {
 	private final int _skillLevel;
 	private final List<L2Object> _targets;
 	
-	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel, L2Object... targets) {
+	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel) {
+		this(cha, skillId, skillLevel, List.of(cha));
+	}
+	
+	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel, L2Object target) {
+		this(cha, skillId, skillLevel, List.of(target));
+	}
+	
+	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel, List<L2Object> targets) {
 		_charObjId = cha.getObjectId();
 		_skillId = skillId;
 		_skillLevel = skillLevel;
-		
-		//@formatter:off
-		if (targets == null)
-		{
-			targets = new L2Object[] { cha };
-		}
-		//@formatter:on
-		_targets = Arrays.asList(targets);
-	}
-	
-	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel) {
-		this(cha, skillId, skillId, cha);
+		_targets = targets;
 	}
 	
 	@Override

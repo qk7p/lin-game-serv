@@ -86,7 +86,9 @@ public enum AbnormalVisualEffect {
 	BR_VESPER1(0x000020, 2),
 	BR_VESPER2(0x000040, 2),
 	BR_VESPER3(0x000080, 2),
-	BR_SOUL_AVATAR(0x000100, 2); // High Five
+	BR_SOUL_AVATAR(0x000100, 2), // High Five
+	// New High Five
+	CHANGE_7ANNIVERSARY(0, 2); // TODO(Zoey76): Find.
 	
 	/** Int mask. */
 	private final int _mask;

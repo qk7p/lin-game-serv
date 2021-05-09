@@ -19,14 +19,12 @@
 package com.l2jserver.gameserver.model.conditions;
 
 import static com.l2jserver.gameserver.config.Configuration.npc;
+import static com.l2jserver.gameserver.network.SystemMessageId.SWEEPER_FAILED_TARGET_NOT_SPOILED;
 
-import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Attackable;
 import com.l2jserver.gameserver.model.actor.L2Character;
-import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.network.SystemMessageId;
 
 /**
  * Checks Sweeper conditions:
@@ -50,25 +48,26 @@ public class ConditionPlayerCanSweep extends Condition {
 	@Override
 	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item) {
 		boolean canSweep = false;
-		if (effector.getActingPlayer() != null) {
-			final L2PcInstance sweeper = effector.getActingPlayer();
+		final var sweeper = effector.getActingPlayer();
+		if (sweeper != null) {
 			if (skill != null) {
-				final L2Object[] targets = skill.getTargetList(sweeper);
-				if (targets != null) {
-					L2Attackable target;
-					for (L2Object objTarget : targets) {
-						if (objTarget instanceof L2Attackable) {
-							target = (L2Attackable) objTarget;
-							if (target.isDead()) {
-								if (target.isSpoiled()) {
-									canSweep = target.checkSpoilOwner(sweeper, true);
-									canSweep &= !target.isOldCorpse(sweeper, npc().getCorpseConsumeSkillAllowedTimeBeforeDecay(), true);
-									canSweep &= sweeper.getInventory().checkInventorySlotsAndWeight(target.getSpoilLootItems(), true, true);
-								} else {
-									sweeper.sendPacket(SystemMessageId.SWEEPER_FAILED_TARGET_NOT_SPOILED);
-								}
-							}
-						}
+				final var targets = skill.getTargets(sweeper);
+				for (var object : targets) {
+					if (!object.isAttackable()) {
+						continue;
+					}
+					
+					final var target = (L2Attackable) object;
+					if (!target.isDead()) {
+						continue;
+					}
+					
+					if (target.isSpoiled()) {
+						canSweep = target.checkSpoilOwner(sweeper, true);
+						canSweep &= !target.isOldCorpse(sweeper, npc().getCorpseConsumeSkillAllowedTimeBeforeDecay(), true);
+						canSweep &= sweeper.getInventory().checkInventorySlotsAndWeight(target.getSpoilLootItems(), true, true);
+					} else {
+						sweeper.sendPacket(SWEEPER_FAILED_TARGET_NOT_SPOILED);
 					}
 				}
 			}

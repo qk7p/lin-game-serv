@@ -538,12 +538,13 @@ public abstract class L2Summon extends L2Playable {
 		
 		// Get the target for the skill
 		L2Object target = switch (skill.getTargetType()) {
-			// OWNER_PET should be cast even if no target has been found
-			case OWNER_PET -> getOwner();
-			// PARTY, AURA, SELF should be cast even if no target has been found
-			case PARTY, AURA, FRONT_AURA, BEHIND_AURA, SELF, AURA_CORPSE_MOB, AURA_UNDEAD_ENEMY, COMMAND_CHANNEL -> this;
+			// PARTY, SELF should be cast even if no target has been found
+			case PARTY, SELF -> this;
 			// Get the first target of the list
-			default -> skill.getFirstOfTargetList(this);
+			default -> {
+				final var targets = skill.getTargets(this);
+				yield targets.isEmpty() ? null : targets.get(0);
+			}
 		};
 		
 		// Check the validity of the target
@@ -621,8 +622,7 @@ public abstract class L2Summon extends L2Playable {
 				}
 				
 				// Check if a Forced attack is in progress on non-attackable target
-				if (!target.isAutoAttackable(this) && !forceUse && !target.isNpc() && (skill.getTargetType() != TargetType.AURA) && (skill.getTargetType() != TargetType.FRONT_AURA) && (skill.getTargetType() != TargetType.BEHIND_AURA) && (skill.getTargetType() != TargetType.CLAN)
-					&& (skill.getTargetType() != TargetType.PARTY) && (skill.getTargetType() != TargetType.SELF)) {
+				if (!target.isAutoAttackable(this) && !forceUse && !target.isNpc() && (skill.getTargetType() != TargetType.PARTY) && (skill.getTargetType() != TargetType.SELF)) {
 					return false;
 				}
 			}

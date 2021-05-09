@@ -359,9 +359,14 @@ public final class L2CubicInstance implements IIdentifiable {
 		}
 	}
 	
-	public void useCubicContinuous(Skill skill, L2Object[] targets) {
-		for (L2Character target : (L2Character[]) targets) {
-			if ((target == null) || target.isDead()) {
+	public void useCubicContinuous(Skill skill, List<L2Object> targets) {
+		for (var object : targets) {
+			if ((object == null) || !object.isCharacter()) {
+				continue;
+			}
+
+			final var target = (L2Character) object;
+			if (target.isDead()) {
 				continue;
 			}
 			
@@ -380,16 +385,13 @@ public final class L2CubicInstance implements IIdentifiable {
 		}
 	}
 	
-	/**
-	 * @param skill
-	 * @param targets
-	 */
-	public void useCubicMdam(Skill skill, L2Object[] targets) {
-		for (L2Character target : (L2Character[]) targets) {
-			if (target == null) {
+	public void useCubicMdam(Skill skill, List<L2Object> targets) {
+		for (var object : targets) {
+			if ((object == null) || !object.isCharacter()) {
 				continue;
 			}
 			
+			final var target = (L2Character) object;
 			if (target.isAlikeDead()) {
 				if (target.isPlayer()) {
 					target.stopFakeDeath(true);
@@ -424,12 +426,13 @@ public final class L2CubicInstance implements IIdentifiable {
 		}
 	}
 	
-	public void useCubicDrain(Skill skill, L2Object[] targets) {
-		if (general().debug()) {
-			LOG.debug("L2SkillDrain: useCubicSkill()");
-		}
-		
-		for (L2Character target : (L2Character[]) targets) {
+	public void useCubicDrain(Skill skill, List<L2Object> targets) {
+		for (var object : targets) {
+			if ((object == null) || !object.isCharacter()) {
+				continue;
+			}
+			
+			final var target = (L2Character) object;
 			if (target.isAlikeDead()) {
 				continue;
 			}
@@ -463,13 +466,14 @@ public final class L2CubicInstance implements IIdentifiable {
 		}
 	}
 	
-	public void useCubicDisabler(Skill skill, L2Object[] targets) {
-		if (general().debug()) {
-			LOG.debug("Disablers: useCubicSkill() skill : {}", skill);
-		}
-		
-		for (L2Character target : (L2Character[]) targets) {
-			if ((target == null) || target.isDead()) {
+	public void useCubicDisabler(Skill skill, List<L2Object> targets) {
+		for (var object : targets) {
+			if ((object == null) || !object.isCharacter()) {
+				continue;
+			}
+			
+			final var target = (L2Character) object;
+			if (target.isDead()) {
 				continue;
 			}
 			

@@ -18,6 +18,8 @@
  */
 package com.l2jserver.gameserver.model.actor.tasks.character;
 
+import java.util.List;
+
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.skills.Skill;
@@ -28,14 +30,14 @@ import com.l2jserver.gameserver.model.skills.Skill;
  */
 public final class MagicUseTask implements Runnable {
 	private final L2Character _character;
-	private L2Object[] _targets;
+	private List<L2Object> _targets;
 	private final Skill _skill;
 	private int _count;
 	private int _skillTime;
 	private int _phase;
 	private final boolean _simultaneously;
 	
-	public MagicUseTask(L2Character character, L2Object[] targets, Skill s, int hit, boolean simultaneous) {
+	public MagicUseTask(L2Character character, List<L2Object> targets, Skill s, int hit, boolean simultaneous) {
 		_character = character;
 		_targets = targets;
 		_skill = s;
@@ -73,7 +75,7 @@ public final class MagicUseTask implements Runnable {
 		return _skillTime;
 	}
 	
-	public L2Object[] getTargets() {
+	public List<L2Object> getTargets() {
 		return _targets;
 	}
 	
@@ -93,7 +95,7 @@ public final class MagicUseTask implements Runnable {
 		_skillTime = skillTime;
 	}
 	
-	public void setTargets(L2Object[] targets) {
+	public void setTargets(List<L2Object> targets) {
 		_targets = targets;
 	}
 }

@@ -610,7 +610,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 		showResult(player, res);
 	}
 	
-	public final void notifySkillSee(L2Npc npc, L2PcInstance caster, Skill skill, L2Object[] targets, boolean isSummon) {
+	public final void notifySkillSee(L2Npc npc, L2PcInstance caster, Skill skill, List<L2Object> targets, boolean isSummon) {
 		String res;
 		try {
 			res = onSkillSee(npc, caster, skill, targets, isSummon);
@@ -956,7 +956,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * @param isSummon if {@code true}, the skill was actually cast by the player's summon, not the player himself
 	 * @return
 	 */
-	public String onSkillSee(L2Npc npc, L2PcInstance caster, Skill skill, L2Object[] targets, boolean isSummon) {
+	public String onSkillSee(L2Npc npc, L2PcInstance caster, Skill skill, List<L2Object> targets, boolean isSummon) {
 		return null;
 	}
 	

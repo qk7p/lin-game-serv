@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.l2jserver.commons.util.Rnd;
@@ -38,8 +37,6 @@ import com.l2jserver.gameserver.data.xml.impl.SkillTreesData;
 import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.MountType;
 import com.l2jserver.gameserver.enums.ShotType;
-import com.l2jserver.gameserver.handler.ITargetTypeHandler;
-import com.l2jserver.gameserver.handler.TargetHandler;
 import com.l2jserver.gameserver.instancemanager.HandysBlockCheckerManager;
 import com.l2jserver.gameserver.model.ArenaParticipantsHolder;
 import com.l2jserver.gameserver.model.L2ExtractableProductItem;
@@ -74,8 +71,6 @@ import com.l2jserver.gameserver.util.Util;
 
 public final class Skill implements IIdentifiable {
 	private static final Logger _log = Logger.getLogger(Skill.class.getName());
-	
-	private static final L2Object[] EMPTY_TARGET_LIST = new L2Object[0];
 	
 	/** Skill ID. */
 	private final int _id;
@@ -137,7 +132,6 @@ public final class Skill implements IIdentifiable {
 	private final int _reuseHashCode;
 	private final int _reuseDelay;
 	
-	private final TargetType targetType;
 	// base success chance
 	private final int _magicLevel;
 	private final int _lvlBonusRate;
@@ -146,12 +140,11 @@ public final class Skill implements IIdentifiable {
 	private final int _maxChance;
 	
 	private final int[] affectLimit;
-	private final AffectObject affectObject;
-	// Effecting area of the skill, in radius.
-	// The radius center varies according to the _targetType:
-	// "caster" if targetType = AURA/PARTY/CLAN or "target" if targetType = AREA
+	private AffectObject affectObject;
 	private final int affectRange;
-	private final AffectScope affectScope;
+	private AffectScope affectScope;
+	private TargetType targetType;
+	private final int[] fanRange;
 	
 	private final boolean _nextActionIsAttack;
 	
@@ -273,8 +266,9 @@ public final class Skill implements IIdentifiable {
 		affectObject = set.getEnum("affectObject", AffectObject.class, AffectObject.ALL);
 		affectScope = set.getEnum("affectScope", AffectScope.class, AffectScope.NONE);
 		affectRange = set.getInt("affectRange", 0);
-		
 		targetType = set.getEnum("targetType", TargetType.class, TargetType.SELF);
+		fanRange = set.getIntArray("fanRange", "0,0,0,0", ",");
+		
 		_magicLevel = set.getInt("magicLvl", 0);
 		_lvlBonusRate = set.getInt("lvlBonusRate", 0);
 		_activateRate = set.getInt("activateRate", -1);
@@ -322,6 +316,13 @@ public final class Skill implements IIdentifiable {
 		_channelingTickInitialDelay = set.getInt("channelingTickInitialDelay", _channelingTickInterval / 1000) * 1000;
 	}
 	
+	// TODO(Zoey76): Remove this after all skills are migrated.
+	public void updateTargetSystem(TargetType targetType, AffectScope affectScope, AffectObject affectObject) {
+		this.targetType = targetType;
+		this.affectScope = affectScope;
+		this.affectObject = affectObject;
+	}
+	
 	public TraitType getTraitType() {
 		return _traitType;
 	}
@@ -339,12 +340,13 @@ public final class Skill implements IIdentifiable {
 	}
 	
 	public boolean isAOE() {
-		switch (targetType) {
-			case AREA, AURA, BEHIND_AREA, BEHIND_AURA, FRONT_AREA, FRONT_AURA -> {
-				return true;
-			}
-		}
-		return false;
+		return affectScope == AffectScope.FAN || //
+			affectScope == AffectScope.POINT_BLANK || //
+			affectScope == AffectScope.RANGE || //
+			affectScope == AffectScope.RANGE_SORT_BY_HP || //
+			affectScope == AffectScope.RING_RANGE || //
+			affectScope == AffectScope.SQUARE || //
+			affectScope == AffectScope.SQUARE_PB;
 	}
 	
 	public boolean isDamage() {
@@ -640,7 +642,7 @@ public final class Skill implements IIdentifiable {
 	
 	public int getAffectLimit() {
 		if (affectLimit[1] == 0) {
-			return Integer.MAX_VALUE;
+			return 0;
 		}
 		return affectLimit[0] + Rnd.get(affectLimit[1]);
 	}
@@ -655,6 +657,10 @@ public final class Skill implements IIdentifiable {
 	
 	public AffectScope getAffectScope() {
 		return affectScope;
+	}
+	
+	public int[] getFanRange() {
+		return fanRange;
 	}
 	
 	public boolean isActive() {
@@ -803,64 +809,12 @@ public final class Skill implements IIdentifiable {
 		return (_rideState == null) || _rideState.contains(player.getMountType());
 	}
 	
-	public L2Object[] getTargetList(L2Character activeChar, boolean onlyFirst) {
-		// Init to null the target of the skill
-		L2Character target = null;
-		
-		// Get the object targeted by the user of the skill at this moment
-		L2Object objTarget = activeChar.getTarget();
-		// If the L2Object targeted is a L2Character, it becomes the L2Character target
-		if (objTarget instanceof L2Character) {
-			target = (L2Character) objTarget;
-		}
-		
-		return getTargetList(activeChar, onlyFirst, target);
+	public List<L2Object> getTargets(L2Character creature) {
+		return getTargets(creature, creature.getTarget());
 	}
 	
-	/**
-	 * Return all targets of the skill in a table in function a the skill type.<br>
-	 * <B><U>Values of skill type</U>:</B>
-	 * <ul>
-	 * <li>ONE : The skill can only be used on the L2PcInstance targeted, or on the caster if it's a L2PcInstance and no L2PcInstance targeted</li>
-	 * <li>SELF</li>
-	 * <li>HOLY, UNDEAD</li>
-	 * <li>PET</li>
-	 * <li>AURA, AURA_CLOSE</li>
-	 * <li>AREA</li>
-	 * <li>MULTIFACE</li>
-	 * <li>PARTY, CLAN</li>
-	 * <li>CORPSE_PLAYER, CORPSE_MOB, CORPSE_CLAN</li>
-	 * <li>UNLOCKABLE</li>
-	 * <li>ITEM</li>
-	 * <ul>
-	 * @param activeChar The L2Character who use the skill
-	 * @param onlyFirst
-	 * @param target
-	 * @return
-	 */
-	public L2Object[] getTargetList(L2Character activeChar, boolean onlyFirst, L2Character target) {
-		final ITargetTypeHandler handler = TargetHandler.getInstance().getHandler(getTargetType());
-		if (handler != null) {
-			try {
-				return handler.getTargetList(this, activeChar, onlyFirst, target);
-			} catch (Exception e) {
-				_log.log(Level.WARNING, "Exception in L2Skill.getTargetList(): " + e.getMessage(), e);
-			}
-		}
-		activeChar.sendMessage("Target type of skill is not currently handled.");
-		return EMPTY_TARGET_LIST;
-	}
-	
-	public L2Object[] getTargetList(L2Character activeChar) {
-		return getTargetList(activeChar, false);
-	}
-	
-	public L2Object getFirstOfTargetList(L2Character activeChar) {
-		L2Object[] targets = getTargetList(activeChar, true);
-		if (targets.length == 0) {
-			return null;
-		}
-		return targets[0];
+	public List<L2Object> getTargets(L2Character creature, L2Object target) {
+		return targetType.getTargets(this, creature, target);
 	}
 	
 	/**
@@ -873,6 +827,7 @@ public final class Skill implements IIdentifiable {
 	 * @param sourceInArena
 	 * @return
 	 */
+	@Deprecated
 	public static boolean checkForAreaOffensiveSkills(L2Character caster, L2Character target, Skill skill, boolean sourceInArena) {
 		if ((target == null) || target.isDead() || (target == caster)) {
 			return false;
@@ -1130,12 +1085,16 @@ public final class Skill implements IIdentifiable {
 		}
 	}
 	
+	public void activateSkill(L2Character caster, L2Object target) {
+		activateSkill(caster, null, List.of(target));
+	}
+	
 	/**
 	 * Activates a skill for the given creature and targets.
 	 * @param caster the caster
 	 * @param targets the targets
 	 */
-	public void activateSkill(L2Character caster, L2Object... targets) {
+	public void activateSkill(L2Character caster, List<L2Object> targets) {
 		activateSkill(caster, null, targets);
 	}
 	
@@ -1144,7 +1103,7 @@ public final class Skill implements IIdentifiable {
 	 * @param cubic the cubic
 	 * @param targets the targets
 	 */
-	public void activateSkill(L2CubicInstance cubic, L2Object... targets) {
+	public void activateSkill(L2CubicInstance cubic, List<L2Object> targets) {
 		activateSkill(cubic.getOwner(), cubic, targets);
 	}
 	
@@ -1154,12 +1113,12 @@ public final class Skill implements IIdentifiable {
 	 * @param cubic the cubic, can be {@code null}
 	 * @param targets the targets
 	 */
-	private void activateSkill(L2Character caster, L2CubicInstance cubic, L2Object... targets) {
+	private void activateSkill(L2Character caster, L2CubicInstance cubic, List<L2Object> targets) {
 		switch (getId()) {
 			// TODO: replace with AI
 			case 5852:
 			case 5853: {
-				final L2BlockInstance block = targets[0] instanceof L2BlockInstance ? (L2BlockInstance) targets[0] : null;
+				final L2BlockInstance block = targets.get(0) instanceof L2BlockInstance ? (L2BlockInstance) targets.get(0) : null;
 				final L2PcInstance player = caster.isPlayer() ? (L2PcInstance) caster : null;
 				if ((block == null) || (player == null)) {
 					return;

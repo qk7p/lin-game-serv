@@ -47,12 +47,9 @@ public class TrapTask implements Runnable {
 						_trap.broadcastPacket(new SocialAction(_trap.getObjectId(), 2));
 					}
 					if (_trap.getRemainingTime() <= 0) {
-						switch (_trap.getSkill().getTargetType()) {
-							case AURA, FRONT_AURA, BEHIND_AURA -> {
-								_trap.triggerTrap(_trap);
-							}
-							default -> _trap.unSummon();
-						}
+						// TODO(Zoey76): Handle ex AURA, FRONT_AURA, BEHIND_AURA skills.
+						// _trap.triggerTrap(_trap);
+						_trap.unSummon();
 						return;
 					}
 				}

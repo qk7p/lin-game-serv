@@ -778,7 +778,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			}
 		}
 		// Calculate Archer movement
-		if ((!npc.isMovementDisabled()) && (npc.getAiType() == AIType.ARCHER)) {
+		if (!npc.isMovementDisabled() && (npc.getAiType() == AIType.ARCHER)) {
 			if (Rnd.get(100) <= 15) {
 				double distance2 = npc.calculateDistance(mostHate, false, true);
 				if (Math.sqrt(distance2) <= (60 + combinedCollision)) {
@@ -1152,16 +1152,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 						return true;
 					}
 				} else if (canAOE(sk)) {
-					if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA) || (sk.getTargetType() == TargetType.AURA_CORPSE_MOB) || (sk.getTargetType() == TargetType.AURA_UNDEAD_ENEMY)) {
-						clientStopMoving(null);
-						caster.doCast(sk);
-						return true;
-					}
-					if (((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) && GeoData.getInstance().canSeeTarget(caster, attackTarget) && !attackTarget.isDead() && (dist2 <= srange)) {
-						clientStopMoving(null);
-						caster.doCast(sk);
-						return true;
-					}
+					// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance on living targets.
 				} else if (sk.getTargetType() == TargetType.ONE) {
 					L2Character target = effectTargetReconsider(sk, false);
 					if (target != null) {
@@ -1189,17 +1180,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					return true;
 				}
 			} else if (canAOE(sk)) {
-				if (((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA)) && GeoData.getInstance().canSeeTarget(caster, attackTarget))
-				
-				{
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				} else if (((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) && GeoData.getInstance().canSeeTarget(caster, attackTarget) && !attackTarget.isDead() && (dist2 <= srange)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
+				// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance on living targets.
 			}
 		}
 		
@@ -1314,16 +1295,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					return true;
 				}
 			} else if (canAOE(sk)) {
-				if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
-				if (((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) && GeoData.getInstance().canSeeTarget(caster, attackTarget) && !attackTarget.isDead() && (dist2 <= srange)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
+				// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance on living targets.
 			}
 		}
 		
@@ -1335,16 +1307,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					return true;
 				}
 			} else if (canAOE(sk)) {
-				if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
-				if (((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) && GeoData.getInstance().canSeeTarget(caster, attackTarget) && !attackTarget.isDead() && (dist2 <= srange)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
+				// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance on living targets.
 			} else if (sk.getTargetType() == TargetType.ONE) {
 				L2Character target = effectTargetReconsider(sk, false);
 				if (target != null) {
@@ -1363,16 +1326,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					return true;
 				}
 			} else if (canAOE(sk)) {
-				if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA) || (sk.getTargetType() == TargetType.AURA_CORPSE_MOB) || (sk.getTargetType() == TargetType.AURA_UNDEAD_ENEMY)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
-				if (((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) && GeoData.getInstance().canSeeTarget(caster, attackTarget) && !attackTarget.isDead() && (dist2 <= srange)) {
-					clientStopMoving(null);
-					caster.doCast(sk);
-					return true;
-				}
+				// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance on living targets.
 			} else if (sk.getTargetType() == TargetType.ONE) {
 				L2Character target = effectTargetReconsider(sk, false);
 				if (target != null) {

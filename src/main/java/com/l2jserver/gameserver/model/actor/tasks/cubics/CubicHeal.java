@@ -18,6 +18,7 @@
  */
 package com.l2jserver.gameserver.model.actor.tasks.cubics;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,7 +62,7 @@ public class CubicHeal implements Runnable {
 			_cubic.cubicTargetForHeal();
 			final L2Character target = _cubic.getTarget();
 			if ((target != null) && !target.isDead()) {
-				skill.activateSkill(_cubic, target);
+				skill.activateSkill(_cubic, List.of(target));
 				_cubic.getOwner().broadcastPacket(new MagicSkillUse(_cubic.getOwner(), target, skill.getId(), skill.getLevel(), 0, 0));
 			}
 		} catch (Exception e) {

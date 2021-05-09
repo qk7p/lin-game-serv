@@ -20,11 +20,13 @@ package com.l2jserver.gameserver.model.actor.tasks.cubics;
 
 import static com.l2jserver.gameserver.config.Configuration.general;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.l2jserver.commons.util.Rnd;
+import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2CubicInstance;
 import com.l2jserver.gameserver.model.effects.L2EffectType;
@@ -124,46 +126,23 @@ public final class CubicAction implements Runnable {
 					
 					_cubic.getOwner().broadcastPacket(new MagicSkillUse(_cubic.getOwner(), target, skill.getId(), skill.getLevel(), 0, 0));
 					
-					L2Character[] targets = {
-						target
-					};
+					final List<L2Object> targets = List.of(target);
 					
 					if (skill.isContinuous()) {
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run() skill " + skill);
-						}
 						_cubic.useCubicContinuous(skill, targets);
 					} else {
 						skill.activateSkill(_cubic, targets);
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run(); other handler");
-						}
 					}
 					
 					if (skill.hasEffectType(L2EffectType.MAGICAL_ATTACK)) {
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run() skill " + skill);
-						}
 						_cubic.useCubicMdam(skill, targets);
 					} else if (skill.hasEffectType(L2EffectType.HP_DRAIN)) {
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run() skill " + skill);
-						}
 						_cubic.useCubicDrain(skill, targets);
 					} else if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.ROOT, L2EffectType.PARALYZE)) {
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run() skill " + skill);
-						}
 						_cubic.useCubicDisabler(skill, targets);
 					} else if (skill.hasEffectType(L2EffectType.DMG_OVER_TIME)) {
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run() skill " + skill);
-						}
 						_cubic.useCubicContinuous(skill, targets);
 					} else if (skill.hasEffectType(L2EffectType.AGGRESSION)) {
-						if (general().debug()) {
-							_log.info("L2CubicInstance: Action.run() skill " + skill);
-						}
 						_cubic.useCubicDisabler(skill, targets);
 					}
 					

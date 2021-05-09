@@ -27,6 +27,7 @@ import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.Reloadable;
 
+import com.l2jserver.gameserver.config.converter.Seconds2MillisecondsConverter;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 
 /**
@@ -47,6 +48,7 @@ public interface BufferServiceConfiguration extends Reloadable {
 	Boolean enable();
 	
 	@Key("HealCooldown")
+	@ConverterClass(Seconds2MillisecondsConverter.class)
 	Long getHealCooldown();
 	
 	@Key("MaxUniqueLists")

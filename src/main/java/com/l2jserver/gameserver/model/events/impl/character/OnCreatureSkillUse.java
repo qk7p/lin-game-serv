@@ -18,6 +18,8 @@
  */
 package com.l2jserver.gameserver.model.events.impl.character;
 
+import java.util.List;
+
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.events.EventType;
@@ -33,9 +35,9 @@ public class OnCreatureSkillUse implements IBaseEvent {
 	private final Skill _skill;
 	private final boolean _simultaneously;
 	private final L2Character _target;
-	private final L2Object[] _targets;
+	private final List<L2Object> _targets;
 	
-	public OnCreatureSkillUse(L2Character caster, Skill skill, boolean simultaneously, L2Character target, L2Object[] targets) {
+	public OnCreatureSkillUse(L2Character caster, Skill skill, boolean simultaneously, L2Character target, List<L2Object> targets) {
 		_caster = caster;
 		_skill = skill;
 		_simultaneously = simultaneously;
@@ -59,7 +61,7 @@ public class OnCreatureSkillUse implements IBaseEvent {
 		return _target;
 	}
 	
-	public L2Object[] getTargets() {
+	public List<L2Object> getTargets() {
 		return _targets;
 	}
 	

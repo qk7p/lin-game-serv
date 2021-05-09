@@ -899,7 +899,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			boolean hitted;
 			switch (getAttackType()) {
 				case BOW: {
-					if ((isPlayer()) && (!canUseRangeWeapon())) {
+					if (isPlayer() && !canUseRangeWeapon()) {
 						return;
 					}
 					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeToHit + (reuse / 2), TimeUnit.MILLISECONDS);
@@ -907,7 +907,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					break;
 				}
 				case CROSSBOW: {
-					if ((isPlayer()) && (!canUseRangeWeapon())) {
+					if (isPlayer() && !canUseRangeWeapon()) {
 						return;
 					}
 					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeToHit + (reuse / 2), TimeUnit.MILLISECONDS);
@@ -1385,7 +1385,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		beginCast(skill.getSkill(), true);
 	}
 	
-	public void doCast(Skill skill, L2Character target, L2Object[] targets) {
+	public void doCast(Skill skill, L2Character target, List<L2Object> targets) {
 		if (!checkDoCastConditions(skill)) {
 			setIsCastingNow(false);
 			return;
@@ -1405,7 +1405,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		beginCast(skill, false, target, targets);
 	}
 	
-	public void doSimultaneousCast(Skill skill, L2Character target, L2Object[] targets) {
+	public void doSimultaneousCast(Skill skill, L2Character target, List<L2Object> targets) {
 		if (!checkDoCastConditions(skill)) {
 			setIsCastingSimultaneouslyNow(false);
 			return;
@@ -1435,66 +1435,12 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		
 		stopEffectsOnAction();
 		
-		// Set the target of the skill in function of Skill Type and Target Type
-		L2Character target;
-		// Get all possible targets of the skill in a table in function of the skill target type
-		L2Object[] targets = skill.getTargetList(this);
-		
-		boolean doit = false;
-		
-		// AURA skills should always be using caster as target
-		switch (skill.getTargetType()) {
-			case AREA_SUMMON: // We need it to correct facing
-				target = getSummon();
-				break;
-			case AURA:
-			case AURA_CORPSE_MOB:
-			case FRONT_AURA:
-			case BEHIND_AURA:
-			case GROUND:
-			case AURA_FRIENDLY:
-			case AURA_UNDEAD_ENEMY:
-				target = this;
-				break;
-			case SELF:
-			case PET:
-			case SERVITOR:
-			case SUMMON:
-			case OWNER_PET:
-			case PARTY:
-			case CLAN:
-			case PARTY_CLAN:
-			case COMMAND_CHANNEL:
-				doit = true;
-			default:
-				if (targets.length == 0) {
-					if (simultaneously) {
-						setIsCastingSimultaneouslyNow(false);
-					} else {
-						setIsCastingNow(false);
-					}
-					// Send a Server->Client packet ActionFailed to the L2PcInstance
-					if (isPlayer()) {
-						sendPacket(ActionFailed.STATIC_PACKET);
-						getAI().setIntention(AI_INTENTION_ACTIVE);
-					}
-					return;
-				}
-				
-				if ((skill.isContinuous() && !skill.isDebuff()) || skill.hasEffectType(L2EffectType.CP, L2EffectType.HP)) {
-					doit = true;
-				}
-				
-				if (doit) {
-					target = (L2Character) targets[0];
-				} else {
-					target = (L2Character) getTarget();
-				}
-		}
-		beginCast(skill, simultaneously, target, targets);
+		final var target = skill.getTargetType().getTarget(skill, this, _target);
+		final var targets = skill.getTargetType().getTargets(skill, this, _target);
+		beginCast(skill, simultaneously, (L2Character) target, targets);
 	}
 	
-	private void beginCast(Skill skill, boolean simultaneously, L2Character target, L2Object[] targets) {
+	private void beginCast(Skill skill, boolean simultaneously, L2Character target, List<L2Object> targets) {
 		if (target == null) {
 			if (simultaneously) {
 				setIsCastingSimultaneouslyNow(false);
@@ -1508,7 +1454,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			return;
 		}
 		
-		final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new OnCreatureSkillUse(this, skill, simultaneously, target, targets), this, TerminateReturn.class);
+		final var term = EventDispatcher.getInstance().notifyEvent(new OnCreatureSkillUse(this, skill, simultaneously, target, targets), this, TerminateReturn.class);
 		if ((term != null) && term.terminate()) {
 			if (simultaneously) {
 				setIsCastingSimultaneouslyNow(false);
@@ -4557,28 +4503,12 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 * @param mut
 	 */
 	public void onMagicLaunchedTimer(MagicUseTask mut) {
-		final Skill skill = mut.getSkill();
-		L2Object[] targets = mut.getTargets();
+		final var skill = mut.getSkill();
+		final var targets = mut.getTargets();
 		
-		if ((skill == null) || (targets == null)) {
+		if ((skill == null) || (targets == null) || targets.isEmpty()) {
 			abortCast();
 			return;
-		}
-		
-		if (targets.length == 0) {
-			switch (skill.getTargetType()) {
-				// only AURA-type skills can be cast without target
-				case AURA:
-				case FRONT_AURA:
-				case BEHIND_AURA:
-				case AURA_CORPSE_MOB:
-				case AURA_FRIENDLY:
-				case AURA_UNDEAD_ENEMY:
-					break;
-				default:
-					abortCast();
-					return;
-			}
 		}
 		
 		// Escaping from under skill's radius and peace zone check. First version, not perfect in AoE skills.
@@ -4589,7 +4519,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			escapeRange = skill.getAffectRange();
 		}
 		
-		if ((targets.length > 0) && (escapeRange > 0)) {
+		if (!targets.isEmpty() && (escapeRange > 0)) {
 			int skipRange = 0;
 			int skipLOS = 0;
 			int skipPeaceZone = 0;
@@ -4637,7 +4567,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 				abortCast();
 				return;
 			}
-			mut.setTargets(targetList.toArray(new L2Object[targetList.size()]));
+			mut.setTargets(targetList);
 		}
 		
 		// Ensure that a cast is in progress
@@ -4664,7 +4594,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	// Runs in the end of skill casting
 	public void onMagicHitTimer(MagicUseTask mut) {
 		final Skill skill = mut.getSkill();
-		final L2Object[] targets = mut.getTargets();
+		final var targets = mut.getTargets();
 		
 		if ((skill == null) || (targets == null)) {
 			abortCast();
@@ -4771,7 +4701,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		setIsCastingSimultaneouslyNow(false);
 		
 		final Skill skill = mut.getSkill();
-		final L2Object target = mut.getTargets().length > 0 ? mut.getTargets()[0] : null;
+		final L2Object target = !mut.getTargets().isEmpty() ? mut.getTargets().get(0) : null;
 		
 		// On each repeat recharge shots before cast.
 		if (mut.getCount() > 0) {
@@ -4785,7 +4715,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			}
 		}
 		
-		if (skill.isBad() && (skill.getTargetType() != TargetType.UNLOCKABLE)) {
+		if (skill.isBad() && (skill.getTargetType() != TargetType.DOOR_TREASURE)) {
 			getAI().clientStartAutoAttack();
 		}
 		
@@ -4824,10 +4754,10 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	
 	/**
 	 * Launch the magic skill and calculate its effects on each target contained in the targets table.
-	 * @param skill The L2Skill to use
-	 * @param targets The table of L2Object targets
+	 * @param skill the skill
+	 * @param targets the targets
 	 */
-	public void callSkill(Skill skill, L2Object[] targets) {
+	public void callSkill(Skill skill, List<L2Object> targets) {
 		try {
 			L2Weapon activeWeapon = getActiveWeaponItem();
 			
@@ -4963,7 +4893,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 								int skillEffectPoint = skill.getEffectPoint();
 								
 								if (player.hasSummon()) {
-									if ((targets.length == 1) && Util.contains(targets, player.getSummon())) {
+									if ((targets.size() == 1) && targets.contains(player.getSummon())) {
 										skillEffectPoint = 0;
 									}
 								}
@@ -5520,10 +5450,8 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					disableSkill(skill, skill.getReuseDelay());
 				}
 				
-				// @formatter:off
-				final L2Object[] targets = !ignoreTargetType ? skill.getTargetList(this, false, target) : new L2Character[]{ target };
-				// @formatter:on
-				if (targets.length == 0) {
+				final List<L2Object> targets = !ignoreTargetType ? skill.getTargets(this, target) : List.of(target);
+				if (targets.isEmpty()) {
 					return;
 				}
 				

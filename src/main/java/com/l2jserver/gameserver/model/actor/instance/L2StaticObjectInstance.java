@@ -39,10 +39,14 @@ import com.l2jserver.gameserver.network.serverpackets.StaticObject;
 public final class L2StaticObjectInstance extends L2Character {
 	/** The interaction distance of the L2StaticObjectInstance */
 	public static final int INTERACTION_DISTANCE = 150;
+	public static final int MAP = 0;
+	public static final int CHAIR_THRONE = 1;
+	public static final int SIGNBOARD = 2;
+	public static final int FLAGPOLE = 3;
 	
 	private final int _staticObjectId;
 	private int _meshIndex = 0; // 0 - static objects, alternate static objects
-	private int _type = -1; // 0 - map signs, 1 - throne , 2 - arena signs
+	private int _type = -1; // 0 - map signs, 1 - throne , 2 - arena signs, 3 - flagpole
 	private ShowTownMap _map;
 	
 	public L2StaticObjectInstance(L2CharTemplate template, int staticId) {

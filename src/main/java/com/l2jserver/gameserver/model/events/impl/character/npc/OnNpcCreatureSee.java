@@ -24,7 +24,7 @@ import com.l2jserver.gameserver.model.events.EventType;
 import com.l2jserver.gameserver.model.events.impl.IBaseEvent;
 
 /**
- * An instantly executed event when L2Character is killed by L2Character.
+ * On Npc Creature See is fired when a NPC sees a creature.
  * @author UnAfraid
  */
 public class OnNpcCreatureSee implements IBaseEvent {

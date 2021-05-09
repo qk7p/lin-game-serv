@@ -1282,107 +1282,15 @@ public class L2CharacterAI extends AbstractAI {
 		}
 	}
 	
+	@Deprecated
 	public boolean canAura(Skill sk) {
-		if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA) || (sk.getTargetType() == TargetType.AURA_CORPSE_MOB) || (sk.getTargetType() == TargetType.AURA_UNDEAD_ENEMY)) {
-			for (L2Object target : _actor.getKnownList().getKnownCharactersInRadius(sk.getAffectRange())) {
-				if (target == getAttackTarget()) {
-					return true;
-				}
-			}
-		}
+		// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance.
 		return false;
 	}
 	
+	@Deprecated
 	public boolean canAOE(Skill sk) {
-		if (sk.hasEffectType(L2EffectType.DISPEL)) {
-			if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA) || (sk.getTargetType() == TargetType.AURA_CORPSE_MOB) || (sk.getTargetType() == TargetType.AURA_UNDEAD_ENEMY)) {
-				boolean canCast = true;
-				for (L2Character target : _actor.getKnownList().getKnownCharactersInRadius(sk.getAffectRange())) {
-					if (!GeoData.getInstance().canSeeTarget(_actor, target)) {
-						continue;
-					}
-					if (target instanceof L2Attackable) {
-						L2Npc actors = ((L2Npc) _actor);
-						
-						if (!actors.isChaos()) {
-							continue;
-						}
-					}
-					
-					if (target.isAffectedBySkill(sk.getId())) {
-						canCast = false;
-					}
-				}
-				if (canCast) {
-					return true;
-				}
-			} else if ((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) {
-				boolean canCast = true;
-				for (L2Character target : getAttackTarget().getKnownList().getKnownCharactersInRadius(sk.getAffectRange())) {
-					if (!GeoData.getInstance().canSeeTarget(_actor, target) || (target == null)) {
-						continue;
-					}
-					if (target instanceof L2Attackable) {
-						L2Npc actors = ((L2Npc) _actor);
-						
-						if (!actors.isChaos()) {
-							continue;
-						}
-					}
-					
-					if (!target.getEffectList().isEmpty()) {
-						canCast = true;
-					}
-				}
-				if (canCast) {
-					return true;
-				}
-			}
-		} else {
-			if ((sk.getTargetType() == TargetType.AURA) || (sk.getTargetType() == TargetType.BEHIND_AURA) || (sk.getTargetType() == TargetType.FRONT_AURA) || (sk.getTargetType() == TargetType.AURA_CORPSE_MOB) || (sk.getTargetType() == TargetType.AURA_UNDEAD_ENEMY)) {
-				boolean canCast = false;
-				for (L2Character target : _actor.getKnownList().getKnownCharactersInRadius(sk.getAffectRange())) {
-					if (!GeoData.getInstance().canSeeTarget(_actor, target)) {
-						continue;
-					}
-					if (target instanceof L2Attackable) {
-						L2Npc actors = ((L2Npc) _actor);
-						
-						if (!actors.isChaos()) {
-							continue;
-						}
-					}
-					
-					if (!target.getEffectList().isEmpty()) {
-						canCast = true;
-					}
-				}
-				if (canCast) {
-					return true;
-				}
-			} else if ((sk.getTargetType() == TargetType.AREA) || (sk.getTargetType() == TargetType.BEHIND_AREA) || (sk.getTargetType() == TargetType.FRONT_AREA)) {
-				boolean canCast = true;
-				for (L2Character target : getAttackTarget().getKnownList().getKnownCharactersInRadius(sk.getAffectRange())) {
-					if (!GeoData.getInstance().canSeeTarget(_actor, target)) {
-						continue;
-					}
-					
-					if (target instanceof L2Attackable) {
-						L2Npc actors = ((L2Npc) _actor);
-						if (!actors.isChaos()) {
-							continue;
-						}
-					}
-					
-					if (target.isAffectedBySkill(sk.getId())) {
-						canCast = false;
-					}
-				}
-				if (canCast) {
-					return true;
-				}
-			}
-		}
+		// TODO(Zoey76): Handle scope RANGE skills, include Geodata check and distance.
 		return false;
 	}
 	
