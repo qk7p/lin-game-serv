@@ -1039,7 +1039,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 						continue;
 					}
 					
-					final Skill skill = aiLongRangeSkills.get(Rnd.get(aiShortRangeSkills.size()));
+					final Skill skill = aiLongRangeSkills.get(Rnd.get(aiLongRangeSkills.size()));
 					if (Util.checkIfInRange(skill.getCastRange(), getActiveChar(), mostHate, false) && npc.hasSkillChance()) {
 						if (GeoData.getInstance().canSeeTarget(npc, mostHate)) {
 							clientStopMoving(null);
