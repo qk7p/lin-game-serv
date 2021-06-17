@@ -244,7 +244,7 @@ public class L2Npc extends L2Character {
 					}
 				}
 				
-				if (!(_npc.isDead() || _npc.isStunned() || _npc.isSleeping() || _npc.isParalyzed())) {
+				if (!(_npc.isDead() || _npc.isStunned() || _npc.isSleeping())) {
 					_npc.onRandomAnimation(Rnd.get(2, 3));
 				}
 				

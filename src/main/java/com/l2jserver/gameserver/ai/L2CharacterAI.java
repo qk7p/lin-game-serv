@@ -524,24 +524,6 @@ public class L2CharacterAI extends AbstractAI {
 		onEvtAttacked(attacker);
 	}
 	
-	@Override
-	protected void onEvtParalyzed(L2Character attacker) {
-		// Stop the actor auto-attack client side by sending Server->Client packet AutoAttackStop (broadcast)
-		_actor.broadcastPacket(new AutoAttackStop(_actor.getObjectId()));
-		if (AttackStanceTaskManager.getInstance().hasAttackStanceTask(_actor)) {
-			AttackStanceTaskManager.getInstance().removeAttackStanceTask(_actor);
-		}
-		
-		// Stop Server AutoAttack also
-		setAutoAttacking(false);
-		
-		// Stop the actor movement server side AND client side by sending Server->Client packet StopMove/StopRotation (broadcast)
-		clientStopMoving(null);
-		
-		// Launch actions corresponding to the Event onAttacked (only for L2AttackableAI after the stunning period)
-		onEvtAttacked(attacker);
-	}
-	
 	/**
 	 * Launch actions corresponding to the Event Sleeping.<br>
 	 * <B><U> Actions</U> :</B>
@@ -1180,7 +1162,7 @@ public class L2CharacterAI extends AbstractAI {
 					hasHealOrResurrect = true;
 				} else if (sk.hasEffectType(L2EffectType.SLEEP)) {
 					sleepSkills.add(sk);
-				} else if (sk.hasEffectType(L2EffectType.STUN, L2EffectType.PARALYZE)) {
+				} else if (sk.hasEffectType(L2EffectType.STUN)) {
 					// hardcoding petrification until improvements are made to
 					// EffectTemplate... petrification is totally different for
 					// AI than paralyze

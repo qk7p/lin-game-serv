@@ -1299,7 +1299,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			}
 		}
 		
-		if (sk.hasEffectType(L2EffectType.STUN, L2EffectType.ROOT, L2EffectType.PARALYZE, L2EffectType.MUTE, L2EffectType.FEAR)) {
+		if (sk.hasEffectType(L2EffectType.STUN, L2EffectType.ROOT, L2EffectType.MUTE, L2EffectType.FEAR)) {
 			if (GeoData.getInstance().canSeeTarget(caster, attackTarget) && !canAOE(sk) && (dist2 <= srange)) {
 				if (!attackTarget.isAffectedBySkill(sk.getId())) {
 					clientStopMoving(null);

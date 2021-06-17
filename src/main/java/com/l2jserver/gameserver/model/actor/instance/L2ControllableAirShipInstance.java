@@ -124,7 +124,7 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance {
 				} else if (player.isSitting()) {
 					player.sendPacket(SystemMessageId.YOU_CANNOT_CONTROL_THE_HELM_WHILE_IN_A_SITTING_POSITION);
 					return false;
-				} else if (player.isParalyzed()) {
+				} else if (player.isStunned()) {
 					player.sendPacket(SystemMessageId.YOU_CANNOT_CONTROL_THE_HELM_WHILE_YOU_ARE_PETRIFIED);
 					return false;
 				} else if (player.isCursedWeaponEquipped()) {

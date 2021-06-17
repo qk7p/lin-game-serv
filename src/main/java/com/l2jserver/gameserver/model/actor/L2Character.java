@@ -195,7 +195,6 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	private boolean _isDead = false;
 	private boolean _isImmobilized = false;
 	private boolean _isOverloaded = false; // the char is carrying too much
-	private boolean _isParalyzed = false;
 	private boolean _isPendingRevive = false;
 	private boolean _isRunning = false;
 	private boolean _isNoRndWalk = false; // Is no random walk
@@ -2239,14 +2238,14 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 * @return True if the L2Character can't use its skills (ex : stun, sleep...).
 	 */
 	public final boolean isAllSkillsDisabled() {
-		return _allSkillsDisabled || isStunned() || isSleeping() || isParalyzed();
+		return _allSkillsDisabled || isStunned() || isSleeping();
 	}
 	
 	/**
-	 * @return True if the L2Character can't attack (stun, sleep, attackEndTime, fakeDeath, paralyze, attackMute).
+	 * @return True if the L2Character can't attack (stun, sleep, attackEndTime, fakeDeath, attackMute).
 	 */
 	public boolean isAttackingDisabled() {
-		return isFlying() || isStunned() || isSleeping() || isAttackingNow() || isAlikeDead() || isParalyzed() || isPhysicalAttackMuted() || isCoreAIDisabled();
+		return isFlying() || isStunned() || isSleeping() || isAttackingNow() || isAlikeDead() || isPhysicalAttackMuted() || isCoreAIDisabled();
 	}
 	
 	public final Calculator[] getCalculators() {
@@ -2296,11 +2295,11 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	}
 	
 	/**
-	 * @return True if the L2Character can't move (stun, root, sleep, overload, paralyzed).
+	 * Verifies if the creature cannot move.
+	 * @return {@code true} if the creature cannot move, {@code false} otherwise
 	 */
 	public boolean isMovementDisabled() {
-		// check for isTeleporting to prevent teleport cheating (if appear packet not received)
-		return isStunned() || isRooted() || isSleeping() || isOverloaded() || isParalyzed() || isImmobilized() || isAlikeDead() || isTeleporting();
+		return isStunned() || isRooted() || isSleeping() || isOverloaded() || isImmobilized() || isAlikeDead() || isTeleporting();
 	}
 	
 	/**
@@ -2320,14 +2319,6 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 */
 	public final void setIsOverloaded(boolean value) {
 		_isOverloaded = value;
-	}
-	
-	public final boolean isParalyzed() {
-		return _isParalyzed || isAffected(EffectFlag.PARALYZED);
-	}
-	
-	public final void setIsParalyzed(boolean value) {
-		_isParalyzed = value;
 	}
 	
 	public final boolean isPendingRevive() {
@@ -2678,7 +2669,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 * </ul>
 	 */
 	public final void startStunning() {
-		// Aborts any attacks/casts if stunned
+		// Aborts any attacks/casts if stuned
 		abortAttack();
 		abortCast();
 		stopMove(null);
@@ -2687,14 +2678,6 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
 		}
 		updateAbnormalEffect();
-	}
-	
-	public final void startParalyze() {
-		// Aborts any attacks/casts if paralyzed
-		abortAttack();
-		abortCast();
-		stopMove(null);
-		getAI().notifyEvent(CtrlEvent.EVT_PARALYZED);
 	}
 	
 	/**

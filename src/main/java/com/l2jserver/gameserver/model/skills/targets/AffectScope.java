@@ -51,7 +51,7 @@ public enum AffectScope {
 			return List.of();
 		}
 	},
-	/** Affects dead clan mates of the player. */
+	/** Affects dead clan mates of the target. */
 	DEAD_PLEDGE {
 		@Override
 		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
@@ -126,6 +126,14 @@ public enum AffectScope {
 				targets.add(targetPlayer);
 			}
 			return targets;
+		}
+	},
+	/** Affects dead command channel mates of the target. */
+	DEAD_UNION {
+		@Override
+		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
+			// TODO(Zoey76): Implement.
+			return null;
 		}
 	},
 	/** Affects fan area. */

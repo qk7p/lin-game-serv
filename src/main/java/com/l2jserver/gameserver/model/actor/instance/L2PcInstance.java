@@ -2503,7 +2503,7 @@ public final class L2PcInstance extends L2Playable {
 			broadcastPacket(new ChangeWaitType(this, ChangeWaitType.WT_SITTING));
 			// Schedule a sit down task to wait for the animation to finish
 			ThreadPoolManager.getInstance().scheduleGeneral(new SitDownTask(this), 2500);
-			setIsParalyzed(true);
+			startStunning();
 		}
 	}
 	
@@ -6419,14 +6419,13 @@ public final class L2PcInstance extends L2Playable {
 		// ************************************* Check Player State *******************************************
 		
 		// Abnormal effects(ex : Stun, Sleep...) are checked in L2Character useMagic()
-		if (isOutOfControl() || isParalyzed() || isStunned() || isSleeping()) {
+		if (isOutOfControl() || isStunned() || isSleeping()) {
 			sendPacket(ActionFailed.STATIC_PACKET);
 			return false;
 		}
 		
 		// Check if the player is dead
 		if (isDead()) {
-			// Send a Server->Client packet ActionFailed to the L2PcInstance
 			sendPacket(ActionFailed.STATIC_PACKET);
 			return false;
 		}
@@ -7180,8 +7179,7 @@ public final class L2PcInstance extends L2Playable {
 		
 		_observerMode = true;
 		setTarget(null);
-		setIsParalyzed(true);
-		startParalyze();
+		startStunning();
 		setIsInvul(true);
 		setInvisible(true);
 		sendPacket(new ObservationMode(loc));
@@ -7244,7 +7242,7 @@ public final class L2PcInstance extends L2Playable {
 		unsetLastLocation();
 		sendPacket(new ObservationReturn(getLocation()));
 		
-		setIsParalyzed(false);
+		stopStunning(false);
 		if (!isGM()) {
 			setInvisible(false);
 			setIsInvul(false);
@@ -9880,7 +9878,7 @@ public final class L2PcInstance extends L2Playable {
 		} else if (isInOlympiadMode()) {
 			sendPacket(SystemMessageId.YOU_CANNOT_USE_MY_TELEPORTS_WHILE_PARTICIPATING_IN_AN_OLYMPIAD_MATCH);
 			return false;
-		} else if (isParalyzed()) {
+		} else if (isStunned()) {
 			sendPacket(SystemMessageId.YOU_CANNOT_USE_MY_TELEPORTS_WHILE_YOU_ARE_PARALYZED);
 			return false;
 		} else if (isDead()) {

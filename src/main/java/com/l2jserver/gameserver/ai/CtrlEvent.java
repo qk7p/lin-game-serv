@@ -36,8 +36,6 @@ public enum CtrlEvent {
 	EVT_AGGRESSION,
 	/** Actor is in stun state */
 	EVT_STUNNED,
-	/** Actor is paralyzed or petrified */
-	EVT_PARALYZED,
 	/** Actor starts/stops sleeping */
 	EVT_SLEEPING,
 	/** Actor is in rooted state (cannot move) */

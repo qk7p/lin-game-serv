@@ -132,7 +132,7 @@ public final class UseItem extends L2GameClientPacket {
 		}
 		
 		// No UseItem is allowed while the player is in special conditions
-		if (activeChar.isStunned() || activeChar.isParalyzed() || activeChar.isSleeping() || activeChar.isAfraid() || activeChar.isAlikeDead()) {
+		if (activeChar.isStunned() || activeChar.isSleeping() || activeChar.isAfraid() || activeChar.isAlikeDead()) {
 			return;
 		}
 		

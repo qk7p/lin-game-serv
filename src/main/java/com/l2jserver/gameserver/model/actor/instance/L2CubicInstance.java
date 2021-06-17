@@ -479,7 +479,7 @@ public final class L2CubicInstance implements IIdentifiable {
 			
 			byte shld = Formulas.calcShldUse(_owner, target, skill);
 			
-			if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.PARALYZE, L2EffectType.ROOT, L2EffectType.AGGRESSION)) {
+			if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.ROOT, L2EffectType.AGGRESSION)) {
 				if (Formulas.calcCubicSkillSuccess(this, target, skill, shld)) {
 					// Apply effects
 					skill.applyEffects(_owner, target, false, false, true, 0);

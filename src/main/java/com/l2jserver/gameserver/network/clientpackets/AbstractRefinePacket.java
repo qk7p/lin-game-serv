@@ -355,7 +355,7 @@ public abstract class AbstractRefinePacket extends L2GameClientPacket {
 			player.sendPacket(SystemMessageId.YOU_CANNOT_AUGMENT_ITEMS_WHILE_DEAD);
 			return false;
 		}
-		if (player.isParalyzed()) {
+		if (player.isStunned()) {
 			player.sendPacket(SystemMessageId.YOU_CANNOT_AUGMENT_ITEMS_WHILE_PARALYZED);
 			return false;
 		}

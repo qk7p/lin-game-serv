@@ -138,7 +138,7 @@ public final class CubicAction implements Runnable {
 						_cubic.useCubicMdam(skill, targets);
 					} else if (skill.hasEffectType(L2EffectType.HP_DRAIN)) {
 						_cubic.useCubicDrain(skill, targets);
-					} else if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.ROOT, L2EffectType.PARALYZE)) {
+					} else if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.ROOT)) {
 						_cubic.useCubicDisabler(skill, targets);
 					} else if (skill.hasEffectType(L2EffectType.DMG_OVER_TIME)) {
 						_cubic.useCubicContinuous(skill, targets);

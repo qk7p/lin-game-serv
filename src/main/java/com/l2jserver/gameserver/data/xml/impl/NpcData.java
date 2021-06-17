@@ -419,9 +419,6 @@ public class NpcData implements IXmlReader {
 										} else if (skill.hasEffectType(L2EffectType.MUTE, L2EffectType.FEAR)) {
 											aiSkillScopes.add(AISkillScope.COT);
 											aiSkillScopes.add(shortOrLongRangeScope);
-										} else if (skill.hasEffectType(L2EffectType.PARALYZE)) {
-											aiSkillScopes.add(AISkillScope.IMMOBILIZE);
-											aiSkillScopes.add(shortOrLongRangeScope);
 										} else if (skill.hasEffectType(L2EffectType.DMG_OVER_TIME)) {
 											aiSkillScopes.add(shortOrLongRangeScope);
 										} else if (skill.hasEffectType(L2EffectType.RESURRECTION)) {

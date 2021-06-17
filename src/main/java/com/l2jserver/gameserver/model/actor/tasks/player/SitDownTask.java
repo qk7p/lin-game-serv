@@ -34,7 +34,7 @@ public class SitDownTask implements Runnable {
 	@Override
 	public void run() {
 		if (_player != null) {
-			_player.setIsParalyzed(false);
+			_player.stopStunning(false);
 		}
 	}
 }
