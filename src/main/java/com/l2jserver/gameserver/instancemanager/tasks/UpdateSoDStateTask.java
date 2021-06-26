@@ -28,7 +28,7 @@ public final class UpdateSoDStateTask implements Runnable {
 	@Override
 	public void run() {
 		final GraciaSeedsManager manager = GraciaSeedsManager.getInstance();
-		manager.setSoDState(1, true);
+		manager.setSoDState(5, true, true);
 		manager.updateSodState();
 	}
 }

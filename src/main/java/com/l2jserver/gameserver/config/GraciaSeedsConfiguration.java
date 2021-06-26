@@ -22,6 +22,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.aeonbits.owner.Config.HotReloadType.ASYNC;
 import static org.aeonbits.owner.Config.LoadType.MERGE;
 
+import com.l2jserver.gameserver.config.converter.Minutes2MillisecondsConverter;
+
 import org.aeonbits.owner.Config.HotReload;
 import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
@@ -45,5 +47,6 @@ public interface GraciaSeedsConfiguration extends Reloadable {
 	Integer getTiatKillCountForNextState();
 	
 	@Key("Stage2Length")
+	@ConverterClass(Minutes2MillisecondsConverter.class)
 	Integer getStage2Length();
 }

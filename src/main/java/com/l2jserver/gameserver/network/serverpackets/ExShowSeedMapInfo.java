@@ -37,7 +37,7 @@ public class ExShowSeedMapInfo extends L2GameServerPacket {
 		writeD(-246857); // x coord
 		writeD(251960); // y coord
 		writeD(4331); // z coord
-		writeD(2770 + GraciaSeedsManager.getInstance().getSoDState()); // sys msg id
+		writeD(2770 + Math.min(GraciaSeedsManager.getInstance().getSoDState(), 3)); // sys msg id
 		
 		// Seed of Infinity
 		writeD(-213770); // x coord
