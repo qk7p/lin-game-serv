@@ -18,7 +18,7 @@
  */
 package com.l2jserver.gameserver.model.skills.targets;
 
-import static com.l2jserver.gameserver.config.Configuration.character;
+import static com.l2jserver.gameserver.model.zone.ZoneId.SIEGE;
 import static java.util.Comparator.comparingDouble;
 
 import java.util.ArrayList;
@@ -34,7 +34,6 @@ import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.entity.TvTEvent;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.util.Util;
 
 /**
@@ -70,6 +69,7 @@ public enum AffectScope {
 			final var affectLimit = skill.getAffectLimit();
 			final var affectObject = skill.getAffectObject();
 			final var targets = new ArrayList<L2Object>();
+			final var inDuel = player.isInDuel();
 			for (var object : L2World.getInstance().getVisibleObjects(target, skill.getAffectRange())) {
 				if ((affectLimit > 0) && (targets.size() >= affectLimit)) {
 					break;
@@ -88,7 +88,7 @@ public enum AffectScope {
 					continue;
 				}
 				
-				if (player.isInDuel()) {
+				if (inDuel) {
 					if (player.getDuelId() != targetPlayer.getDuelId()) {
 						continue;
 					}
@@ -115,7 +115,7 @@ public enum AffectScope {
 					}
 				}
 				
-				if (targetPlayer.isInsideZone(ZoneId.SIEGE) && !targetPlayer.isInSiege()) {
+				if (targetPlayer.isInsideZone(SIEGE) && !targetPlayer.isInSiege()) {
 					continue;
 				}
 				
@@ -203,28 +203,29 @@ public enum AffectScope {
 						break;
 					}
 					
-					if (!Util.checkIfInRange(character().getPartyRange(), creature, partyMember, true)) {
+					if (!Util.checkIfInRange(affectRange, creature, partyMember, true)) {
 						continue;
 					}
 					
 					// TODO(Zoey76): Check affect object?
 					
-					if (Skill.addCharacter(creature, partyMember, affectRange, false)) {
-						targets.add(partyMember);
-					}
+					targets.add(partyMember);
 					
-					if (Skill.addSummon(creature, partyMember, affectRange, false)) {
-						targets.add(partyMember.getSummon());
+					if (partyMember.hasSummon()) {
+						final var summon = partyMember.getSummon();
+						if (Util.checkIfInRange(affectRange, creature, summon, true)) {
+							targets.add(summon);
+						}
 					}
 				}
 			} else {
 				final var player = target.getActingPlayer();
-				if (Skill.addCharacter(creature, player, affectRange, false)) {
-					targets.add(player);
-				}
-				
-				if (Skill.addSummon(creature, player, affectRange, false)) {
-					targets.add(player.getSummon());
+				targets.add(player);
+				if (player.hasSummon()) {
+					final var summon = player.getSummon();
+					if (Util.checkIfInRange(affectRange, creature, summon, true)) {
+						targets.add(summon);
+					}
 				}
 			}
 			return targets;
@@ -265,7 +266,8 @@ public enum AffectScope {
 							if (targetPlayer.getDuelId() != clanMemberPlayer.getDuelId()) {
 								continue;
 							}
-							if (targetPlayer.isInParty() && clanMemberPlayer.isInParty() && (targetPlayer.getParty().getLeaderObjectId() != clanMemberPlayer.getParty().getLeaderObjectId())) {
+							if (targetPlayer.isInParty() && clanMemberPlayer.isInParty() && //
+								(targetPlayer.getParty().getLeaderObjectId() != clanMemberPlayer.getParty().getLeaderObjectId())) {
 								continue;
 							}
 						}
@@ -283,27 +285,32 @@ public enum AffectScope {
 								continue;
 							}
 							
-							if (targetPlayer.getOlympiadSide() != clanMemberPlayer.getOlympiadGameId()) {
+							if (targetPlayer.getOlympiadSide() != clanMemberPlayer.getOlympiadSide()) {
 								continue;
 							}
 						}
 						
-						if (Skill.addCharacter(targetPlayer, clanMemberPlayer, affectRange, false)) {
+						if (Util.checkIfInRange(affectRange, targetPlayer, clanMemberPlayer, true)) {
 							targets.add(clanMemberPlayer);
 						}
 						
-						if (Skill.addSummon(targetPlayer, clanMemberPlayer, affectRange, false)) {
-							targets.add(clanMemberPlayer.getSummon());
+						if (clanMemberPlayer.hasSummon()) {
+							final var summon = clanMemberPlayer.getSummon();
+							if (Util.checkIfInRange(affectRange, targetPlayer, summon, true)) {
+								targets.add(summon);
+							}
 						}
 					}
 				} else {
-					final var player = target.getActingPlayer();
-					if (Skill.addCharacter(player, player, affectRange, false)) {
-						targets.add(player);
+					if (Util.checkIfInRange(affectRange, targetPlayer, targetPlayer, true)) {
+						targets.add(targetPlayer);
 					}
 					
-					if (Skill.addSummon(player, player, affectRange, false)) {
-						targets.add(player.getSummon());
+					if (targetPlayer.hasSummon()) {
+						final var summon = targetPlayer.getSummon();
+						if (Util.checkIfInRange(affectRange, targetPlayer, summon, true)) {
+							targets.add(summon);
+						}
 					}
 				}
 			} else if (target.isNpc()) {
@@ -345,7 +352,7 @@ public enum AffectScope {
 			final var affectLimit = skill.getAffectLimit();
 			final var affectObject = skill.getAffectObject();
 			final var creature = (L2Character) target;
-			return creature.getKnownList().getKnownCharactersInRadius(skill.getAffectRange()) //
+			return L2World.getInstance().getVisibleObjects(target, skill.getAffectRange()) //
 				.stream() //
 				.filter(c -> affectObject.affectObject(creature, c)) //
 				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE) //

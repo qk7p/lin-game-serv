@@ -67,7 +67,6 @@ import com.l2jserver.gameserver.model.stats.functions.FuncTemplate;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
-import com.l2jserver.gameserver.util.Util;
 
 public final class Skill implements IIdentifiable {
 	private static final Logger _log = Logger.getLogger(Skill.class.getName());
@@ -890,20 +889,6 @@ public final class Skill implements IIdentifiable {
 			}
 		}
 		return GeoData.getInstance().canSeeTarget(caster, target);
-	}
-	
-	public static boolean addSummon(L2Character caster, L2PcInstance owner, int radius, boolean isDead) {
-		if (!owner.hasSummon()) {
-			return false;
-		}
-		return addCharacter(caster, owner.getSummon(), radius, isDead);
-	}
-	
-	public static boolean addCharacter(L2Character caster, L2Character target, int radius, boolean isDead) {
-		if (isDead != target.isDead()) {
-			return false;
-		}
-		return (radius <= 0) || Util.checkIfInRange(radius, caster, target, true);
 	}
 	
 	public List<AbstractFunction> getStatFuncs(AbstractEffect effect, L2Character player) {
