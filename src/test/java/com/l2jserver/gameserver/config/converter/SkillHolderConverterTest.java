@@ -18,33 +18,29 @@
  */
 package com.l2jserver.gameserver.config.converter;
 
-import org.aeonbits.owner.Converter;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.l2jserver.gameserver.model.holders.SkillHolder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Skill Holder Converter test.
  * @author Zoey76
- * @version 2.6.1.0
+ * @version 2.6.3.0
  */
 public class SkillHolderConverterTest {
 	
-	private static final String PROVIDE_SKILLS = "PROVIDE_SKILLS";
+	private static final SkillHolderConverter CONVERTER = new SkillHolderConverter();
 	
-	private static final Converter<SkillHolder> CONVERTER = new SkillHolderConverter();
-	
-	@Test(dataProvider = PROVIDE_SKILLS)
+	@ParameterizedTest
+	@MethodSource("provideSkills")
 	public void convertTest(String input, int id, int level) {
 		final var result = CONVERTER.convert(null, input);
-		Assert.assertEquals(result.getSkillId(), id);
-		Assert.assertEquals(result.getSkillLvl(), level);
+		assertEquals(result.getSkillId(), id);
+		assertEquals(result.getSkillLvl(), level);
 	}
 	
-	@DataProvider(name = PROVIDE_SKILLS)
-	public Object[][] provideSkills() {
+	public static Object[][] provideSkills() {
 		return new Object[][] {
 			{
 				"1504,1",

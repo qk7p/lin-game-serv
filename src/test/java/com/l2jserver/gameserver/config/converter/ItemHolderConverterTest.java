@@ -18,33 +18,29 @@
  */
 package com.l2jserver.gameserver.config.converter;
 
-import org.aeonbits.owner.Converter;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.l2jserver.gameserver.model.holders.ItemHolder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Item Holder Converter test.
  * @author Zoey76
- * @version 2.6.1.0
+ * @version 2.6.3.0
  */
 public class ItemHolderConverterTest {
 	
-	private static final String PROVIDE_ITEMS = "PROVIDE_ITEMS";
+	private static final ItemHolderConverter CONVERTER = new ItemHolderConverter();
 	
-	private static final Converter<ItemHolder> CONVERTER = new ItemHolderConverter();
-	
-	@Test(dataProvider = PROVIDE_ITEMS)
+	@ParameterizedTest
+    @MethodSource("provideItems")
 	public void convertTest(String input, int id, long count) {
 		final var result = CONVERTER.convert(null, input);
-		Assert.assertEquals(result.getId(), id);
-		Assert.assertEquals(result.getCount(), count);
+		assertEquals(result.getId(), id);
+		assertEquals(result.getCount(), count);
 	}
 	
-	@DataProvider(name = PROVIDE_ITEMS)
-	public Object[][] provideItems() {
+	public static Object[][] provideItems() {
 		return new Object[][] {
 			{
 				"57,100000",

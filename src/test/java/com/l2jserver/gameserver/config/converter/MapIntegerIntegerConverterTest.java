@@ -18,31 +18,29 @@
  */
 package com.l2jserver.gameserver.config.converter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Map;
 
-import org.aeonbits.owner.Converter;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Map Integer-Integer Converter test.
  * @author Zoey76
- * @version 2.6.1.0
+ * @version 2.6.3.0
  */
 public class MapIntegerIntegerConverterTest {
 	
-	private static final String PROVIDE_KEY_VALUES = "PROVIDE_KEY_VALUES";
-	
-	private static final Converter<Map<Integer, Integer>> CONVERTER = new MapIntegerIntegerConverter();
-	
-	@Test(dataProvider = PROVIDE_KEY_VALUES)
+	private static final MapIntegerIntegerConverter CONVERTER = new MapIntegerIntegerConverter();
+
+	@ParameterizedTest
+    @MethodSource("provideKeyValues")
 	public void convertTest(String keyValues, Map<Integer, Integer> expected) {
-		Assert.assertEquals(CONVERTER.convert(null, keyValues), expected);
+		assertEquals(CONVERTER.convert(null, keyValues), expected);
 	}
 	
-	@DataProvider(name = PROVIDE_KEY_VALUES)
-	public Object[][] provideKeyValues() {
+	public static Object[][] provideKeyValues() {
 		return new Object[][] {
 			{
 				"264,3600;265,3600;266,3600;267,3600",

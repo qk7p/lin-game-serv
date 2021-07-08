@@ -27,12 +27,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
 import com.l2jserver.gameserver.util.file.filter.HTMLFilter;
 
 /**
@@ -128,7 +128,7 @@ public class HtmCache {
 	}
 	
 	public String getHtm(String prefix, String path) {
-		final var newPath = Objects.firstNonNull(prefix, "") + path;
+		final var newPath = Objects.requireNonNullElse(prefix, "") + path;
 		var content = HTML_CACHE.get(newPath);
 		if (general().lazyCache() && (content == null)) {
 			content = loadFile(new File(server().getDatapackRoot(), newPath));

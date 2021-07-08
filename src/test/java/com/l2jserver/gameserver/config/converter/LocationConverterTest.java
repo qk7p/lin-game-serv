@@ -18,32 +18,29 @@
  */
 package com.l2jserver.gameserver.config.converter;
 
-import org.aeonbits.owner.Converter;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.l2jserver.gameserver.model.Location;
 
 /**
  * Location Converter test.
  * @author Zoey76
- * @version 2.6.1.0
+ * @version 2.6.3.0
  */
 public class LocationConverterTest {
 	
-	private static final String PROVIDE_LOCATIONS = "PROVIDE_LOCATIONS";
+	private static final LocationConverter CONVERTER = new LocationConverter();
 	
-	private static final Converter<Location> CONVERTER = new LocationConverter();
-	
-	@Test(dataProvider = PROVIDE_LOCATIONS)
+	@ParameterizedTest
+    @MethodSource("provideLocations")
 	public void convertTest(String input, Location expected) {
-		final var result = CONVERTER.convert(null, input);
-		Assert.assertEquals(result, expected);
+		assertEquals(CONVERTER.convert(null, input), expected);
 	}
 	
-	@DataProvider(name = PROVIDE_LOCATIONS)
-	public Object[][] provideLocations() {
+	public static Object[][] provideLocations() {
 		return new Object[][] {
 			{
 				"83425,148585,-3406",

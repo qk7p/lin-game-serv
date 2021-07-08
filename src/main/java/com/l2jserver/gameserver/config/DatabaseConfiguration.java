@@ -30,7 +30,7 @@ import org.aeonbits.owner.Reloadable;
 /**
  * Database Configuration.
  * @author Zoey76
- * @version 2.6.1.0
+ * @version 2.6.3.0
  */
 @Sources({
 	"file:${L2J_HOME}/custom/game/config/database.properties",
@@ -41,12 +41,6 @@ import org.aeonbits.owner.Reloadable;
 @HotReload(value = 20, unit = MINUTES, type = ASYNC)
 public interface DatabaseConfiguration extends Reloadable {
 	
-	@Key("Engine")
-	String getEngine();
-	
-	@Key("Driver")
-	String getDriver();
-	
 	@Key("URL")
 	String getURL();
 	
@@ -55,9 +49,6 @@ public interface DatabaseConfiguration extends Reloadable {
 	
 	@Key("Password")
 	String getPassword();
-	
-	@Key("ConnectionPool")
-	String getConnectionPool();
 	
 	@Key("MaxConnections")
 	Integer getMaxConnections();

@@ -18,32 +18,28 @@
  */
 package com.l2jserver.gameserver.model.conditions;
 
-import static com.l2jserver.gameserver.network.SystemMessageId.CANNOT_USE_ON_YOURSELF;
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.powermock.api.easymock.PowerMock.replayAll;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
-import org.powermock.api.easymock.annotation.Mock;
-import org.powermock.api.easymock.annotation.MockNice;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
-import com.l2jserver.gameserver.test.AbstractTest;
 
 /**
  * Condition Target My Party test.
  * @author Zoey76
- * @version 2.6.2.0
+ * @version 2.6.3.0
  */
-public class ConditionTargetMyPartyTest extends AbstractTest {
+@ExtendWith(MockitoExtension.class)
+public class ConditionTargetMyPartyTest {
 	
-	@MockNice
+	@Mock
 	private Skill skill;
 	@Mock
 	private L2Character effector;
@@ -54,66 +50,55 @@ public class ConditionTargetMyPartyTest extends AbstractTest {
 	@Mock
 	private L2PcInstance otherPlayer;
 	
-	private final ConditionTargetMyParty conditionIncludeMe = new ConditionTargetMyParty("INCLUDE_ME");
+	private static final ConditionTargetMyParty CONDITION_INCLUDE_ME = new ConditionTargetMyParty("INCLUDE_ME");
 	
-	private final ConditionTargetMyParty conditionExceptMe = new ConditionTargetMyParty("EXCEPT_ME");
+	private static final ConditionTargetMyParty CONDITION_EXCEPT_ME = new ConditionTargetMyParty("EXCEPT_ME");
 	
 	@Test
 	public void test_null_player() {
-		assertFalse(conditionIncludeMe.testImpl(effector, effected, skill, null));
+		assertFalse(CONDITION_INCLUDE_ME.testImpl(effector, effected, skill, null));
 	}
 	
 	@Test
 	public void test_self_target_exclude_me() {
-		expect(effector.getActingPlayer()).andReturn(player);
-		effector.sendPacket(CANNOT_USE_ON_YOURSELF);
-		expectLastCall().once();
-		replayAll();
+		when(effector.getActingPlayer()).thenReturn(player);
 		
-		assertFalse(conditionExceptMe.testImpl(effector, player, skill, null));
+		assertFalse(CONDITION_EXCEPT_ME.testImpl(effector, player, skill, null));
 	}
 	
 	@Test
 	public void test_player_in_party_target_not_in_party() {
-		expect(effector.getActingPlayer()).andReturn(player);
-		expect(player.isInParty()).andReturn(true);
-		expect(player.isInPartyWith(effected)).andReturn(false);
-		effector.sendPacket(anyObject(SystemMessage.class));
-		expectLastCall().once();
-		replayAll();
+		when(effector.getActingPlayer()).thenReturn(player);
+		when(player.isInParty()).thenReturn(true);
+		when(player.isInPartyWith(effected)).thenReturn(false);
 		
-		assertFalse(conditionIncludeMe.testImpl(effector, effected, skill, null));
+		assertFalse(CONDITION_INCLUDE_ME.testImpl(effector, effected, skill, null));
 	}
 	
 	@Test
 	public void test_player_in_party_with_target() {
-		expect(effector.getActingPlayer()).andReturn(player);
-		expect(player.isInParty()).andReturn(true);
-		expect(player.isInPartyWith(effected)).andReturn(true);
-		replayAll();
+		when(effector.getActingPlayer()).thenReturn(player);
+		when(player.isInParty()).thenReturn(true);
+		when(player.isInPartyWith(effected)).thenReturn(true);
 		
-		assertTrue(conditionIncludeMe.testImpl(effector, effected, skill, null));
+		assertTrue(CONDITION_INCLUDE_ME.testImpl(effector, effected, skill, null));
 	}
 	
 	@Test
 	public void test_player_not_in_party_target_not_player_or_player_summon() {
-		expect(effector.getActingPlayer()).andReturn(player);
-		expect(player.isInParty()).andReturn(false);
-		expect(effected.getActingPlayer()).andReturn(otherPlayer);
-		effector.sendPacket(anyObject(SystemMessage.class));
-		expectLastCall().once();
-		replayAll();
+		when(effector.getActingPlayer()).thenReturn(player);
+		when(player.isInParty()).thenReturn(false);
+		when(effected.getActingPlayer()).thenReturn(otherPlayer);
 		
-		assertFalse(conditionIncludeMe.testImpl(effector, effected, skill, null));
+		assertFalse(CONDITION_INCLUDE_ME.testImpl(effector, effected, skill, null));
 	}
 	
 	@Test
 	public void test_player_in_party_target_player_or_player_summon() {
-		expect(effector.getActingPlayer()).andReturn(player);
-		expect(player.isInParty()).andReturn(false);
-		expect(effected.getActingPlayer()).andReturn(player);
-		replayAll();
+		when(effector.getActingPlayer()).thenReturn(player);
+		when(player.isInParty()).thenReturn(false);
+		when(effected.getActingPlayer()).thenReturn(player);
 		
-		assertTrue(conditionIncludeMe.testImpl(effector, effected, skill, null));
+		assertTrue(CONDITION_INCLUDE_ME.testImpl(effector, effected, skill, null));
 	}
 }

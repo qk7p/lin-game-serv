@@ -35,18 +35,18 @@ import static com.l2jserver.gameserver.model.skills.targets.AffectScope.SQUARE_P
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.STATIC_OBJECT_SCOPE;
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.WYVERN_SCOPE;
 import static com.l2jserver.gameserver.model.zone.ZoneId.SIEGE;
-import static org.easymock.EasyMock.expect;
-import static org.powermock.api.easymock.PowerMock.mockStatic;
-import static org.powermock.api.easymock.PowerMock.replayAll;
-import static org.testng.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
 
-import org.powermock.api.easymock.annotation.Mock;
-import org.powermock.api.easymock.annotation.MockNice;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.l2jserver.gameserver.model.L2Clan;
 import com.l2jserver.gameserver.model.L2ClanMember;
@@ -61,20 +61,15 @@ import com.l2jserver.gameserver.model.actor.instance.L2ServitorInstance;
 import com.l2jserver.gameserver.model.actor.knownlist.NpcKnownList;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.test.AbstractTest;
 import com.l2jserver.gameserver.util.Util;
 
 /**
  * Affect Scope test.
  * @author Zoey76
- * @version 2.6.2.0
+ * @version 2.6.3.0
  */
-@PrepareForTest({
-	L2NpcTemplate.class,
-	L2World.class,
-	Util.class
-})
-public class AffectScopeTest extends AbstractTest {
+@ExtendWith(MockitoExtension.class)
+public class AffectScopeTest {
 	
 	private static final int AFFECT_LIMIT = 5;
 	
@@ -84,7 +79,7 @@ public class AffectScopeTest extends AbstractTest {
 	private L2Character caster;
 	@Mock
 	private L2Character target;
-	@MockNice
+	@Mock
 	private Skill skill;
 	@Mock
 	private L2World world;
@@ -137,419 +132,390 @@ public class AffectScopeTest extends AbstractTest {
 	@Mock
 	private NpcKnownList npcKnownList;
 	
+	@BeforeAll
+	public static void init() {
+		mockStatic(L2World.class);
+		mockStatic(Util.class);
+	}
+	
 	@Test
 	public void test_balakas_scope() {
-		assertEquals(BALAKAS_SCOPE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), BALAKAS_SCOPE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_dead_pledge_scope_caster_not_playable() {
-		expect(target.isPlayable()).andReturn(false);
-		replayAll();
+		when(target.isPlayable()).thenReturn(false);
 		
-		assertEquals(DEAD_PLEDGE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), DEAD_PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_dead_pledge_scope_player_not_in_clan() {
-		expect(target.isPlayable()).andReturn(true);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.getClanId()).andReturn(0);
-		replayAll();
+		when(target.isPlayable()).thenReturn(true);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.getClanId()).thenReturn(0);
 		
-		assertEquals(DEAD_PLEDGE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), DEAD_PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_dead_pledge_scope_player() {
-		expect(target.isPlayable()).andReturn(true);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.getClanId()).andReturn(1);
-		expect(player1.isInDuel()).andReturn(false);
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(skill.getAffectObject()).andReturn(affectObject);
-		mockStatic(L2World.class);
-		expect(L2World.getInstance()).andReturn(world);
-		expect(world.getVisibleObjects(target, AFFECT_RANGE)).andReturn(List.of(object1, servitor, player2, player3, player4, player5, player6, player7, player8));
-		expect(object1.isPlayable()).andReturn(false);
-		expect(servitor.isPlayable()).andReturn(true);
-		expect(servitor.getActingPlayer()).andReturn(null);
-		expect(player2.isPlayable()).andReturn(true);
-		expect(player2.getActingPlayer()).andReturn(player2);
-		expect(player2.getClanId()).andReturn(0);
-		expect(player3.isPlayable()).andReturn(true);
-		expect(player3.getActingPlayer()).andReturn(player3);
-		expect(player3.getClanId()).andReturn(1);
-		expect(player1.checkPvpSkill(player3, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		expect(player3.isInsideZone(SIEGE)).andReturn(false);
-		expect(affectObject.affectObject(player1, player3)).andReturn(false);
+		when(target.isPlayable()).thenReturn(true);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.getClanId()).thenReturn(1);
+		when(player1.isInDuel()).thenReturn(false);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(skill.getAffectObject()).thenReturn(affectObject);
+		when(L2World.getInstance()).thenReturn(world);
+		when(world.getVisibleObjects(target, AFFECT_RANGE)).thenReturn(List.of(object1, servitor, player2, player3, player4, player5, player6, player7, player8));
+		when(object1.isPlayable()).thenReturn(false);
+		when(servitor.isPlayable()).thenReturn(true);
+		when(servitor.getActingPlayer()).thenReturn(null);
+		when(player2.isPlayable()).thenReturn(true);
+		when(player2.getActingPlayer()).thenReturn(player2);
+		when(player2.getClanId()).thenReturn(0);
+		when(player3.isPlayable()).thenReturn(true);
+		when(player3.getActingPlayer()).thenReturn(player3);
+		when(player3.getClanId()).thenReturn(1);
+		when(player1.checkPvpSkill(player3, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(player3.isInsideZone(SIEGE)).thenReturn(false);
+		when(affectObject.affectObject(player1, player3)).thenReturn(false);
 		
-		expect(player4.isPlayable()).andReturn(true);
-		expect(player4.getActingPlayer()).andReturn(player4);
-		expect(player4.getClanId()).andReturn(1);
-		expect(player1.checkPvpSkill(player4, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		expect(player4.isInsideZone(SIEGE)).andReturn(false);
-		expect(affectObject.affectObject(player1, player4)).andReturn(true);
+		when(player4.isPlayable()).thenReturn(true);
+		when(player4.getActingPlayer()).thenReturn(player4);
+		when(player4.getClanId()).thenReturn(1);
+		when(player1.checkPvpSkill(player4, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(player4.isInsideZone(SIEGE)).thenReturn(false);
+		when(affectObject.affectObject(player1, player4)).thenReturn(true);
 		
-		expect(player5.isPlayable()).andReturn(true);
-		expect(player5.getActingPlayer()).andReturn(player5);
-		expect(player5.getClanId()).andReturn(1);
-		expect(player1.checkPvpSkill(player5, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		expect(player5.isInsideZone(SIEGE)).andReturn(false);
-		expect(affectObject.affectObject(player1, player5)).andReturn(true);
+		when(player5.isPlayable()).thenReturn(true);
+		when(player5.getActingPlayer()).thenReturn(player5);
+		when(player5.getClanId()).thenReturn(1);
+		when(player1.checkPvpSkill(player5, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(player5.isInsideZone(SIEGE)).thenReturn(false);
+		when(affectObject.affectObject(player1, player5)).thenReturn(true);
 		
-		expect(player6.isPlayable()).andReturn(true);
-		expect(player6.getActingPlayer()).andReturn(player6);
-		expect(player6.getClanId()).andReturn(1);
-		expect(player1.checkPvpSkill(player6, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		expect(player6.isInsideZone(SIEGE)).andReturn(false);
-		expect(affectObject.affectObject(player1, player6)).andReturn(true);
+		when(player6.isPlayable()).thenReturn(true);
+		when(player6.getActingPlayer()).thenReturn(player6);
+		when(player6.getClanId()).thenReturn(1);
+		when(player1.checkPvpSkill(player6, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(player6.isInsideZone(SIEGE)).thenReturn(false);
+		when(affectObject.affectObject(player1, player6)).thenReturn(true);
 		
-		expect(player7.isPlayable()).andReturn(true);
-		expect(player7.getActingPlayer()).andReturn(player7);
-		expect(player7.getClanId()).andReturn(1);
-		expect(player1.checkPvpSkill(player7, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		expect(player7.isInsideZone(SIEGE)).andReturn(false);
-		expect(affectObject.affectObject(player1, player7)).andReturn(true);
+		when(player7.isPlayable()).thenReturn(true);
+		when(player7.getActingPlayer()).thenReturn(player7);
+		when(player7.getClanId()).thenReturn(1);
+		when(player1.checkPvpSkill(player7, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(player7.isInsideZone(SIEGE)).thenReturn(false);
+		when(affectObject.affectObject(player1, player7)).thenReturn(true);
 		
-		expect(player8.isPlayable()).andReturn(true);
-		expect(player8.getActingPlayer()).andReturn(player8);
-		expect(player8.getClanId()).andReturn(1);
-		expect(player1.checkPvpSkill(player8, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		expect(player8.isInsideZone(SIEGE)).andReturn(false);
-		expect(affectObject.affectObject(player1, player8)).andReturn(true);
-		replayAll();
+		when(player8.isPlayable()).thenReturn(true);
+		when(player8.getActingPlayer()).thenReturn(player8);
+		when(player8.getClanId()).thenReturn(1);
+		when(player1.checkPvpSkill(player8, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(player8.isInsideZone(SIEGE)).thenReturn(false);
+		when(affectObject.affectObject(player1, player8)).thenReturn(true);
 		
-		assertEquals(DEAD_PLEDGE.affectTargets(caster, target, skill), List.of(player4, player5, player6, player7, player8));
+		assertEquals(List.of(player4, player5, player6, player7, player8), DEAD_PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_fan_scope() {
-		assertEquals(FAN.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), FAN.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_none_scope() {
-		assertEquals(NONE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), NONE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_party_scope_target_in_party() {
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(target.isCharacter()).andReturn(true);
-		expect(target.isInParty()).andReturn(true);
-		expect(target.getParty()).andReturn(party1);
-		expect(party1.getMembers()).andReturn(List.of(player1, player2, player3, player4));
-		
-		mockStatic(Util.class);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(target.isCharacter()).thenReturn(true);
+		when(target.isInParty()).thenReturn(true);
+		when(target.getParty()).thenReturn(party1);
+		when(party1.getMembers()).thenReturn(List.of(player1, player2, player3, player4));
 		
 		// Party member with summon, both close enough.
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, player1, true)).andReturn(true);
-		expect(player1.hasSummon()).andReturn(true);
-		expect(player1.getSummon()).andReturn(summon);
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, summon, true)).andReturn(true);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, player1, true)).thenReturn(true);
+		when(player1.hasSummon()).thenReturn(true);
+		when(player1.getSummon()).thenReturn(summon);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, summon, true)).thenReturn(true);
 		
 		// Party member close enough without summon.
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, player2, true)).andReturn(true);
-		expect(player2.hasSummon()).andReturn(false);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, player2, true)).thenReturn(true);
+		when(player2.hasSummon()).thenReturn(false);
 		
 		// Party member's summon not close enough to target.
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, player3, true)).andReturn(true);
-		expect(player3.hasSummon()).andReturn(true);
-		expect(player3.getSummon()).andReturn(servitor);
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, servitor, true)).andReturn(false);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, player3, true)).thenReturn(true);
+		when(player3.hasSummon()).thenReturn(true);
+		when(player3.getSummon()).thenReturn(servitor);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, servitor, true)).thenReturn(false);
 		
 		// Party member not close enough to target.
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, player4, true)).andReturn(false);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, player4, true)).thenReturn(false);
 		
-		replayAll();
-		
-		assertEquals(PARTY.affectTargets(caster, target, skill), List.of(player1, summon, player2, player3));
+		assertEquals(List.of(player1, summon, player2, player3), PARTY.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_party_scope_target_without_summon_not_in_party() {
-		expect(target.isCharacter()).andReturn(true);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(target.isInParty()).andReturn(false);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.hasSummon()).andReturn(false);
+		when(target.isCharacter()).thenReturn(true);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(target.isInParty()).thenReturn(false);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.hasSummon()).thenReturn(false);
 		
-		replayAll();
-		
-		assertEquals(PARTY.affectTargets(caster, target, skill), List.of(player1));
+		assertEquals(List.of(player1), PARTY.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_party_scope_target_with_summon_not_in_party() {
-		expect(target.isCharacter()).andReturn(true);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(target.isInParty()).andReturn(false);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.hasSummon()).andReturn(true);
-		expect(player1.getSummon()).andReturn(summon);
-		mockStatic(Util.class);
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, summon, true)).andReturn(true);
+		when(target.isCharacter()).thenReturn(true);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(target.isInParty()).thenReturn(false);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.hasSummon()).thenReturn(true);
+		when(player1.getSummon()).thenReturn(summon);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, summon, true)).thenReturn(true);
 		
-		replayAll();
-		
-		assertEquals(PARTY.affectTargets(caster, target, skill), List.of(player1, summon));
+		assertEquals(List.of(player1, summon), PARTY.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_party_scope_target_with_summon_too_far_not_in_party() {
-		expect(target.isCharacter()).andReturn(true);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(target.isInParty()).andReturn(false);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.hasSummon()).andReturn(true);
-		expect(player1.getSummon()).andReturn(summon);
-		mockStatic(Util.class);
-		expect(Util.checkIfInRange(AFFECT_RANGE, target, summon, true)).andReturn(false);
+		when(target.isCharacter()).thenReturn(true);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(target.isInParty()).thenReturn(false);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.hasSummon()).thenReturn(true);
+		when(player1.getSummon()).thenReturn(summon);
+		when(Util.checkIfInRange(AFFECT_RANGE, target, summon, true)).thenReturn(false);
 		
-		replayAll();
-		
-		assertEquals(PARTY.affectTargets(caster, target, skill), List.of(player1));
+		assertEquals(List.of(player1), PARTY.affectTargets(caster, target, skill));
 	}
 	
-	@Test(enabled = false)
+	@Test
 	public void test_party_pledge_scope() {
-		assertEquals(PARTY_PLEDGE.affectTargets(caster, target, skill), List.of(target, summon, player2));
+		// TODO(Zoey76): Implement.
+		assertEquals(List.of(), PARTY_PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_pledge_scope_caster_is_player_in_clan() {
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(target.isPlayer()).andReturn(true);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.getClan()).andReturn(clan);
-		expect(clan.getMembers()).andReturn(new L2ClanMember[] {
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(target.isPlayer()).thenReturn(true);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.getClan()).thenReturn(clan);
+		when(clan.getMembers()).thenReturn(new L2ClanMember[] {
 			clanMember1, //
 			clanMember2, //
 			clanMember3, //
 			clanMember4
 		});
 		
+		when(player1.isInDuel()).thenReturn(false, true, false);
+		
 		// Player, not in duel nor Olympiad, with summon.
-		expect(clanMember1.getPlayerInstance()).andReturn(player1);
-		expect(player1.isInDuel()).andReturn(false);
-		expect(player1.checkPvpSkill(player1, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(false);
-		mockStatic(Util.class);
-		expect(Util.checkIfInRange(AFFECT_RANGE, player1, player1, true)).andReturn(true);
-		expect(player1.hasSummon()).andReturn(true);
-		expect(player1.getSummon()).andReturn(summon);
-		expect(Util.checkIfInRange(AFFECT_RANGE, player1, summon, true)).andReturn(true);
+		when(clanMember1.getPlayerInstance()).thenReturn(player1);
+		when(player1.checkPvpSkill(player1, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(false);
+		when(Util.checkIfInRange(AFFECT_RANGE, player1, player1, true)).thenReturn(true);
+		when(player1.hasSummon()).thenReturn(true);
+		when(player1.getSummon()).thenReturn(summon);
+		when(Util.checkIfInRange(AFFECT_RANGE, player1, summon, true)).thenReturn(true);
 		
 		// Player in duel party, but different than target.
-		expect(clanMember2.getPlayerInstance()).andReturn(player2);
-		expect(player1.isInDuel()).andReturn(true);
-		expect(player1.getDuelId()).andReturn(1);
-		expect(player2.getDuelId()).andReturn(1);
-		expect(player1.isInParty()).andReturn(true);
-		expect(player2.isInParty()).andReturn(true);
-		expect(player1.getParty()).andReturn(party1);
-		expect(party1.getLeaderObjectId()).andReturn(1000);
-		expect(player2.getParty()).andReturn(party2);
-		expect(party2.getLeaderObjectId()).andReturn(2000);
+		when(clanMember2.getPlayerInstance()).thenReturn(player2);
+		when(player1.getDuelId()).thenReturn(1);
+		when(player2.getDuelId()).thenReturn(1);
+		when(player1.isInParty()).thenReturn(true);
+		when(player2.isInParty()).thenReturn(true);
+		when(player1.getParty()).thenReturn(party1);
+		when(party1.getLeaderObjectId()).thenReturn(1000);
+		when(player2.getParty()).thenReturn(party2);
+		when(party2.getLeaderObjectId()).thenReturn(2000);
 		
-		expect(clanMember3.getPlayerInstance()).andReturn(null);
+		when(clanMember3.getPlayerInstance()).thenReturn(null);
 		
-		expect(clanMember4.getPlayerInstance()).andReturn(player4);
-		expect(player1.isInDuel()).andReturn(false);
-		expect(player1.checkPvpSkill(player4, skill)).andReturn(true);
-		expect(player1.isInOlympiadMode()).andReturn(true);
-		expect(player1.getOlympiadGameId()).andReturn(1);
-		expect(player4.getOlympiadGameId()).andReturn(1);
-		expect(player1.getOlympiadSide()).andReturn(1);
-		expect(player4.getOlympiadSide()).andReturn(2);
+		when(clanMember4.getPlayerInstance()).thenReturn(player4);
+		when(player1.checkPvpSkill(player4, skill)).thenReturn(true);
+		when(player1.isInOlympiadMode()).thenReturn(true);
+		when(player1.getOlympiadGameId()).thenReturn(1);
+		when(player4.getOlympiadGameId()).thenReturn(1);
+		when(player1.getOlympiadSide()).thenReturn(1);
+		when(player4.getOlympiadSide()).thenReturn(2);
 		
-		replayAll();
-		assertEquals(PLEDGE.affectTargets(caster, target, skill), List.of(player1, summon));
+		assertEquals(List.of(player1, summon), PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_pledge_scope_caster_is_player_not_in_clan() {
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(target.isPlayer()).andReturn(true);
-		expect(target.getActingPlayer()).andReturn(player1);
-		expect(player1.getClan()).andReturn(null);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(target.isPlayer()).thenReturn(true);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(player1.getClan()).thenReturn(null);
 		
-		mockStatic(Util.class);
-		expect(Util.checkIfInRange(AFFECT_RANGE, player1, player1, true)).andReturn(true);
-		expect(player1.hasSummon()).andReturn(true);
-		expect(player1.getSummon()).andReturn(summon);
-		expect(Util.checkIfInRange(AFFECT_RANGE, player1, summon, true)).andReturn(true);
+		when(Util.checkIfInRange(AFFECT_RANGE, player1, player1, true)).thenReturn(true);
+		when(player1.hasSummon()).thenReturn(true);
+		when(player1.getSummon()).thenReturn(summon);
+		when(Util.checkIfInRange(AFFECT_RANGE, player1, summon, true)).thenReturn(true);
 		
-		replayAll();
-		assertEquals(PLEDGE.affectTargets(caster, target, skill), List.of(player1, summon));
+		assertEquals(List.of(player1, summon), PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_pledge_scope_caster_is_npc_in_clan() {
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(npc1.isPlayer()).andReturn(false);
-		expect(npc1.isNpc()).andReturn(true);
-		expect(npc1.getTemplate()).andReturn(npcTemplate);
-		expect(npcTemplate.getClans()).andReturn(Set.of(1, 2));
-		expect(npc1.getKnownList()).andReturn(npcKnownList);
-		expect(npcKnownList.getKnownCharactersInRadius(AFFECT_RANGE)).andReturn(List.of(player2, npc2, npc3, summon));
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(npc1.isPlayer()).thenReturn(false);
+		when(npc1.isNpc()).thenReturn(true);
+		when(npc1.getTemplate()).thenReturn(npcTemplate);
+		when(npcTemplate.getClans()).thenReturn(Set.of(1, 2));
+		when(npc1.getKnownList()).thenReturn(npcKnownList);
+		when(npcKnownList.getKnownCharactersInRadius(AFFECT_RANGE)).thenReturn(List.of(player2, npc2, npc3, summon));
 		
-		expect(player2.isNpc()).andReturn(false);
+		when(player2.isNpc()).thenReturn(false);
 		
-		expect(npc2.isNpc()).andReturn(true);
-		expect(npc1.isInMyClan(npc2)).andReturn(true);
+		when(npc2.isNpc()).thenReturn(true);
+		when(npc1.isInMyClan(npc2)).thenReturn(true);
 		
-		expect(npc3.isNpc()).andReturn(true);
-		expect(npc1.isInMyClan(npc3)).andReturn(false);
+		when(npc3.isNpc()).thenReturn(true);
+		when(npc1.isInMyClan(npc3)).thenReturn(false);
 		
-		expect(summon.isNpc()).andReturn(false);
+		when(summon.isNpc()).thenReturn(false);
 		
-		replayAll();
-		assertEquals(PLEDGE.affectTargets(npc1, npc1, skill), List.of(npc1, npc2));
+		assertEquals(List.of(npc1, npc2), PLEDGE.affectTargets(npc1, npc1, skill));
 	}
 	
 	@Test
 	public void test_point_blank_scope() {
-		expect(caster.isCharacter()).andReturn(true);
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(skill.getAffectObject()).andReturn(affectObject);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
+		when(caster.isCharacter()).thenReturn(true);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(skill.getAffectObject()).thenReturn(affectObject);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		
-		mockStatic(L2World.class);
-		expect(L2World.getInstance()).andReturn(world);
-		expect(world.getVisibleObjects(caster, AFFECT_RANGE)) //
-			.andReturn(List.of(caster, npc2, npc3, summon));
+		when(L2World.getInstance()).thenReturn(world);
+		when(world.getVisibleObjects(caster, AFFECT_RANGE)) //
+			.thenReturn(List.of(caster, npc2, npc3, summon));
 		
-		expect(affectObject.affectObject(caster, caster)).andReturn(true);
-		expect(affectObject.affectObject(caster, npc2)).andReturn(false);
-		expect(affectObject.affectObject(caster, npc3)).andReturn(false);
-		expect(affectObject.affectObject(caster, summon)).andReturn(true);
+		when(affectObject.affectObject(caster, caster)).thenReturn(true);
+		when(affectObject.affectObject(caster, npc2)).thenReturn(false);
+		when(affectObject.affectObject(caster, npc3)).thenReturn(false);
+		when(affectObject.affectObject(caster, summon)).thenReturn(true);
 		
-		replayAll();
-		
-		assertEquals(POINT_BLANK.affectTargets(caster, caster, skill), List.of(caster, summon));
+		assertEquals(List.of(caster, summon), POINT_BLANK.affectTargets(caster, caster, skill));
 	}
 	
 	@Test
 	public void test_range_scope() {
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		
-		mockStatic(L2World.class);
-		expect(L2World.getInstance()).andReturn(world);
-		expect(world.getVisibleObjects(target, AFFECT_RANGE)).andReturn(List.of(object1, servitor, player2, player3, player4, player5, player6, player7, player8));
+		when(L2World.getInstance()).thenReturn(world);
+		when(world.getVisibleObjects(target, AFFECT_RANGE)).thenReturn(List.of(object1, servitor, player2, player3, player4, player5, player6, player7, player8));
 		
-		expect(object1.isCharacter()).andReturn(false);
-		expect(servitor.isCharacter()).andReturn(true);
-		expect(servitor.isDead()).andReturn(true);
+		when(object1.isCharacter()).thenReturn(false);
+		when(servitor.isCharacter()).thenReturn(true);
+		when(servitor.isDead()).thenReturn(true);
 		
-		expect(player2.isCharacter()).andReturn(true);
-		expect(player2.isDead()).andReturn(false);
+		when(player2.isCharacter()).thenReturn(true);
+		when(player2.isDead()).thenReturn(false);
 		
-		expect(player3.isCharacter()).andReturn(true);
-		expect(player3.isDead()).andReturn(false);
+		when(player3.isCharacter()).thenReturn(true);
+		when(player3.isDead()).thenReturn(false);
 		
-		expect(player4.isCharacter()).andReturn(true);
-		expect(player4.isDead()).andReturn(false);
+		when(player4.isCharacter()).thenReturn(true);
+		when(player4.isDead()).thenReturn(false);
 		
-		expect(player5.isCharacter()).andReturn(true);
-		expect(player5.isDead()).andReturn(false);
+		when(player5.isCharacter()).thenReturn(true);
+		when(player5.isDead()).thenReturn(false);
 		
-		expect(player6.isCharacter()).andReturn(true);
-		expect(player6.isDead()).andReturn(false);
+		when(player6.isCharacter()).thenReturn(true);
+		when(player6.isDead()).thenReturn(false);
 		
-		expect(player7.isCharacter()).andReturn(true);
-		expect(player7.isDead()).andReturn(false);
-		
-		replayAll();
-		
-		assertEquals(RANGE.affectTargets(caster, target, skill), List.of(player2, player3, player4, player5, player6));
+		assertEquals(List.of(player2, player3, player4, player5, player6), RANGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_range_sort_by_hp_scope() {
-		expect(skill.getAffectLimit()).andReturn(AFFECT_LIMIT);
-		expect(skill.getAffectRange()).andReturn(AFFECT_RANGE);
-		mockStatic(L2World.class);
-		expect(L2World.getInstance()).andReturn(world);
-		expect(world.getVisibleObjects(caster, target, AFFECT_RANGE)).andReturn(List.of(target, object1, servitor, player2, player3));
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(L2World.getInstance()).thenReturn(world);
+		when(world.getVisibleObjects(caster, target, AFFECT_RANGE)).thenReturn(List.of(target, object1, servitor, player2, player3));
 		
-		expect(object1.isCharacter()).andReturn(false);
+		when(object1.isCharacter()).thenReturn(false);
 		
-		expect(servitor.isCharacter()).andReturn(true);
-		expect(servitor.isDead()).andReturn(true);
+		when(servitor.isCharacter()).thenReturn(true);
+		when(servitor.isDead()).thenReturn(true);
 		
-		expect(player2.isCharacter()).andReturn(true);
-		expect(player2.isDead()).andReturn(false);
-		expect(player2.getCurrentHp()).andReturn(1000.0).times(3);
-		expect(player2.getMaxHp()).andReturn(1000).times(3);
+		when(player2.isCharacter()).thenReturn(true);
+		when(player2.isDead()).thenReturn(false);
+		when(player2.getCurrentHp()).thenReturn(1000.0);
+		when(player2.getMaxHp()).thenReturn(1000);
 		
-		expect(player3.isCharacter()).andReturn(true);
-		expect(player3.isDead()).andReturn(false);
-		expect(player3.getCurrentHp()).andReturn(1900.0).times(3);
-		expect(player3.getMaxHp()).andReturn(2000).times(3);
+		when(player3.isCharacter()).thenReturn(true);
+		when(player3.isDead()).thenReturn(false);
+		when(player3.getCurrentHp()).thenReturn(1900.0);
+		when(player3.getMaxHp()).thenReturn(2000);
 		
-		expect(target.isCharacter()).andReturn(true);
-		expect(target.isDead()).andReturn(false);
-		expect(target.getCurrentHp()).andReturn(500.0).times(3);
-		expect(target.getMaxHp()).andReturn(1000).times(3);
+		when(target.isCharacter()).thenReturn(true);
+		when(target.isDead()).thenReturn(false);
+		when(target.getCurrentHp()).thenReturn(500.0);
+		when(target.getMaxHp()).thenReturn(1000);
 		
-		replayAll();
-		
-		assertEquals(RANGE_SORT_BY_HP.affectTargets(caster, target, skill), List.of(target, player3, player2));
+		assertEquals(List.of(target, player3, player2), RANGE_SORT_BY_HP.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_ring_range_scope() {
-		assertEquals(RING_RANGE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), RING_RANGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_single_scope_object_no_affected() {
-		expect(skill.getAffectObject()).andReturn(affectObject);
-		expect(affectObject.affectObject(caster, target)).andReturn(false);
-		replayAll();
+		when(skill.getAffectObject()).thenReturn(affectObject);
+		when(affectObject.affectObject(caster, target)).thenReturn(false);
 		
-		assertEquals(SINGLE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), SINGLE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_single_scope() {
-		expect(skill.getAffectObject()).andReturn(affectObject);
-		expect(affectObject.affectObject(caster, target)).andReturn(true);
-		replayAll();
+		when(skill.getAffectObject()).thenReturn(affectObject);
+		when(affectObject.affectObject(caster, target)).thenReturn(true);
 		
-		assertEquals(SINGLE.affectTargets(caster, target, skill), List.of(target));
+		assertEquals(List.of(target), SINGLE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_square_scope() {
-		assertEquals(SQUARE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), SQUARE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_square_pb_scope() {
-		assertEquals(SQUARE_PB.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), SQUARE_PB.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_static_object_scope() {
-		assertEquals(STATIC_OBJECT_SCOPE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), STATIC_OBJECT_SCOPE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
 	public void test_wyvern_scope() {
-		assertEquals(WYVERN_SCOPE.affectTargets(caster, target, skill), List.of());
+		assertEquals(List.of(), WYVERN_SCOPE.affectTargets(caster, target, skill));
 	}
 }

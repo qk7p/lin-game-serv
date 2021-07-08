@@ -23,32 +23,32 @@ import static com.l2jserver.gameserver.enums.ShotType.BLESSED_SPIRITSHOTS;
 import static com.l2jserver.gameserver.enums.ShotType.SPIRITSHOTS;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
-import static org.easymock.EasyMock.expect;
-import static org.powermock.api.easymock.PowerMock.replayAll;
-import static org.testng.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.powermock.api.easymock.annotation.Mock;
-import org.powermock.api.easymock.annotation.MockNice;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.test.AbstractTest;
 
 /**
  * Formulas test.
  * @author Zoey76
- * @version 2.6.2.0
+ * @version 2.6.3.0
  */
-public class FormulasTest extends AbstractTest {
-	
-	private static final String PROVIDE_SPEED_SKILL_TIME = "PROVIDE_SPEED_SKILL_TIME";
+@ExtendWith(MockitoExtension.class)
+public class FormulasTest {
 	
 	private static final int HP_REGENERATE_PERIOD_CHARACTER = 3000;
 	
@@ -56,60 +56,57 @@ public class FormulasTest extends AbstractTest {
 	
 	@Mock
 	private L2Character character;
-	@MockNice
+	@Mock
 	private Skill skill;
 	
-	@BeforeClass
-	private void init() {
+	@BeforeAll
+	private static void init() {
 		server().setProperty("DatapackRoot", "src/test/resources");
 	}
 	
 	@Test
 	public void test_get_regenerate_period() {
-		expect(character.isDoor()).andReturn(false);
-		replayAll();
+		when(character.isDoor()).thenReturn(false);
 		
-		assertEquals(Formulas.getRegeneratePeriod(character), HP_REGENERATE_PERIOD_CHARACTER);
+		assertEquals(HP_REGENERATE_PERIOD_CHARACTER, Formulas.getRegeneratePeriod(character));
 	}
 	
 	@Test
 	public void test_get_regenerate_period_door() {
-		expect(character.isDoor()).andReturn(true);
-		replayAll();
+		when(character.isDoor()).thenReturn(true);
 		
-		assertEquals(Formulas.getRegeneratePeriod(character), HP_REGENERATE_PERIOD_DOOR);
+		assertEquals(HP_REGENERATE_PERIOD_DOOR, Formulas.getRegeneratePeriod(character));
 	}
-	
-	@Test(dataProvider = PROVIDE_SPEED_SKILL_TIME)
+
+	@ParameterizedTest
+    @MethodSource("provide")
 	public void test_calculate_cast_time(int hitTime, boolean isChanneling, int channelingSkillId, boolean isStatic, boolean isMagic, //
 		int mAtkSpeed, double pAtkSpeed, boolean isChargedSpiritshots, boolean isChargedBlessedSpiritShots, double expected) {
-		expect(character.getMAtkSpd()).andReturn(mAtkSpeed);
-		expect(character.getPAtkSpd()).andReturn(pAtkSpeed);
-		expect(character.isChargedShot(SPIRITSHOTS)).andReturn(isChargedSpiritshots);
-		expect(character.isChargedShot(BLESSED_SPIRITSHOTS)).andReturn(isChargedBlessedSpiritShots);
-		expect(skill.getHitTime()).andReturn(hitTime);
-		expect(skill.isChanneling()).andReturn(isChanneling);
-		expect(skill.getChannelingSkillId()).andReturn(channelingSkillId);
-		expect(skill.isStatic()).andReturn(isStatic);
-		expect(skill.isMagic()).andReturn(isMagic);
-		replayAll();
+		lenient().when(character.getMAtkSpd()).thenReturn(mAtkSpeed);
+		lenient().when(character.getPAtkSpd()).thenReturn(pAtkSpeed);
+		lenient().when(character.isChargedShot(SPIRITSHOTS)).thenReturn(isChargedSpiritshots);
+		lenient().when(character.isChargedShot(BLESSED_SPIRITSHOTS)).thenReturn(isChargedBlessedSpiritShots);
+		when(skill.getHitTime()).thenReturn(hitTime);
+		when(skill.isChanneling()).thenReturn(isChanneling);
+		lenient().when(skill.getChannelingSkillId()).thenReturn(channelingSkillId);
+		lenient().when(skill.isStatic()).thenReturn(isStatic);
+		lenient().when(skill.isMagic()).thenReturn(isMagic);
 		
-		assertEquals(Formulas.calcCastTime(character, skill), expected);
+		assertEquals(expected, Formulas.calcCastTime(character, skill));
 	}
 	
-	@DataProvider(name = PROVIDE_SPEED_SKILL_TIME)
-	private Iterator<Object[]> provide() {
-		final Set<Object[]> result = new HashSet<>();
+	private static Iterator<Object[]> provide() {
+		final List<Object[]> result = new LinkedList<>();
 		// @formatter:off
 		// TODO(Zoey76): Take care of the "bad" values.
 		result.add(new Object[]{ 0, true, 1, false, false, 0, 0.0, false, false, 0.0 });
 		result.add(new Object[]{ 0, true, 0, false, false, 0, 0.0, false, false, NaN });
 		result.add(new Object[]{ 0, false, 1, false, false, 0, 0.0, false, false, NaN });
 		result.add(new Object[]{ 0, false, 0, false, true, 500, 0.0, false, false, 0.0 });
-		result.add(new Object[]{ 600, false, 0, false, true, 500, 0.0, false, false, 399.59999999999997 });
+		result.add(new Object[]{ 600, false, 0, false, true, 500, 0.0, false, false, 500.0 });
 		result.add(new Object[]{ 3000, false, 0, false, true, 600, 0.0, false, false, 1665.0 });
 		result.add(new Object[]{ 0, false, 0, false, false, 0, 500.0, false, false, 0.0 });
-		result.add(new Object[]{ 600, false, 0, false, false, 0, 500.0, false, false, 399.59999999999997 });
+		result.add(new Object[]{ 600, false, 0, false, false, 0, 500.0, false, false, 500. });
 		result.add(new Object[]{ 3000, false, 0, false, false, 0, 600.0, false, false, 1665.0 });
 		result.add(new Object[]{ 1400, false, 0, false, true, 0, 0.0, true, false, POSITIVE_INFINITY });
 		result.add(new Object[]{ 1400, false, 0, false, true, 0, 0.0, false, true, POSITIVE_INFINITY });

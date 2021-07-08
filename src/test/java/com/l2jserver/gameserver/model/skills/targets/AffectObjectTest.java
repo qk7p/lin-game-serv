@@ -18,26 +18,36 @@
  */
 package com.l2jserver.gameserver.model.skills.targets;
 
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.*;
-import static org.easymock.EasyMock.expect;
-import static org.powermock.api.easymock.PowerMock.replayAll;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.ALL;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.CLAN;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.FRIEND;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.HIDDEN_PLACE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.INVISIBLE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.NONE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.NOT_FRIEND;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.OBJECT_DEAD_NPC_BODY;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.UNDEAD_REAL_ENEMY;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObject.WYVERN_OBJECT;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
-import org.powermock.api.easymock.annotation.Mock;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.L2Npc;
-import com.l2jserver.gameserver.test.AbstractTest;
 
 /**
  * Affect Object test.
  * @author Zoey76
- * @version 2.6.2.0
+ * @version 2.6.3.0
  */
-public class AffectObjectTest extends AbstractTest {
+@ExtendWith(MockitoExtension.class)
+public class AffectObjectTest {
 	
 	@Mock
 	private L2Character caster;
@@ -55,63 +65,51 @@ public class AffectObjectTest extends AbstractTest {
 	
 	@Test
 	public void test_affect_object_clan_player_not_in_clan() {
-		expect(caster.isPlayable()).andReturn(true);
-		expect(caster.getClanId()).andReturn(0);
-		
-		replayAll();
+		when(caster.isPlayable()).thenReturn(true);
+		when(caster.getClanId()).thenReturn(0);
 		
 		assertFalse(CLAN.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_clan_player_in_clan_object_not_playable() {
-		expect(caster.isPlayable()).andReturn(true);
-		expect(caster.getClanId()).andReturn(1);
-		expect(object.isPlayable()).andReturn(false);
-		
-		replayAll();
+		when(caster.isPlayable()).thenReturn(true);
+		when(caster.getClanId()).thenReturn(1);
+		when(object.isPlayable()).thenReturn(false);
 		
 		assertFalse(CLAN.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_clan_player_in_clan_object_in_other_clan() {
-		expect(caster.isPlayable()).andReturn(true);
-		expect(caster.getClanId()).andReturn(1);
-		expect(creature.isPlayable()).andReturn(true);
-		expect(creature.getClanId()).andReturn(2);
-		
-		replayAll();
+		when(caster.isPlayable()).thenReturn(true);
+		when(caster.getClanId()).thenReturn(1);
+		when(creature.isPlayable()).thenReturn(true);
+		when(creature.getClanId()).thenReturn(2);
 		
 		assertFalse(CLAN.affectObject(caster, creature));
 	}
 	
 	@Test
 	public void test_affect_object_clan_player_in_clan_with_object() {
-		expect(caster.isPlayable()).andReturn(true);
-		expect(caster.getClanId()).andReturn(1);
-		expect(creature.isPlayable()).andReturn(true);
-		expect(creature.getClanId()).andReturn(1);
-		
-		replayAll();
+		when(caster.isPlayable()).thenReturn(true);
+		when(caster.getClanId()).thenReturn(1);
+		when(creature.isPlayable()).thenReturn(true);
+		when(creature.getClanId()).thenReturn(1);
 		
 		assertTrue(CLAN.affectObject(caster, creature));
 	}
 	
 	@Test
 	public void test_affect_object_friend_target_is_autoattackable() {
-		expect(object.isAutoAttackable(caster)).andReturn(true);
-		
-		replayAll();
+		when(object.isAutoAttackable(caster)).thenReturn(true);
 		
 		assertFalse(FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_friend_target_is_not_autoattackable() {
-		expect(object.isAutoAttackable(caster)).andReturn(false);
-		
-		replayAll();
+		when(object.isAutoAttackable(caster)).thenReturn(false);
 		
 		assertTrue(FRIEND.affectObject(caster, object));
 	}
@@ -124,18 +122,14 @@ public class AffectObjectTest extends AbstractTest {
 	
 	@Test
 	public void test_affect_object_invisible_visible_object() {
-		expect(object.isInvisible()).andReturn(false);
-		
-		replayAll();
+		when(object.isInvisible()).thenReturn(false);
 		
 		assertFalse(INVISIBLE.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_invisible_invisible_object() {
-		expect(object.isInvisible()).andReturn(true);
-		
-		replayAll();
+		when(object.isInvisible()).thenReturn(true);
 		
 		assertTrue(INVISIBLE.affectObject(caster, object));
 	}
@@ -147,105 +141,83 @@ public class AffectObjectTest extends AbstractTest {
 	
 	@Test
 	public void test_affect_object_not_friend_target_is_not_autoattackable() {
-		expect(object.isAutoAttackable(caster)).andReturn(false);
-		
-		replayAll();
+		when(object.isAutoAttackable(caster)).thenReturn(false);
 		
 		assertFalse(NOT_FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_not_friend_target_is_autoattackable() {
-		expect(object.isAutoAttackable(caster)).andReturn(true);
-		
-		replayAll();
+		when(object.isAutoAttackable(caster)).thenReturn(true);
 		
 		assertTrue(NOT_FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_object_dead_npc_body_not_npc() {
-		expect(object.isNpc()).andReturn(false);
-		
-		replayAll();
+		when(object.isNpc()).thenReturn(false);
 		
 		assertFalse(OBJECT_DEAD_NPC_BODY.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_object_dead_npc_body_not_dead() {
-		expect(npc.isNpc()).andReturn(true);
-		expect(npc.isDead()).andReturn(false);
-		
-		replayAll();
+		when(npc.isNpc()).thenReturn(true);
+		when(npc.isDead()).thenReturn(false);
 		
 		assertFalse(OBJECT_DEAD_NPC_BODY.affectObject(caster, npc));
 	}
 	
 	@Test
 	public void test_affect_object_object_dead_npc_body_dead() {
-		expect(npc.isNpc()).andReturn(true);
-		expect(npc.isDead()).andReturn(true);
-		
-		replayAll();
+		when(npc.isNpc()).thenReturn(true);
+		when(npc.isDead()).thenReturn(true);
 		
 		assertTrue(OBJECT_DEAD_NPC_BODY.affectObject(caster, npc));
 	}
 	
 	@Test
 	public void test_affect_object_undead_real_enemy_not_npc() {
-		expect(object.isNpc()).andReturn(false);
-		
-		replayAll();
+		when(object.isNpc()).thenReturn(false);
 		
 		assertFalse(UNDEAD_REAL_ENEMY.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_undead_real_enemy_not_undead() {
-		expect(npc.isNpc()).andReturn(true);
-		expect(npc.isUndead()).andReturn(false);
-		
-		replayAll();
+		when(npc.isNpc()).thenReturn(true);
+		when(npc.isUndead()).thenReturn(false);
 		
 		assertFalse(UNDEAD_REAL_ENEMY.affectObject(caster, npc));
 	}
 	
 	@Test
 	public void test_affect_object_undead_real_enemy_undead() {
-		expect(npc.isNpc()).andReturn(true);
-		expect(npc.isUndead()).andReturn(true);
-		
-		replayAll();
+		when(npc.isNpc()).thenReturn(true);
+		when(npc.isUndead()).thenReturn(true);
 		
 		assertTrue(UNDEAD_REAL_ENEMY.affectObject(caster, npc));
 	}
 	
 	@Test
 	public void test_affect_object_wyvern_object_not_npc() {
-		expect(object.isNpc()).andReturn(false);
-		
-		replayAll();
+		when(object.isNpc()).thenReturn(false);
 		
 		assertFalse(WYVERN_OBJECT.affectObject(caster, object));
 	}
 	
 	@Test
 	public void test_affect_object_wyvern_object_not_wyvern() {
-		expect(npc.isNpc()).andReturn(true);
-		expect(npc.getId()).andReturn(1);
-		
-		replayAll();
+		when(npc.isNpc()).thenReturn(true);
+		when(npc.getId()).thenReturn(1);
 		
 		assertFalse(WYVERN_OBJECT.affectObject(caster, npc));
 	}
 	
 	@Test
 	public void test_affect_wyvern_object_wyvern() {
-		expect(npc.isNpc()).andReturn(true);
-		expect(npc.getId()).andReturn(12621);
-		
-		replayAll();
+		when(npc.isNpc()).thenReturn(true);
+		when(npc.getId()).thenReturn(12621);
 		
 		assertTrue(WYVERN_OBJECT.affectObject(caster, npc));
 	}
