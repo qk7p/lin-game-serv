@@ -18,16 +18,16 @@
  */
 package com.l2jserver.gameserver.model.skills.targets;
 
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.ALL;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.CLAN;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.FRIEND;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.HIDDEN_PLACE;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.INVISIBLE;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.NONE;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.NOT_FRIEND;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.OBJECT_DEAD_NPC_BODY;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.UNDEAD_REAL_ENEMY;
-import static com.l2jserver.gameserver.model.skills.targets.AffectObject.WYVERN_OBJECT;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.ALL;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.CLAN;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.FRIEND;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.HIDDEN_PLACE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.INVISIBLE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.NONE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.NOT_FRIEND;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.OBJECT_DEAD_NPC_BODY;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.UNDEAD_REAL_ENEMY;
+import static com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl.WYVERN_OBJECT;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;

@@ -18,7 +18,8 @@
  */
 package com.l2jserver.gameserver.model.stats;
 
-import java.util.NoSuchElementException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Enum of basic stats.
@@ -189,24 +190,21 @@ public enum Stats {
 	
 	public static final int NUM_STATS = values().length;
 	
-	private final String _value;
+	private static final Map<String, Stats> STATS = new HashMap<>();
 	
-	public String getValue() {
-		return _value;
+	private final String name;
+	
+	static {
+		for (Stats stat : values()) {
+			STATS.put(stat.name, stat);
+		}
 	}
 	
-	Stats(String s) {
-		_value = s;
+	Stats(String name) {
+		this.name = name;
 	}
 	
 	public static Stats valueOfXml(String name) {
-		name = name.intern();
-		for (Stats s : values()) {
-			if (s.getValue().equals(name)) {
-				return s;
-			}
-		}
-		
-		throw new NoSuchElementException("Unknown name '" + name + "' for enum BaseStats");
+		return STATS.get(name);
 	}
 }

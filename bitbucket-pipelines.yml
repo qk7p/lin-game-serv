@@ -1,4 +1,4 @@
-image: openjdk:14-alpine
+image: openjdk:17-alpine
 
 pipelines:
    branches:
@@ -13,7 +13,7 @@ pipelines:
          - step:
             deployment: Production
             script:
-             - pipe: atlassian/ftp-deploy:0.2.3
+             - pipe: atlassian/ftp-deploy:0.3.6
                variables:
                  USER: $FTP_USER
                  PASSWORD: $FTP_PASSWORD

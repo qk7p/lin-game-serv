@@ -27,7 +27,7 @@ Server and Datapack may not be not be bundled or packaged.
 Requirements
 ---
 
-Windows or Linux system with Java JDK 14+ and MariaDB 10.5+.
+Windows or Linux system with Java JDK 17+ and MariaDB 10.5+.
 
 At least 4gb of RAM and 2 Cores.
 

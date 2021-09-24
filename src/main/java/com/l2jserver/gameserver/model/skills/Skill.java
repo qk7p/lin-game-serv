@@ -57,6 +57,7 @@ import com.l2jserver.gameserver.model.entity.TvTEvent;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
 import com.l2jserver.gameserver.model.skills.targets.AffectObject;
+import com.l2jserver.gameserver.model.skills.targets.AffectObjectStaticImpl;
 import com.l2jserver.gameserver.model.skills.targets.AffectScope;
 import com.l2jserver.gameserver.model.skills.targets.TargetType;
 import com.l2jserver.gameserver.model.stats.BaseStats;
@@ -262,7 +263,7 @@ public final class Skill implements IIdentifiable {
 		}
 		
 		affectLimit = set.getIntArray("affectLimit", "0-0", "-");
-		affectObject = set.getEnum("affectObject", AffectObject.class, AffectObject.ALL);
+		affectObject = set.getEnum("affectObject", AffectObjectStaticImpl.class, AffectObjectStaticImpl.ALL);
 		affectScope = set.getEnum("affectScope", AffectScope.class, AffectScope.NONE);
 		affectRange = set.getInt("affectRange", 0);
 		targetType = set.getEnum("targetType", TargetType.class, TargetType.SELF);

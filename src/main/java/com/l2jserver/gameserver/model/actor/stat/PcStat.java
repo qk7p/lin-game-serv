@@ -298,10 +298,9 @@ public class PcStat extends PlayableStat {
 				return;
 			}
 			
-			if (points < 0) // vitality consumed
-			{
+			// vitality consumed
+			if (points < 0) {
 				int stat = (int) calcStat(Stats.VITALITY_CONSUME_RATE, 1, getActiveChar(), null);
-				
 				if (stat == 0) {
 					return;
 				}
@@ -310,8 +309,8 @@ public class PcStat extends PlayableStat {
 				}
 			}
 			
+			// vitality increased
 			if (points > 0) {
-				// vitality increased
 				points *= vitality().getRateVitalityGain();
 			} else {
 				// vitality decreased

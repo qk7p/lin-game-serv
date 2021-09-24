@@ -403,7 +403,7 @@ public enum TargetType {
 			if (caster.isPlayable()) {
 				LOG.warn("Outdated {} with target type {} used on {} by {}!", skill, skill.getTargetType(), target, caster);
 			}
-			skill.updateTargetSystem(TARGET, AffectScope.SINGLE, AffectObject.ALL);
+			skill.updateTargetSystem(TARGET, AffectScope.SINGLE, AffectObjectStaticImpl.ALL);
 			return TARGET.getTarget(skill, caster, target);
 		}
 	},
@@ -415,7 +415,7 @@ public enum TargetType {
 			if (caster.isPlayable()) {
 				LOG.warn("Outdated {} with target type {} used on {} by {}!", skill, skill.getTargetType(), target, caster);
 			}
-			skill.updateTargetSystem(SELF, AffectScope.PARTY, AffectObject.FRIEND);
+			skill.updateTargetSystem(SELF, AffectScope.PARTY, AffectObjectStaticImpl.FRIEND);
 			return caster;
 		}
 	};

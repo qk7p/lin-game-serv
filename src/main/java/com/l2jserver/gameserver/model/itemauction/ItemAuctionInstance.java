@@ -216,7 +216,9 @@ public final class ItemAuctionInstance {
 		ItemAuction currentAuction = null;
 		ItemAuction nextAuction = null;
 		
-		switch (auctions.length) {
+		// TODO(Zoey76): Eventually in-line n, Eclipse bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=576026
+		final var n = auctions.length;
+		switch (n) {
 			case 0 -> nextAuction = createAuction(System.currentTimeMillis() + START_TIME_SPACE);
 			case 1 -> {
 				switch (auctions[0].getAuctionState()) {
