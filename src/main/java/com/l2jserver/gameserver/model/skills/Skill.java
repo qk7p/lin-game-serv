@@ -264,7 +264,7 @@ public final class Skill implements IIdentifiable {
 		
 		affectLimit = set.getIntArray("affectLimit", "0-0", "-");
 		affectObject = set.getEnum("affectObject", AffectObjectStaticImpl.class, AffectObjectStaticImpl.ALL);
-		affectScope = set.getEnum("affectScope", AffectScope.class, AffectScope.NONE);
+		affectScope = isToggle() ? AffectScope.SINGLE : set.getEnum("affectScope", AffectScope.class, AffectScope.NONE);
 		affectRange = set.getInt("affectRange", 0);
 		targetType = set.getEnum("targetType", TargetType.class, TargetType.SELF);
 		fanRange = set.getIntArray("fanRange", "0,0,0,0", ",");
