@@ -52,6 +52,8 @@ import com.l2jserver.gameserver.model.conditions.ConditionLogicAnd;
 import com.l2jserver.gameserver.model.conditions.ConditionLogicNot;
 import com.l2jserver.gameserver.model.conditions.ConditionLogicOr;
 import com.l2jserver.gameserver.model.conditions.ConditionMinDistance;
+import com.l2jserver.gameserver.model.conditions.ConditionOpCompanion;
+import com.l2jserver.gameserver.model.conditions.ConditionOpResurrection;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerActiveEffectId;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerActiveSkillId;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerAgathionEnergy;
@@ -61,7 +63,6 @@ import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanCreateBase;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanCreateOutpost;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanEscape;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanRefuelAirship;
-import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanResurrect;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanSummon;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanSummonSiegeGolem;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerCanSweep;
@@ -601,7 +602,7 @@ public abstract class DocumentBase {
 				case "cancreateoutpost" -> cond = joinAnd(cond, new ConditionPlayerCanCreateOutpost(Boolean.parseBoolean(a.getNodeValue())));
 				case "canescape" -> cond = joinAnd(cond, new ConditionPlayerCanEscape(Boolean.parseBoolean(a.getNodeValue())));
 				case "canrefuelairship" -> cond = joinAnd(cond, new ConditionPlayerCanRefuelAirship(Integer.parseInt(a.getNodeValue())));
-				case "canresurrect" -> cond = joinAnd(cond, new ConditionPlayerCanResurrect(Boolean.parseBoolean(a.getNodeValue())));
+				case "canresurrect" -> cond = joinAnd(cond, new ConditionOpResurrection());
 				case "cansummon" -> cond = joinAnd(cond, new ConditionPlayerCanSummon(Boolean.parseBoolean(a.getNodeValue())));
 				case "cansummonsiegegolem" -> cond = joinAnd(cond, new ConditionPlayerCanSummonSiegeGolem(Boolean.parseBoolean(a.getNodeValue())));
 				case "cansweep" -> cond = joinAnd(cond, new ConditionPlayerCanSweep(Boolean.parseBoolean(a.getNodeValue())));
@@ -642,6 +643,7 @@ public abstract class DocumentBase {
 				}
 				case "hasagathion" -> cond = joinAnd(cond, new ConditionPlayerHasAgathion(Boolean.parseBoolean(a.getNodeValue())));
 				case "agathionenergy" -> cond = joinAnd(cond, new ConditionPlayerAgathionEnergy(Integer.decode(getValue(a.getNodeValue(), null))));
+				case "companion" -> cond = joinAnd(cond, new ConditionOpCompanion(a.getNodeValue()));
 				default -> _log.severe("Unrecognized <player> condition " + a.getNodeName().toLowerCase() + " in " + _file);
 			}
 		}

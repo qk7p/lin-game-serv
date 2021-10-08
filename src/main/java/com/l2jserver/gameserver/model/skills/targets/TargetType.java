@@ -23,7 +23,6 @@ import static com.l2jserver.gameserver.model.actor.instance.L2StaticObjectInstan
 import static com.l2jserver.gameserver.model.zone.ZoneId.PEACE;
 import static com.l2jserver.gameserver.model.zone.ZoneId.PVP;
 import static com.l2jserver.gameserver.network.SystemMessageId.A_MALICIOUS_SKILL_CANNOT_BE_USED_IN_PEACE_ZONE;
-import static com.l2jserver.gameserver.network.SystemMessageId.CANNOT_BE_RESURRECTED_DURING_SIEGE;
 import static com.l2jserver.gameserver.network.SystemMessageId.CANNOT_USE_ON_YOURSELF;
 import static com.l2jserver.gameserver.network.SystemMessageId.CANT_SEE_TARGET;
 import static com.l2jserver.gameserver.network.SystemMessageId.INCORRECT_TARGET;
@@ -46,7 +45,6 @@ import com.l2jserver.gameserver.model.actor.instance.L2StaticObjectInstance;
 import com.l2jserver.gameserver.model.effects.L2EffectType;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.model.zone.ZoneId;
 
 /**
  * Target type enumerated.
@@ -319,30 +317,14 @@ public enum TargetType {
 			return target;
 		}
 	},
-	/** Player corpses. */
+	/** Player Controlled corpses. */
 	PC_BODY {
 		@Override
 		public L2Object getTarget(Skill skill, L2Character caster, L2Object target) {
-			if ((target == null) || !target.isPlayer() || !target.getActingPlayer().isDead()) {
+			if ((target == null) || !(target.isPlayer() || target.isPet()) || !((L2Character) target).isDead()) {
 				caster.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
-			final var targetPlayer = target.getActingPlayer();
-			if (skill.hasEffectType(L2EffectType.RESURRECTION)) {
-				// Check target is not in a active siege zone.
-				if (targetPlayer.isInsideZone(ZoneId.SIEGE) && !targetPlayer.isInSiege()) {
-					caster.sendPacket(CANNOT_BE_RESURRECTED_DURING_SIEGE);
-					return null;
-				}
-				
-				// Check to see if the current player target is in a festival.
-				if (targetPlayer.isFestivalParticipant()) {
-					caster.sendMessage("You may not resurrect participants in a festival.");
-					return null;
-				}
-			}
-			
 			return target;
 		}
 	},
