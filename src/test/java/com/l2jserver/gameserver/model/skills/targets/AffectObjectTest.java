@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -47,7 +48,7 @@ import com.l2jserver.gameserver.model.actor.L2Npc;
  * @version 2.6.3.0
  */
 @ExtendWith(MockitoExtension.class)
-public class AffectObjectTest {
+class AffectObjectTest {
 	
 	@Mock
 	private L2Character caster;
@@ -59,12 +60,14 @@ public class AffectObjectTest {
 	private L2Npc npc;
 	
 	@Test
-	public void test_affect_object_all() {
+	@DisplayName("Test affect object ALL.")
+	void testAffectObjectAll() {
 		assertTrue(ALL.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_clan_player_not_in_clan() {
+	@DisplayName("Test affect object CLAN, when player is not in clan.")
+	void testAffectObjectClanPlayerIsNotInClan() {
 		when(caster.isPlayable()).thenReturn(true);
 		when(caster.getClanId()).thenReturn(0);
 		
@@ -72,7 +75,8 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_clan_player_in_clan_object_not_playable() {
+	@DisplayName("Test affect object CLAN, when player is in clan, but object is not playable.")
+	void testAffectObjectClanPlayerIsInClanObjectNotPlayable() {
 		when(caster.isPlayable()).thenReturn(true);
 		when(caster.getClanId()).thenReturn(1);
 		when(object.isPlayable()).thenReturn(false);
@@ -81,7 +85,8 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_clan_player_in_clan_object_in_other_clan() {
+	@DisplayName("Test affect object CLAN, when player is in clan, but object is in another clan.")
+	void testAffectObjectClanPlayerIsInClanObjectIsInAnotherClan() {
 		when(caster.isPlayable()).thenReturn(true);
 		when(caster.getClanId()).thenReturn(1);
 		when(creature.isPlayable()).thenReturn(true);
@@ -91,7 +96,8 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_clan_player_in_clan_with_object() {
+	@DisplayName("Test affect object CLAN, when player is in clan with object.")
+	void testAffectObjectClanPlayerIsInClanWithObject() {
 		when(caster.isPlayable()).thenReturn(true);
 		when(caster.getClanId()).thenReturn(1);
 		when(creature.isPlayable()).thenReturn(true);
@@ -101,67 +107,77 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_friend_target_is_autoattackable() {
+	@DisplayName("Test affect object FRIEND, when object is autoattackable.")
+	void testAffectObjectFriendTargetIsAutoattackable() {
 		when(object.isAutoAttackable(caster)).thenReturn(true);
 		
 		assertFalse(FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_friend_target_is_not_autoattackable() {
+	@DisplayName("Test affect object FRIEND, when object is not autoattackable.")
+	void testAffectObjectFriendTargetIsNotAutoattackable() {
 		when(object.isAutoAttackable(caster)).thenReturn(false);
 		
 		assertTrue(FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_hidden_place() {
+	@DisplayName("Implement: Test affect object HIDDEN_PLACE.")
+	void testAffectObjectHiddenPlace() {
 		// TODO(Zoey76): Implement.
 		assertFalse(HIDDEN_PLACE.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_invisible_visible_object() {
+	@DisplayName("Test affect object INVISIBLE, when object is visible.")
+	void testAffectObjectInvisibleVisibleObject() {
 		when(object.isInvisible()).thenReturn(false);
 		
 		assertFalse(INVISIBLE.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_invisible_invisible_object() {
+	@DisplayName("Test affect object INVISIBLE, when object is invisible.")
+	void testAffectObjectInvisibleInvisibleObject() {
 		when(object.isInvisible()).thenReturn(true);
 		
 		assertTrue(INVISIBLE.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_none() {
+	@DisplayName("Test affect object NONE.")
+	void testAffectObjectNone() {
 		assertFalse(NONE.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_not_friend_target_is_not_autoattackable() {
+	@DisplayName("Test affect object NOT_FRIEND, when target is not autoattackable.")
+	void testAffectObjectNotFriendTargetIsNotAutoattackable() {
 		when(object.isAutoAttackable(caster)).thenReturn(false);
 		
 		assertFalse(NOT_FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_not_friend_target_is_autoattackable() {
+	@DisplayName("Test affect object NOT_FRIEND, when target is autoattackable.")
+	void testAffectObjectNotFriendTargetIsAutoattackable() {
 		when(object.isAutoAttackable(caster)).thenReturn(true);
 		
 		assertTrue(NOT_FRIEND.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_object_dead_npc_body_not_npc() {
+	@DisplayName("Test affect object OBJECT_DEAD_NPC_BODY, when target is not NPC.")
+	void testAffectObjectObjectDeadNpcBodyNotNpc() {
 		when(object.isNpc()).thenReturn(false);
 		
 		assertFalse(OBJECT_DEAD_NPC_BODY.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_object_dead_npc_body_not_dead() {
+	@DisplayName("Test affect object OBJECT_DEAD_NPC_BODY, when target is not NPC.")
+	void test_affect_object_object_dead_npc_body_not_dead() {
 		when(npc.isNpc()).thenReturn(true);
 		when(npc.isDead()).thenReturn(false);
 		
@@ -169,7 +185,8 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_object_dead_npc_body_dead() {
+	@DisplayName("Test affect object OBJECT_DEAD_NPC_BODY, when target is a dead NPC.")
+	void testAffectObjectObjectDeadNpcBodyDeadNpc() {
 		when(npc.isNpc()).thenReturn(true);
 		when(npc.isDead()).thenReturn(true);
 		
@@ -177,14 +194,16 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_undead_real_enemy_not_npc() {
+	@DisplayName("Test affect object UNDEAD_REAL_ENEMY, when target is not NPC.")
+	void testAffectObjectUndeadRealEnemyIsNotNpc() {
 		when(object.isNpc()).thenReturn(false);
 		
 		assertFalse(UNDEAD_REAL_ENEMY.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_undead_real_enemy_not_undead() {
+	@DisplayName("Test affect object UNDEAD_REAL_ENEMY, when NPC target is not undead.")
+	void testAffectObjectUndeadRealEnemyIsNotUndead() {
 		when(npc.isNpc()).thenReturn(true);
 		when(npc.isUndead()).thenReturn(false);
 		
@@ -192,7 +211,8 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_undead_real_enemy_undead() {
+	@DisplayName("Test affect object UNDEAD_REAL_ENEMY, when NPC target is undead.")
+	void testAffectObjectUndeadRealEnemyIsUndead() {
 		when(npc.isNpc()).thenReturn(true);
 		when(npc.isUndead()).thenReturn(true);
 		
@@ -200,14 +220,16 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_object_wyvern_object_not_npc() {
+	@DisplayName("Test affect object WYVERN_OBJECT, when target is not NPC.")
+	void testAffectObjectWyvernObjectIsNotNpc() {
 		when(object.isNpc()).thenReturn(false);
 		
 		assertFalse(WYVERN_OBJECT.affectObject(caster, object));
 	}
 	
 	@Test
-	public void test_affect_object_wyvern_object_not_wyvern() {
+	@DisplayName("Test affect object WYVERN_OBJECT, when target is not Wyvern.")
+	void testAffectObjectWyvernObjectIsNotWyvern() {
 		when(npc.isNpc()).thenReturn(true);
 		when(npc.getId()).thenReturn(1);
 		
@@ -215,7 +237,8 @@ public class AffectObjectTest {
 	}
 	
 	@Test
-	public void test_affect_wyvern_object_wyvern() {
+	@DisplayName("Test affect object WYVERN_OBJECT, when target is Wyvern.")
+	void testAffectObjectWyvernObjectIsWyvern() {
 		when(npc.isNpc()).thenReturn(true);
 		when(npc.getId()).thenReturn(12621);
 		

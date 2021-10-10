@@ -132,8 +132,39 @@ public enum AffectScope {
 	DEAD_UNION {
 		@Override
 		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
-			// TODO(Zoey76): Implement.
-			return null;
+			if (!target.isPlayable()) {
+				return List.of();
+			}
+			
+			final var player = target.getActingPlayer();
+			final var affectLimit = skill.getAffectLimit();
+			final var affectObject = skill.getAffectObject();
+			final var targets = new ArrayList<L2Object>();
+			for (L2Object object : L2World.getInstance().getVisibleObjects(target, skill.getAffectRange())) {
+				if ((affectLimit > 0) && (targets.size() >= affectLimit)) {
+					break;
+				}
+				
+				if (!object.isCharacter()) {
+					continue;
+				}
+				
+				final var creature = (L2Character) object;
+				if (!player.isInCommandChannelWith(creature)) {
+					continue;
+				}
+				
+				if (!creature.isDead()) {
+					continue;
+				}
+				
+				if (!affectObject.affectObject(player, creature)) {
+					continue;
+				}
+				
+				targets.add(creature);
+			}
+			return targets;
 		}
 	},
 	/** Affects fan area. */
@@ -267,7 +298,7 @@ public enum AffectScope {
 								continue;
 							}
 							if (targetPlayer.isInParty() && clanMemberPlayer.isInParty() && //
-								(targetPlayer.getParty().getLeaderObjectId() != clanMemberPlayer.getParty().getLeaderObjectId())) {
+							(targetPlayer.getParty().getLeaderObjectId() != clanMemberPlayer.getParty().getLeaderObjectId())) {
 								continue;
 							}
 						}

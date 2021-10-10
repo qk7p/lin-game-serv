@@ -20,6 +20,7 @@ package com.l2jserver.gameserver.model.skills.targets;
 
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.BALAKAS_SCOPE;
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.DEAD_PLEDGE;
+import static com.l2jserver.gameserver.model.skills.targets.AffectScope.DEAD_UNION;
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.FAN;
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.NONE;
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.PARTY;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -69,7 +71,7 @@ import com.l2jserver.gameserver.util.Util;
  * @version 2.6.3.0
  */
 @ExtendWith(MockitoExtension.class)
-public class AffectScopeTest {
+class AffectScopeTest {
 	
 	private static final int AFFECT_LIMIT = 5;
 	
@@ -133,25 +135,28 @@ public class AffectScopeTest {
 	private NpcKnownList npcKnownList;
 	
 	@BeforeAll
-	public static void init() {
+	static void init() {
 		mockStatic(L2World.class);
 		mockStatic(Util.class);
 	}
 	
 	@Test
-	public void test_balakas_scope() {
+	@DisplayName("Test BALAKAS_SCOPE.")
+	void testBalakasScope() {
 		assertEquals(List.of(), BALAKAS_SCOPE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_dead_pledge_scope_caster_not_playable() {
+	@DisplayName("Test DEAD_PLEDGE scope, when caster is not playable.")
+	void test_dead_pledge_scope_caster_not_playable() {
 		when(target.isPlayable()).thenReturn(false);
 		
 		assertEquals(List.of(), DEAD_PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_dead_pledge_scope_player_not_in_clan() {
+	@DisplayName("Test DEAD_PLEDGE scope, when caster is not in clan.")
+	void test_dead_pledge_scope_player_not_in_clan() {
 		when(target.isPlayable()).thenReturn(true);
 		when(target.getActingPlayer()).thenReturn(player1);
 		when(player1.getClanId()).thenReturn(0);
@@ -160,7 +165,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_dead_pledge_scope_player() {
+	@DisplayName("Test DEAD_PLEDGE scope.")
+	void test_dead_pledge_scope_player() {
 		when(target.isPlayable()).thenReturn(true);
 		when(target.getActingPlayer()).thenReturn(player1);
 		when(player1.getClanId()).thenReturn(1);
@@ -228,17 +234,64 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_fan_scope() {
+	@DisplayName("Test DEAD_UNION scope, when target is not playable.")
+	void testDeadUnionScopeTargetIsNotPlayable() {
+		assertEquals(List.of(), DEAD_UNION.affectTargets(caster, target, skill));
+	}
+	
+	@Test
+	@DisplayName("Test DEAD_UNION scope.")
+	void testDeadUnionScope() {
+		when(target.isPlayable()).thenReturn(true);
+		when(target.getActingPlayer()).thenReturn(player1);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(skill.getAffectObject()).thenReturn(affectObject);
+		when(L2World.getInstance()).thenReturn(world);
+		when(world.getVisibleObjects(target, AFFECT_RANGE)).thenReturn(List.of(object1, servitor, player2, player3, player4, player5));
+		
+		when(object1.isCharacter()).thenReturn(false);
+		
+		when(servitor.isCharacter()).thenReturn(true);
+		when(player1.isInCommandChannelWith(servitor)).thenReturn(true);
+		when(servitor.isDead()).thenReturn(true);
+		when(affectObject.affectObject(player1, servitor)).thenReturn(true);
+		
+		when(player2.isCharacter()).thenReturn(true);
+		when(player1.isInCommandChannelWith(player2)).thenReturn(false);
+		
+		when(player3.isCharacter()).thenReturn(true);
+		when(player1.isInCommandChannelWith(player3)).thenReturn(true);
+		when(player3.isDead()).thenReturn(false);
+		
+		when(player4.isCharacter()).thenReturn(true);
+		when(player1.isInCommandChannelWith(player4)).thenReturn(true);
+		when(player4.isDead()).thenReturn(true);
+		when(affectObject.affectObject(player1, player4)).thenReturn(false);
+		
+		when(player5.isCharacter()).thenReturn(true);
+		when(player1.isInCommandChannelWith(player5)).thenReturn(true);
+		when(player5.isDead()).thenReturn(true);
+		when(affectObject.affectObject(player1, player5)).thenReturn(true);
+		
+		assertEquals(List.of(servitor, player5), DEAD_UNION.affectTargets(caster, target, skill));
+	}
+	
+	@Test
+	@DisplayName("Test FAN scope.")
+	void testFanScope() {
 		assertEquals(List.of(), FAN.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_none_scope() {
+	@DisplayName("Test NONE scope.")
+	void testNoneScope() {
 		assertEquals(List.of(), NONE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_party_scope_target_in_party() {
+	@DisplayName("Test PARTY scope, when target is in party.")
+	void testPartyScopeTargetIsInParty() {
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(target.isCharacter()).thenReturn(true);
 		when(target.isInParty()).thenReturn(true);
@@ -268,7 +321,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_party_scope_target_without_summon_not_in_party() {
+	@DisplayName("Test PARTY scope, when target without summon is not in party.")
+	void testPartyScopeTargetWithoutSummonIsNotInParty() {
 		when(target.isCharacter()).thenReturn(true);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(target.isInParty()).thenReturn(false);
@@ -279,7 +333,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_party_scope_target_with_summon_not_in_party() {
+	@DisplayName("Test PARTY scope, when target with summon is not in party.")
+	void testPartyScopeTargetWithSummonIsNotInParty() {
 		when(target.isCharacter()).thenReturn(true);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(target.isInParty()).thenReturn(false);
@@ -292,7 +347,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_party_scope_target_with_summon_too_far_not_in_party() {
+	@DisplayName("Test PARTY scope, when target with summon too far is not in party.")
+	void testPartyScopeTargetWithSummonTooFarIsNotInParty() {
 		when(target.isCharacter()).thenReturn(true);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(target.isInParty()).thenReturn(false);
@@ -305,13 +361,15 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_party_pledge_scope() {
+	@DisplayName("Implement: Test PARTY_PLEDGE scope.")
+	void testPartyPledgeScope() {
 		// TODO(Zoey76): Implement.
 		assertEquals(List.of(), PARTY_PLEDGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_pledge_scope_caster_is_player_in_clan() {
+	@DisplayName("Test PLEDGE scope, when caster is player in clan.")
+	void testPledgeScopeCasterIsPlayerInClan() {
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(target.isPlayer()).thenReturn(true);
@@ -360,7 +418,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_pledge_scope_caster_is_player_not_in_clan() {
+	@DisplayName("Test PLEDGE scope, when caster is player not in clan.")
+	void testPledgeScopeCasterIsPlayerNotInClan() {
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(target.isPlayer()).thenReturn(true);
@@ -376,7 +435,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_pledge_scope_caster_is_npc_in_clan() {
+	@DisplayName("Test PLEDGE scope, when caster is NPC in clan.")
+	void testPledgeScopeCasterIsNpcInClan() {
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(npc1.isPlayer()).thenReturn(false);
@@ -400,7 +460,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_point_blank_scope() {
+	@DisplayName("Test POINT_BLANK scope.")
+	void testPointBlankScope() {
 		when(caster.isCharacter()).thenReturn(true);
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(skill.getAffectObject()).thenReturn(affectObject);
@@ -419,7 +480,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_range_scope() {
+	@DisplayName("Test RANGE scope.")
+	void testRangeScope() {
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		
@@ -449,7 +511,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_range_sort_by_hp_scope() {
+	@DisplayName("Test RANGE_SORT_BY_HP scope.")
+	void test_range_sort_by_hp_scope() {
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(L2World.getInstance()).thenReturn(world);
@@ -479,12 +542,15 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_ring_range_scope() {
+	@DisplayName("Implement: Test RING_RANGE scope.")
+	void testRingRangeScope() {
+		// TODO(Zoey76): Implement.
 		assertEquals(List.of(), RING_RANGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_single_scope_object_no_affected() {
+	@DisplayName("Test SINGLE scope, when object is not affected.")
+	void testSingleScopeObjectIsNotAffected() {
 		when(skill.getAffectObject()).thenReturn(affectObject);
 		when(affectObject.affectObject(caster, target)).thenReturn(false);
 		
@@ -492,7 +558,8 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_single_scope() {
+	@DisplayName("Test SINGLE scope.")
+	void testSingleScope() {
 		when(skill.getAffectObject()).thenReturn(affectObject);
 		when(affectObject.affectObject(caster, target)).thenReturn(true);
 		
@@ -500,22 +567,30 @@ public class AffectScopeTest {
 	}
 	
 	@Test
-	public void test_square_scope() {
+	@DisplayName("Implement: Test SQUARE scope.")
+	void testSquareScope() {
+		// TODO(Zoey76): Implement.
 		assertEquals(List.of(), SQUARE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_square_pb_scope() {
+	@DisplayName("Implement: Test SQUARE_PB scope.")
+	void testSquarePBScope() {
+		// TODO(Zoey76): Implement.
 		assertEquals(List.of(), SQUARE_PB.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_static_object_scope() {
+	@DisplayName("Implement: Test STATIC_OBJECT_SCOPE scope.")
+	void testStaticObjectScope() {
+		// TODO(Zoey76): Implement.
 		assertEquals(List.of(), STATIC_OBJECT_SCOPE.affectTargets(caster, target, skill));
 	}
 	
 	@Test
-	public void test_wyvern_scope() {
+	@DisplayName("Implement: Test WYVERN_SCOPE scope.")
+	void testWyvernScope() {
+		// TODO(Zoey76): Implement.
 		assertEquals(List.of(), WYVERN_SCOPE.affectTargets(caster, target, skill));
 	}
 }
