@@ -8247,11 +8247,7 @@ public final class L2PcInstance extends L2Playable {
 	
 	@Override
 	public void reduceCurrentHp(double value, L2Character attacker, boolean awake, boolean isDOT, Skill skill) {
-		if (skill != null) {
-			getStatus().reduceHp(value, attacker, awake, isDOT, skill.isToggle(), skill.getDmgDirectlyToHP());
-		} else {
-			getStatus().reduceHp(value, attacker, awake, isDOT, false, false);
-		}
+		getStatus().reduceHp(value, attacker, awake, isDOT, false, false);
 		
 		// notify the tamed beast of attacks
 		if (hasTamedBeasts()) {

@@ -161,7 +161,6 @@ public final class Skill implements IIdentifiable {
 	private final int _chargeConsume;
 	private final int _soulMaxConsume;
 	
-	private final boolean _directHpDmg; // If true then damage is being make directly
 	private final int _effectPoint;
 	// Condition lists
 	private List<Condition> _preCondition;
@@ -292,7 +291,6 @@ public final class Skill implements IIdentifiable {
 		
 		_soulMaxConsume = set.getInt("soulMaxConsumeCount", 0);
 		
-		_directHpDmg = set.getBoolean("dmgDirectlyToHp", false);
 		_effectPoint = set.getInt("effectPoint", 0);
 		
 		_irreplaceableBuff = set.getBoolean("irreplaceableBuff", false);
@@ -745,10 +743,6 @@ public final class Skill implements IIdentifiable {
 	
 	public int getMaxSoulConsumeCount() {
 		return _soulMaxConsume;
-	}
-	
-	public boolean getDmgDirectlyToHP() {
-		return _directHpDmg;
 	}
 	
 	public boolean isStayAfterDeath() {
