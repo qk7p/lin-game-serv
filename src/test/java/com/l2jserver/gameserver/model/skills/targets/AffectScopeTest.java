@@ -43,11 +43,13 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.l2jserver.gameserver.model.L2Clan;
@@ -134,10 +136,19 @@ class AffectScopeTest {
 	@Mock
 	private NpcKnownList npcKnownList;
 	
+	private static MockedStatic<L2World> mockedStaticWorld;
+	private static MockedStatic<Util> mockedStaticUtil;
+	
 	@BeforeAll
 	static void init() {
-		mockStatic(L2World.class);
-		mockStatic(Util.class);
+		mockedStaticWorld = mockStatic(L2World.class);
+		mockedStaticUtil = mockStatic(Util.class);
+	}
+	
+	@AfterAll
+	static void after() {
+		mockedStaticWorld.close();
+		mockedStaticUtil.close();
 	}
 	
 	@Test

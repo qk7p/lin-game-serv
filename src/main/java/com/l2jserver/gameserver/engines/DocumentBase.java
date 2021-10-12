@@ -18,8 +18,11 @@
  */
 package com.l2jserver.gameserver.engines;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +56,7 @@ import com.l2jserver.gameserver.model.conditions.ConditionLogicNot;
 import com.l2jserver.gameserver.model.conditions.ConditionLogicOr;
 import com.l2jserver.gameserver.model.conditions.ConditionMinDistance;
 import com.l2jserver.gameserver.model.conditions.ConditionOpCompanion;
+import com.l2jserver.gameserver.model.conditions.ConditionOpExistNpc;
 import com.l2jserver.gameserver.model.conditions.ConditionOpResurrection;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerActiveEffectId;
 import com.l2jserver.gameserver.model.conditions.ConditionPlayerActiveSkillId;
@@ -644,6 +648,13 @@ public abstract class DocumentBase {
 				case "hasagathion" -> cond = joinAnd(cond, new ConditionPlayerHasAgathion(Boolean.parseBoolean(a.getNodeValue())));
 				case "agathionenergy" -> cond = joinAnd(cond, new ConditionPlayerAgathionEnergy(Integer.decode(getValue(a.getNodeValue(), null))));
 				case "companion" -> cond = joinAnd(cond, new ConditionOpCompanion(a.getNodeValue()));
+				case "existnpc" -> {
+					final var attributes = a.getNodeValue().split(";");
+					final var npcIds = Arrays.stream(attributes[0].split(",")).map(Integer::valueOf).collect(toSet());
+					final var radius = Integer.parseInt(attributes[1]);
+					final var present = Boolean.parseBoolean(attributes[2]);
+					cond = joinAnd(cond, new ConditionOpExistNpc(npcIds, radius, present));
+				}
 				default -> _log.severe("Unrecognized <player> condition " + a.getNodeName().toLowerCase() + " in " + _file);
 			}
 		}

@@ -49,7 +49,7 @@ import com.l2jserver.gameserver.model.skills.Skill;
 /**
  * Target type enumerated.
  * @author Zoey76
- * @version 2.6.2.0
+ * @version 2.6.3.0
  */
 public enum TargetType {
 	/** Advance Head Quarters (Outposts). */
@@ -241,12 +241,7 @@ public enum TargetType {
 			}
 			
 			final var worldPosition = player.getCurrentSkillWorldPosition();
-			if (worldPosition == null) {
-				caster.sendPacket(CANT_SEE_TARGET);
-				return null;
-			}
-			
-			if (GeoData.getInstance().canSeeTarget(player, worldPosition)) {
+			if ((worldPosition == null) || !GeoData.getInstance().canSeeTarget(player, worldPosition)) {
 				caster.sendPacket(CANT_SEE_TARGET);
 				return null;
 			}
