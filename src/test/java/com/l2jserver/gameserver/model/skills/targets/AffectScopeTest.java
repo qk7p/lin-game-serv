@@ -495,30 +495,37 @@ class AffectScopeTest {
 	void testRangeScope() {
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
+		when(skill.getAffectObject()).thenReturn(affectObject);
 		
 		when(L2World.getInstance()).thenReturn(world);
-		when(world.getVisibleObjects(target, AFFECT_RANGE)).thenReturn(List.of(object1, servitor, player2, player3, player4, player5, player6, player7, player8));
+		when(world.getVisibleObjects(caster, target, AFFECT_RANGE)).thenReturn(List.of(object1, servitor, player2, player3, player4, player5, player6, player7, player8));
 		
 		when(object1.isCharacter()).thenReturn(false);
+		
 		when(servitor.isCharacter()).thenReturn(true);
 		when(servitor.isDead()).thenReturn(true);
 		
 		when(player2.isCharacter()).thenReturn(true);
 		when(player2.isDead()).thenReturn(false);
+		when(affectObject.affectObject(caster, player2)).thenReturn(true);
 		
 		when(player3.isCharacter()).thenReturn(true);
 		when(player3.isDead()).thenReturn(false);
+		when(affectObject.affectObject(caster, player3)).thenReturn(true);
 		
 		when(player4.isCharacter()).thenReturn(true);
 		when(player4.isDead()).thenReturn(false);
+		when(affectObject.affectObject(caster, player4)).thenReturn(true);
 		
 		when(player5.isCharacter()).thenReturn(true);
 		when(player5.isDead()).thenReturn(false);
+		when(affectObject.affectObject(caster, player5)).thenReturn(true);
 		
 		when(player6.isCharacter()).thenReturn(true);
 		when(player6.isDead()).thenReturn(false);
+		when(affectObject.affectObject(caster, player6)).thenReturn(false);
 		
-		assertEquals(List.of(player2, player3, player4, player5, player6), RANGE.affectTargets(caster, target, skill));
+		assertEquals(List.of(player2, player3, player4, player5), RANGE.affectTargets(caster, target, skill));
 	}
 	
 	@Test

@@ -395,11 +395,12 @@ public enum AffectScope {
 		@Override
 		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
 			final var affectLimit = skill.getAffectLimit();
-			return L2World.getInstance().getVisibleObjects(target, skill.getAffectRange()) //
+			return L2World.getInstance().getVisibleObjects(caster, target, skill.getAffectRange()) //
 				.stream() //
 				.filter(L2Object::isCharacter) //
 				.map(o -> (L2Character) o) //
 				.filter(c -> !c.isDead()) //
+				.filter(c -> skill.getAffectObject().affectObject(caster, c)) //
 				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE) //
 				.collect(Collectors.toList());
 		}
