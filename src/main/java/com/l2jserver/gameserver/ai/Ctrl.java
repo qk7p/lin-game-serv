@@ -27,9 +27,9 @@ import com.l2jserver.gameserver.model.actor.L2Character;
  * Or if we've sent 'MoveToPawn', we need to send 'StopMove' when the movement of a character is canceled (by Root spell or any other reason).<br>
  * Thus, we need to know the state of client, i.e. which messages we've sent and how the client will show the scene.<br>
  * Close to this task is the task of AI.<br>
- * If a player's character is attacking a mob, his ATTACK may be interrupted by an event, that temporary disable attacking.<br>
+ * If a player's character is attacking a mob, his ATTACK may be interrupted by an event, that temporary disables attacking.<br>
  * But when the possibility to ATTACK will be enabled, the character must continue the ATTACK.<br>
- * For mobs it may be more complex, since we want them to decide when to use magic, or when to follow the player for physical combat, or when to escape, to help another mob, etc.<br>
+ * For mobs, it may be more complex, since we want them to decide when to use magic, or when to follow the player for physical combat, or when to escape, to help another mob, etc.<br>
  * This interface is hiding complexity of server<->client interaction and multiple states of a character.<br>
  * It allows to set a desired, simple "wish" of a character, and the implementation of this interface will take care about the rest.<br>
  * The goal of a character may be like "ATTACK", "random walk" and so on.<br>
@@ -38,7 +38,7 @@ import com.l2jserver.gameserver.model.actor.L2Character;
  * This flow of simpler steps may be interrupted by incoming events.<br>
  * Like a character's movement was disabled (by Root spell, for instance).<br>
  * Depending on character's ability AI may choose to wait, or to use magic ATTACK and so on.<br>
- * Additionally incoming events are compared with client's state of the character,<br>
+ * Additionally, incoming events are compared with client's state of the character,<br>
  * and required network messages are sent to client's, i.e. if we have incoming event that character's movement was disabled, it causes changing if its behavior,<br>
  * and if client's state for the character is "moving" we send messages to clients to stop the avatar/mob.
  */

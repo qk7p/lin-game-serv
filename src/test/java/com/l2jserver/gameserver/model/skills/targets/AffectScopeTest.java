@@ -52,6 +52,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.model.L2Clan;
 import com.l2jserver.gameserver.model.L2ClanMember;
 import com.l2jserver.gameserver.model.L2Object;
@@ -78,6 +79,13 @@ class AffectScopeTest {
 	private static final int AFFECT_LIMIT = 5;
 	
 	private static final int AFFECT_RANGE = 1000;
+	
+	private static final int[] FAN_RANGE = {
+		0,
+		0,
+		80,
+		150
+	};
 	
 	@Mock
 	private L2Character caster;
@@ -135,20 +143,27 @@ class AffectScopeTest {
 	private L2NpcTemplate npcTemplate;
 	@Mock
 	private NpcKnownList npcKnownList;
+	@Mock
+	private GeoData geoData;
+	@Mock
+	private L2Object otherObject;
 	
 	private static MockedStatic<L2World> mockedStaticWorld;
 	private static MockedStatic<Util> mockedStaticUtil;
+	private static MockedStatic<GeoData> mockedStaticGeoData;
 	
 	@BeforeAll
 	static void init() {
 		mockedStaticWorld = mockStatic(L2World.class);
 		mockedStaticUtil = mockStatic(Util.class);
+		mockedStaticGeoData = mockStatic(GeoData.class);
 	}
 	
 	@AfterAll
 	static void after() {
 		mockedStaticWorld.close();
 		mockedStaticUtil.close();
+		mockedStaticGeoData.close();
 	}
 	
 	@Test
@@ -159,7 +174,7 @@ class AffectScopeTest {
 	
 	@Test
 	@DisplayName("Test DEAD_PLEDGE scope, when caster is not playable.")
-	void test_dead_pledge_scope_caster_not_playable() {
+	void testDeadPledgeScopeCasterIsNotPlayable() {
 		when(target.isPlayable()).thenReturn(false);
 		
 		assertEquals(List.of(), DEAD_PLEDGE.affectTargets(caster, target, skill));
@@ -167,7 +182,7 @@ class AffectScopeTest {
 	
 	@Test
 	@DisplayName("Test DEAD_PLEDGE scope, when caster is not in clan.")
-	void test_dead_pledge_scope_player_not_in_clan() {
+	void testDeadPledgeScopePlayerIsNotInClan() {
 		when(target.isPlayable()).thenReturn(true);
 		when(target.getActingPlayer()).thenReturn(player1);
 		when(player1.getClanId()).thenReturn(0);
@@ -177,7 +192,7 @@ class AffectScopeTest {
 	
 	@Test
 	@DisplayName("Test DEAD_PLEDGE scope.")
-	void test_dead_pledge_scope_player() {
+	void testDeadPledgeScopePlayer() {
 		when(target.isPlayable()).thenReturn(true);
 		when(target.getActingPlayer()).thenReturn(player1);
 		when(player1.getClanId()).thenReturn(1);
@@ -291,7 +306,50 @@ class AffectScopeTest {
 	@Test
 	@DisplayName("Test FAN scope.")
 	void testFanScope() {
-		assertEquals(List.of(), FAN.affectTargets(caster, target, skill));
+		when(Util.calculateAngleFrom(caster, target)).thenReturn(323.53);
+		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
+		when(skill.getFanRange()).thenReturn(FAN_RANGE);
+		when(skill.getAffectObject()).thenReturn(affectObject);
+		
+		when(L2World.getInstance()).thenReturn(world);
+		when(world.getVisibleObjects(caster, FAN_RANGE[2])).thenReturn(List.of(target, player1, player2, npc1, npc2, npc3, otherObject));
+		
+		when(target.isCharacter()).thenReturn(true);
+		when(target.isDead()).thenReturn(false);
+		when(Util.calculateAngleFrom(caster, target)).thenReturn(323.53);
+		when(affectObject.affectObject(caster, target)).thenReturn(true);
+		when(GeoData.getInstance()).thenReturn(geoData);
+		when(geoData.canSeeTarget(caster, target)).thenReturn(true);
+		
+		when(player1.isCharacter()).thenReturn(true);
+		when(player1.isDead()).thenReturn(false);
+		when(Util.calculateAngleFrom(caster, player1)).thenReturn(100.33);
+		
+		when(player2.isCharacter()).thenReturn(true);
+		when(player2.isDead()).thenReturn(false);
+		when(Util.calculateAngleFrom(caster, player2)).thenReturn(323.53);
+		when(affectObject.affectObject(caster, player2)).thenReturn(true);
+		when(GeoData.getInstance()).thenReturn(geoData);
+		when(geoData.canSeeTarget(caster, player2)).thenReturn(false);
+
+		when(npc1.isCharacter()).thenReturn(true);
+		when(npc1.isDead()).thenReturn(true);
+
+		when(npc2.isCharacter()).thenReturn(true);
+		when(npc2.isDead()).thenReturn(false);
+		when(Util.calculateAngleFrom(caster, npc2)).thenReturn(323.53);
+		when(affectObject.affectObject(caster, npc2)).thenReturn(true);
+		when(GeoData.getInstance()).thenReturn(geoData);
+		when(geoData.canSeeTarget(caster, npc2)).thenReturn(true);
+
+		when(npc3.isCharacter()).thenReturn(true);
+		when(npc3.isDead()).thenReturn(false);
+		when(Util.calculateAngleFrom(caster, npc3)).thenReturn(323.53);
+		when(affectObject.affectObject(caster, npc3)).thenReturn(false);
+		
+		when(otherObject.isCharacter()).thenReturn(false);
+		
+		assertEquals(List.of(target, npc2), FAN.affectTargets(caster, target, skill));
 	}
 	
 	@Test
@@ -530,7 +588,7 @@ class AffectScopeTest {
 	
 	@Test
 	@DisplayName("Test RANGE_SORT_BY_HP scope.")
-	void test_range_sort_by_hp_scope() {
+	void testRangeSortByHpScope() {
 		when(skill.getAffectLimit()).thenReturn(AFFECT_LIMIT);
 		when(skill.getAffectRange()).thenReturn(AFFECT_RANGE);
 		when(L2World.getInstance()).thenReturn(world);

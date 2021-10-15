@@ -89,8 +89,7 @@ public enum TargetType {
 	ENEMY {
 		@Override
 		public L2Object getTarget(Skill skill, L2Character caster, L2Object target) {
-			if ((target == null) || !target.isCharacter() || ((L2Character) target).isAlikeDead()) {
-				caster.sendPacket(INCORRECT_TARGET);
+			if ((target == null) || !target.isCharacter()) {
 				return null;
 			}
 			

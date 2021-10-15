@@ -171,23 +171,24 @@ public enum AffectScope {
 	FAN {
 		@Override
 		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
-			if (!target.isCharacter()) {
-				return List.of();
-			}
-			
 			final var headingAngle = Util.calculateAngleFrom(caster, target);
-			final var targetCreature = (L2Character) target;
 			final var affectLimit = skill.getAffectLimit();
-			final var fanStartingAngle = skill.getFanRange()[1];
-			final var fanRadius = skill.getFanRange()[2];
-			final var fanAngle = skill.getFanRange()[3];
+			final var fanRange = skill.getFanRange();
+			final var fanStartingAngle = fanRange[1];
+			final var fanRadius = fanRange[2];
+			final var fanAngle = fanRange[3];
 			final var affectObject = skill.getAffectObject();
 			final var targets = new ArrayList<L2Object>();
-			for (var creature : targetCreature.getKnownList().getKnownCharactersInRadius(fanRadius)) {
+			for (var object : L2World.getInstance().getVisibleObjects(caster, fanRadius)) {
 				if ((affectLimit > 0) && (targets.size() >= affectLimit)) {
 					break;
 				}
 				
+				if (!object.isCharacter()) {
+					continue;
+				}
+				
+				final var creature = (L2Character) object;
 				if (creature.isDead()) {
 					continue;
 				}
