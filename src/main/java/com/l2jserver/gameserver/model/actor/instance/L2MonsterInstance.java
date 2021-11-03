@@ -38,8 +38,6 @@ import com.l2jserver.gameserver.util.MinionList;
 public class L2MonsterInstance extends L2Attackable {
 	private static final int MONSTER_MAINTENANCE_INTERVAL = 1000;
 	
-	protected boolean _enableMinions = true;
-	
 	private L2MonsterInstance _master = null;
 	private volatile MinionList _minionList = null;
 	
@@ -150,10 +148,6 @@ public class L2MonsterInstance extends L2Attackable {
 	
 	public void setLeader(L2MonsterInstance leader) {
 		_master = leader;
-	}
-	
-	public void enableMinions(boolean b) {
-		_enableMinions = b;
 	}
 	
 	public boolean hasMinions() {
