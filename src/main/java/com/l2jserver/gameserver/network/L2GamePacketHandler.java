@@ -976,7 +976,7 @@ public final class L2GamePacketHandler implements PacketHandler<L2GameClient>, C
 								msg = new RequestDominionInfo();
 								break;
 							case 0x59:
-								// RequestExCleftEnter
+								msg = new RequestExCleftEnter();
 								break;
 							case 0x5a:
 								msg = new RequestExCubeGameChangeTeam();

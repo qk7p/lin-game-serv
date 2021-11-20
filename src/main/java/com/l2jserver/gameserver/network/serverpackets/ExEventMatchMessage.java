@@ -20,26 +20,56 @@ package com.l2jserver.gameserver.network.serverpackets;
 
 /**
  * @author janiii
+ * @author HorridoJoho
+ * @since 2.6.3.0
  */
 public class ExEventMatchMessage extends L2GameServerPacket {
-	private final int _type;
+	enum MessageType {
+		STRING,
+		STATIC_FINISH,
+		STATIC_START,
+		STATIC_GAME_OVER,
+		STATIC_1,
+		STATIC_2,
+		STATIC_3,
+		STATIC_4,
+		STATIC_5
+	}
+	
+	public static final ExEventMatchMessage STATIC_FINISH_PACKET = new ExEventMatchMessage(MessageType.STATIC_FINISH);
+	public static final ExEventMatchMessage STATIC_START_PACKET = new ExEventMatchMessage(MessageType.STATIC_START);
+	public static final ExEventMatchMessage STATIC_GAME_OVER_PACKET = new ExEventMatchMessage(MessageType.STATIC_GAME_OVER);
+	public static final ExEventMatchMessage STATIC_1_PACKET = new ExEventMatchMessage(MessageType.STATIC_1);
+	public static final ExEventMatchMessage STATIC_2_PACKET = new ExEventMatchMessage(MessageType.STATIC_2);
+	public static final ExEventMatchMessage STATIC_3_PACKET = new ExEventMatchMessage(MessageType.STATIC_3);
+	public static final ExEventMatchMessage STATIC_4_PACKET = new ExEventMatchMessage(MessageType.STATIC_4);
+	public static final ExEventMatchMessage STATIC_5_PACKET = new ExEventMatchMessage(MessageType.STATIC_5);
+
+	private final MessageType _type;
 	private final String _message;
 	
 	/**
-	 * Create an event match message.
-	 * @param type 0 - gm, 1 - finish, 2 - start, 3 - game over, 4 - 1, 5 - 2, 6 - 3, 7 - 4, 8 - 5
-	 * @param message message to show, only when type is 0 - gm
+	 * @param message Text to display.
 	 */
-	public ExEventMatchMessage(int type, String message) {
-		_type = type;
+	public ExEventMatchMessage(String message)
+	{
+		_type = MessageType.STRING;
 		_message = message;
+	}
+	
+	private ExEventMatchMessage(MessageType type) {
+		_type = type;
+		_message = null;
 	}
 	
 	@Override
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0x0F);
-		writeC(_type);
-		writeS(_message);
+
+		writeC(_type.ordinal());
+		if (_type == MessageType.STRING) {
+			writeS(_message);
+		}
 	}
 }
