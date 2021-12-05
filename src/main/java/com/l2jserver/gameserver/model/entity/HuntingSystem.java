@@ -24,9 +24,6 @@ import java.util.Calendar;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.skills.AbnormalType;
@@ -42,8 +39,6 @@ import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventTimeChange;
  * @since 2.6.3.0
  */
 public class HuntingSystem {
-	
-	protected static final Logger LOG = LoggerFactory.getLogger(HuntingSystem.class);
 	
 	private boolean _message45;
 	private boolean _message50;
@@ -118,7 +113,6 @@ public class HuntingSystem {
 			
 			if (hunting().getHuntingBonusLimit()) {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
-				LOG.warn("ExNevitAdventTimeChange: {}", getActiveChar().getHuntingBonusTime());
 			}
 			
 			addPoints(hunting().getNevitBonusPointsOnRefresh());

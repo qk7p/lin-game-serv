@@ -49,13 +49,14 @@ public class TaskRecom extends Task {
 	
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
-		final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=?, rec_left=?, time_left=?";
+		final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=?, rec_left=?, time_left=? WHERE charId=?";
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
 			try (var con = ConnectionFactory.getInstance().getConnection();
 				var ps = con.prepareStatement(UPDATE_CHARACTERS_RECO)) {
 				ps.setInt(1, player.getRecomHave());
 				ps.setInt(2, player.getRecomLeft());
 				ps.setInt(3, player.getRecomBonusTime());
+				ps.setInt(4, player.getObjectId());
 				ps.executeUpdate();
 			} catch (Exception e) {
 				LOG.warn("{}: Recommendations System not reseted!", getClass().getSimpleName(), e);
@@ -65,9 +66,7 @@ public class TaskRecom extends Task {
 				player.setRecomHave(player.getRecomHave() - 2);
 				player.setRecomLeft(0);
 				player.setRecomBonusTime(3600);
-				player.stopRecomBonusTask();
-				player.startRecomBonusTask();
-				if (!player.isInOfflineMode()) {
+				if (player.isOnline()) {
 					player.sendPacket(new UserInfo(player));
 					player.sendPacket(new ExBrExtraUserInfo(player));
 					player.sendPacket(new ExVoteSystemInfo(player));

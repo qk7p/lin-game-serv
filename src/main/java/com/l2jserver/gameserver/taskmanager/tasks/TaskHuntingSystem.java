@@ -45,11 +45,12 @@ public class TaskHuntingSystem extends Task {
 	
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
-		final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=?";
+		final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=? WHERE charId=?";
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
 			try (var con = ConnectionFactory.getInstance().getConnection();
 				var ps = con.prepareStatement(UPDATE_CHARACTERS_HUNTING)) {
 				ps.setInt(1, player.getHuntingBonusTime());
+				ps.setInt(2, player.getObjectId());
 				ps.executeUpdate();
 			} catch (Exception e) {
 				LOG.warn("{}: Hunting System not reseted!", getClass().getSimpleName(), e);
