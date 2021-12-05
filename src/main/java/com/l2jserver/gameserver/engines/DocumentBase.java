@@ -632,8 +632,7 @@ public abstract class DocumentBase {
 						final var mustHave = Boolean.parseBoolean(values[2]);
 						cond = joinAnd(cond, new ConditionCheckAbnormal(type, level, mustHave));
 					} else {
-						final var level = Integer.decode(getValue(value, template));
-						cond = joinAnd(cond, new ConditionCheckAbnormal(AbnormalType.valueOf(value), level, true));
+						cond = joinAnd(cond, new ConditionCheckAbnormal(AbnormalType.valueOf(value), -1, true));
 					}
 					break;
 				}
@@ -786,8 +785,7 @@ public abstract class DocumentBase {
 						final var mustHave = Boolean.parseBoolean(values[2]);
 						cond = joinAnd(cond, new ConditionCheckAbnormal(type, level, mustHave));
 					} else {
-						final var level = Integer.decode(getValue(value, template));
-						cond = joinAnd(cond, new ConditionCheckAbnormal(AbnormalType.valueOf(value), level, true));
+						cond = joinAnd(cond, new ConditionCheckAbnormal(AbnormalType.valueOf(value), -1, true));
 					}
 					break;
 				}
