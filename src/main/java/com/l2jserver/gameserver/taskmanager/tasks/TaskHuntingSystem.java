@@ -40,7 +40,7 @@ public class TaskHuntingSystem extends Task {
 	private static final String NAME = "hunting_system";
 
 	private static final int RESET_HUNTING_BONUS = 0;
-	private static final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=? WHERE charId=?";
+	private static final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=?";
 	
 	@Override
 	public String getName() {
