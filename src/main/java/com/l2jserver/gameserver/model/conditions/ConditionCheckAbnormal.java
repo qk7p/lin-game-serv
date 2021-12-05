@@ -42,6 +42,6 @@ public class ConditionCheckAbnormal extends Condition {
 	@Override
 	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item) {
 		final var info = effected.getEffectList().getBuffInfoByAbnormalType(type);
-		return present == (info != null) && (level <= info.getSkill().getAbnormalLvl());
+		return present == ((info != null) && (level <= info.getSkill().getAbnormalLvl()));
 	}
 }
