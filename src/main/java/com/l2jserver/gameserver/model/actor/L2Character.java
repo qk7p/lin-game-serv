@@ -4681,6 +4681,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		setIsCastingNow(false);
 		setIsCastingSimultaneouslyNow(false);
 		
+		final L2PcInstance player = getActingPlayer();
 		final Skill skill = mut.getSkill();
 		final L2Object target = !mut.getTargets().isEmpty() ? mut.getTargets().get(0) : null;
 		
@@ -4700,6 +4701,10 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			getAI().clientStartAutoAttack();
 		}
 		
+		if (skill.getAbnormalType() == AbnormalType.VOTE) {
+			player.setRecomTimerActive(false);
+		}
+		
 		// Notify the AI of the L2Character with EVT_FINISH_CASTING
 		getAI().notifyEvent(CtrlEvent.EVT_FINISH_CASTING);
 		
@@ -4709,17 +4714,16 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		// If character is a player, then wipe their current cast state and check if a skill is queued.
 		// If there is a queued skill, launch it and wipe the queue.
 		if (isPlayer()) {
-			L2PcInstance currPlayer = getActingPlayer();
-			SkillUseHolder queuedSkill = currPlayer.getQueuedSkill();
+			SkillUseHolder queuedSkill = player.getQueuedSkill();
 			
-			currPlayer.setCurrentSkill(null, false, false);
+			player.setCurrentSkill(null, false, false);
 			
 			if (queuedSkill != null) {
-				currPlayer.setQueuedSkill(null, false, false);
+				player.setQueuedSkill(null, false, false);
 				
 				// DON'T USE : Recursive call to useMagic() method
-				// currPlayer.useMagic(queuedSkill.getSkill(), queuedSkill.isCtrlPressed(), queuedSkill.isShiftPressed());
-				ThreadPoolManager.getInstance().executeGeneral(new QueuedMagicUseTask(currPlayer, queuedSkill.getSkill(), queuedSkill.isCtrlPressed(), queuedSkill.isShiftPressed()));
+				// player.useMagic(queuedSkill.getSkill(), queuedSkill.isCtrlPressed(), queuedSkill.isShiftPressed());
+				ThreadPoolManager.getInstance().executeGeneral(new QueuedMagicUseTask(player, queuedSkill.getSkill(), queuedSkill.isCtrlPressed(), queuedSkill.isShiftPressed()));
 			}
 		}
 		

@@ -25,6 +25,7 @@ package com.l2jserver.gameserver.model.effects;
 public enum L2EffectType {
 	AGGRESSION,
 	BUFF,
+	BONUS_TIME_LIMIT_UP,
 	CHAT_BLOCK,
 	CP,
 	DEBUFF,
@@ -41,7 +42,6 @@ public enum L2EffectType {
 	MANAHEAL_BY_LEVEL,
 	MANAHEAL_PERCENT,
 	MUTE,
-	NEVIT_HOURGLASS,
 	NOBLESSE_BLESSING,
 	NONE,
 	PHYSICAL_ATTACK,

@@ -81,6 +81,8 @@ public class Configuration {
 	
 	private static final CustomsConfiguration customs = ConfigFactory.create(CustomsConfiguration.class);
 	
+	private static final HuntingSystemConfiguration hunting = ConfigFactory.create(HuntingSystemConfiguration.class);
+	
 	private static final FloodProtectorConfiguration floodProtector = ConfigFactory.create(FloodProtectorConfiguration.class);
 	
 	private static final BufferServiceConfiguration bufferService = ConfigFactory.create(BufferServiceConfiguration.class);
@@ -191,6 +193,10 @@ public class Configuration {
 	
 	public static CustomsConfiguration customs() {
 		return customs;
+	}
+	
+	public static HuntingSystemConfiguration hunting() {
+		return hunting;
 	}
 	
 	public static FloodProtectorConfiguration floodProtector() {

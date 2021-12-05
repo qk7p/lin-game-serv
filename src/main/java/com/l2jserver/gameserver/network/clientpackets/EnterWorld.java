@@ -81,8 +81,6 @@ import com.l2jserver.gameserver.network.serverpackets.Die;
 import com.l2jserver.gameserver.network.serverpackets.EtcStatusUpdate;
 import com.l2jserver.gameserver.network.serverpackets.ExBasicActionList;
 import com.l2jserver.gameserver.network.serverpackets.ExGetBookMarkInfoPacket;
-import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventPointInfoPacket;
-import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventTimeChange;
 import com.l2jserver.gameserver.network.serverpackets.ExNoticePostArrived;
 import com.l2jserver.gameserver.network.serverpackets.ExNotifyPremiumItem;
 import com.l2jserver.gameserver.network.serverpackets.ExShowContactList;
@@ -309,8 +307,6 @@ public class EnterWorld extends L2GameClientPacket {
 			}
 		}
 		
-		activeChar.checkRecoBonusTask();
-		
 		activeChar.broadcastUserInfo();
 		
 		// Send Macro List
@@ -425,8 +421,6 @@ public class EnterWorld extends L2GameClientPacket {
 		
 		sendPacket(new SkillCoolTime(activeChar));
 		sendPacket(new ExVoteSystemInfo(activeChar));
-		sendPacket(new ExNevitAdventPointInfoPacket(0));
-		sendPacket(new ExNevitAdventTimeChange(-1)); // only set pause state...
 		sendPacket(new ExShowContactList(activeChar));
 		
 		for (L2ItemInstance item : activeChar.getInventory().getItems()) {

@@ -48,6 +48,10 @@ public class L2PeaceZone extends L2ZoneType {
 			if ((player.getSiegeState() != 0) && (general().getPeaceZoneMode() == 1)) {
 				return;
 			}
+			
+			// Pause Hunting System times
+			player.getHuntingBonus().stopHuntingBonusTask(true);
+			player.setRecomTimerActive(false);
 		}
 		
 		if (general().getPeaceZoneMode() != 2) {

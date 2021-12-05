@@ -18,6 +18,8 @@
  */
 package com.l2jserver.gameserver.network.serverpackets;
 
+import static com.l2jserver.gameserver.config.Configuration.hunting;
+
 /**
  * @author mochitto
  */
@@ -25,18 +27,16 @@ public class ExNevitAdventTimeChange extends L2GameServerPacket {
 	private final boolean _paused;
 	private final int _time;
 	
-	public ExNevitAdventTimeChange(int time) {
-		_time = Math.min(time, 240000);
-		_paused = _time < 1;
+	public ExNevitAdventTimeChange(int time, boolean paused) {
+		_time = Math.min(time, hunting().getHuntingBonusMaxTime());
+		_paused = paused;
 	}
 	
 	@Override
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0xE1);
-		// state 0 - pause 1 - started
-		writeC(_paused ? 0x00 : 0x01);
-		// left time in ms max is 16000 its 4m and state is automatically changed to quit
-		writeD(_time);
+		writeC(_paused ? 0x00 : 0x01); // state 0 - pause 1 - started
+		writeD(_time); // left time in ms max is 16000 its 4m and state is automatically changed to quit
 	}
 }

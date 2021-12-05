@@ -19,7 +19,6 @@
 package com.l2jserver.gameserver.network.serverpackets;
 
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
-import com.l2jserver.gameserver.model.entity.RecoBonus;
 
 /**
  * ExVoteSystemInfo packet implementation.
@@ -30,14 +29,14 @@ public class ExVoteSystemInfo extends L2GameServerPacket {
 	private final int _recomHave;
 	private final int _bonusTime;
 	private final int _bonusVal;
-	private final int _bonusType;
+	private final boolean _bonusType;
 	
 	public ExVoteSystemInfo(L2PcInstance player) {
 		_recomLeft = player.getRecomLeft();
 		_recomHave = player.getRecomHave();
 		_bonusTime = player.getRecomBonusTime();
-		_bonusVal = RecoBonus.getRecoBonus(player);
-		_bonusType = player.getRecomBonusType();
+		_bonusVal = player.getRecomBonus();
+		_bonusType = !player.isRecomTimerActive() || player.isHourglassEffected();
 	}
 	
 	@Override
@@ -48,6 +47,6 @@ public class ExVoteSystemInfo extends L2GameServerPacket {
 		writeD(_recomHave);
 		writeD(_bonusTime);
 		writeD(_bonusVal);
-		writeD(_bonusType);
+		writeD(_bonusType ? 0x01 : 0x00);
 	}
 }

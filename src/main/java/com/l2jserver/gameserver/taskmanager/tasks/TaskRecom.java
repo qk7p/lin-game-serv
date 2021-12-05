@@ -22,6 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.commons.database.ConnectionFactory;
+import com.l2jserver.gameserver.model.L2World;
+import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.network.serverpackets.ExBrExtraUserInfo;
+import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
+import com.l2jserver.gameserver.network.serverpackets.UserInfo;
 import com.l2jserver.gameserver.taskmanager.Task;
 import com.l2jserver.gameserver.taskmanager.TaskManager;
 import com.l2jserver.gameserver.taskmanager.TaskManager.ExecutedTask;
@@ -29,6 +34,7 @@ import com.l2jserver.gameserver.taskmanager.TaskTypes;
 
 /**
  * @author Layane
+ * @author Maneco2
  */
 public class TaskRecom extends Task {
 	
@@ -43,26 +49,37 @@ public class TaskRecom extends Task {
 	
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
-		try (var con = ConnectionFactory.getInstance().getConnection()) {
-			try (var ps = con.prepareStatement("UPDATE character_reco_bonus SET rec_left=?, time_left=?, rec_have=0 WHERE rec_have <=  20")) {
-				ps.setInt(1, 0); // Rec left = 0
-				ps.setInt(2, 3600000); // Timer = 1 hour
-				ps.execute();
+		final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=?, rec_left=?, time_left=?";
+		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
+			try (var con = ConnectionFactory.getInstance().getConnection();
+				var ps = con.prepareStatement(UPDATE_CHARACTERS_RECO)) {
+				ps.setInt(1, player.getRecomHave());
+				ps.setInt(2, player.getRecomLeft());
+				ps.setInt(3, player.getRecomBonusTime());
+				ps.executeUpdate();
+			} catch (Exception e) {
+				LOG.warn("{}: Recommendations System not reseted!", getClass().getSimpleName(), e);
 			}
 			
-			try (var ps = con.prepareStatement("UPDATE character_reco_bonus SET rec_left=?, time_left=?, rec_have=GREATEST(rec_have-20,0) WHERE rec_have > 20")) {
-				ps.setInt(1, 0); // Rec left = 0
-				ps.setInt(2, 3600000); // Timer = 1 hour
-				ps.execute();
+			if ((player != null)) {
+				player.setRecomHave(player.getRecomHave() - 2);
+				player.setRecomLeft(0);
+				player.setRecomBonusTime(3600);
+				player.stopRecomBonusTask();
+				player.startRecomBonusTask();
+				if (!player.isInOfflineMode()) {
+					player.sendPacket(new UserInfo(player));
+					player.sendPacket(new ExBrExtraUserInfo(player));
+					player.sendPacket(new ExVoteSystemInfo(player));
+				}
 			}
-		} catch (Exception ex) {
-			LOG.warn("Could not reset recommendations system!", ex);
 		}
-		LOG.info("Recommendations system reset.");
+		LOG.info("Recommendations System reseted.");
 	}
 	
 	@Override
 	public void initializate() {
+		super.initializate();
 		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", "06:30:00", "");
 	}
 }

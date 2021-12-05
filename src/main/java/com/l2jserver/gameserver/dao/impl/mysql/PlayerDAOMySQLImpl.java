@@ -49,7 +49,7 @@ public class PlayerDAOMySQLImpl implements PlayerDAO {
 	
 	private static final String SELECT = "SELECT * FROM characters WHERE charId=?";
 	
-	private static final String UPDATE = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=? WHERE charId=?";
+	private static final String UPDATE = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,hunting_bonus=?,nevit_blessing_points=?,nevit_blessing_time=?,language=? WHERE charId=?";
 	
 	private static final String UPDATE_ONLINE = "UPDATE characters SET online=?, lastAccess=? WHERE charId=?";
 	
@@ -142,6 +142,12 @@ public class PlayerDAOMySQLImpl implements PlayerDAO {
 					player.setDeathPenaltyBuffLevel(rs.getInt("death_penalty_level"));
 					
 					player.setVitalityPoints(rs.getInt("vitality_points"), true);
+					
+					player.setHuntingBonusTime(rs.getInt("hunting_bonus"));
+					
+					player.setNevitBlessingPoints(rs.getInt("nevit_blessing_points"));
+					
+					player.setNevitBlessingTime(rs.getInt("nevit_blessing_time"));
 					
 					// Set the x,y,z position of the L2PcInstance and make it invisible
 					player.setXYZInvisible(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
@@ -312,8 +318,11 @@ public class PlayerDAOMySQLImpl implements PlayerDAO {
 			ps.setLong(46, player.getDeathPenaltyBuffLevel());
 			ps.setInt(47, player.getBookMarkSlot());
 			ps.setInt(48, player.getVitalityPoints());
-			ps.setString(49, player.getLang());
-			ps.setInt(50, player.getObjectId());
+			ps.setInt(49, player.getHuntingBonusTime());
+			ps.setInt(50, player.getNevitBlessingPoints());
+			ps.setInt(51, player.getNevitBlessingTime());
+			ps.setString(52, player.getLang());
+			ps.setInt(53, player.getObjectId());
 			
 			ps.execute();
 		} catch (Exception ex) {

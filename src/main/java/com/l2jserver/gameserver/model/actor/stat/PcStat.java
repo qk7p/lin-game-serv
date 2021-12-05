@@ -20,6 +20,7 @@ package com.l2jserver.gameserver.model.actor.stat;
 
 import static com.l2jserver.gameserver.config.Configuration.character;
 import static com.l2jserver.gameserver.config.Configuration.general;
+import static com.l2jserver.gameserver.config.Configuration.hunting;
 import static com.l2jserver.gameserver.config.Configuration.vitality;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,10 +30,10 @@ import com.l2jserver.gameserver.model.L2PetLevelData;
 import com.l2jserver.gameserver.model.PcCondOverride;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.transform.TransformTemplate;
-import com.l2jserver.gameserver.model.entity.RecoBonus;
 import com.l2jserver.gameserver.model.stats.MoveType;
 import com.l2jserver.gameserver.model.stats.Stats;
 import com.l2jserver.gameserver.network.SystemMessageId;
+import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventPointInfoPacket;
 import com.l2jserver.gameserver.network.serverpackets.ExVitalityPointInfo;
 
 public class PcStat extends PlayableStat {
@@ -40,6 +41,9 @@ public class PcStat extends PlayableStat {
 	private int _oldMaxMp; // stats watch
 	private int _oldMaxCp; // stats watch
 	private float _vitalityPoints = 1;
+	private int _nevitPoints = 0;
+	private int _huntingBonusTime = 0;
+	private int _nevitBlessingTime = 0;
 	private byte _vitalityLevel = 0;
 	private long _startingXp;
 	/** Player's maximum cubic count. */
@@ -253,6 +257,8 @@ public class PcStat extends PlayableStat {
 		
 		if (!quiet && (level != _vitalityLevel)) {
 			if (level < _vitalityLevel) {
+				// Gain Nevit Points on Decrease Vitality Level
+				getActiveChar().getHuntingBonus().addPoints(hunting().getNevitDecreaseVitalityAcquirePoints());
 				getActiveChar().sendPacket(SystemMessageId.VITALITY_HAS_DECREASED);
 			} else {
 				getActiveChar().sendPacket(SystemMessageId.VITALITY_HAS_INCREASED);
@@ -301,6 +307,11 @@ public class PcStat extends PlayableStat {
 			// vitality consumed
 			if (points < 0) {
 				int stat = (int) calcStat(Stats.VITALITY_CONSUME_RATE, 1, getActiveChar(), null);
+				
+				if (getActiveChar().getHuntingBonus().isNevitBlessingActive()) {
+					stat = -10; // Increase Vitality During Blessing
+				}
+				
 				if (stat == 0) {
 					return;
 				}
@@ -346,7 +357,41 @@ public class PcStat extends PlayableStat {
 	}
 	
 	public byte getVitalityLevel() {
+		if (getActiveChar().getHuntingBonus().isNevitBlessingActive()) {
+			return 4;
+		}
 		return _vitalityLevel;
+	}
+	
+	/*
+	 * Return current nevit points in integer format
+	 */
+	public int getNevitBlessingPoints() {
+		return (int) _nevitPoints;
+	}
+	
+	/*
+	 * Set current nevit blessing points
+	 */
+	public void setNevitBlessingPoints(int points) {
+		_nevitPoints = points;
+		getActiveChar().sendPacket(new ExNevitAdventPointInfoPacket(getNevitBlessingPoints()));
+	}
+	
+	public int getHuntingBonusTime() {
+		return  _huntingBonusTime;
+	}
+	
+	public void setHuntingBonusTime(int time) {
+		_huntingBonusTime = time;
+	}
+	
+	public int getNevitBlessingTime() {
+		return (int) _nevitBlessingTime;
+	}
+	
+	public void setNevitBlessingTime(int time) {
+		_nevitBlessingTime = time;
 	}
 	
 	public double getExpBonusMultiplier() {
@@ -356,11 +401,8 @@ public class PcStat extends PlayableStat {
 		// Bonus from Vitality System
 		double vitality = getVitalityMultiplier();
 		
-		// Bonus from Nevit's Blessing
-		double nevits = RecoBonus.getRecoMultiplier(getActiveChar());
-		
-		// Bonus from Nevit's Hunting
-		// TODO: Nevit's hunting bonus
+		// Bonus from Nevit's Blessing / Nevit's Hunting
+		double nevits = getActiveChar().getNevitHourglassMultiplier();
 		
 		// Bonus exp from skills
 		double bonusExp = 1 + (calcStat(Stats.BONUS_EXP, 0, null, null) / 100);
@@ -392,11 +434,8 @@ public class PcStat extends PlayableStat {
 		// Bonus from Vitality System
 		double vitality = getVitalityMultiplier();
 		
-		// Bonus from Nevit's Blessing
-		double nevits = RecoBonus.getRecoMultiplier(getActiveChar());
-		
-		// Bonus from Nevit's Hunting
-		// TODO: Nevit's hunting bonus
+		// Bonus from Nevit's Blessing / Nevit's Hunting
+		double nevits = getActiveChar().getNevitHourglassMultiplier();
 		
 		// Bonus sp from skills
 		double bonusSp = 1 + (calcStat(Stats.BONUS_SP, 0, null, null) / 100);

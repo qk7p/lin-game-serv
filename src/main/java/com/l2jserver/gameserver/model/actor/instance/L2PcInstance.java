@@ -25,6 +25,7 @@ import static com.l2jserver.gameserver.config.Configuration.character;
 import static com.l2jserver.gameserver.config.Configuration.clan;
 import static com.l2jserver.gameserver.config.Configuration.customs;
 import static com.l2jserver.gameserver.config.Configuration.general;
+import static com.l2jserver.gameserver.config.Configuration.hunting;
 import static com.l2jserver.gameserver.config.Configuration.pvp;
 import static com.l2jserver.gameserver.config.Configuration.rates;
 import static com.l2jserver.gameserver.config.Configuration.vitality;
@@ -177,7 +178,7 @@ import com.l2jserver.gameserver.model.actor.tasks.player.InventoryEnableTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.LookingForFishTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.PetFeedTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.PvPFlagTask;
-import com.l2jserver.gameserver.model.actor.tasks.player.RecoBonusTaskEnd;
+import com.l2jserver.gameserver.model.actor.tasks.player.RecoBonusTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.RecoGiveTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.RentPetTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.ResetChargesTask;
@@ -199,8 +200,10 @@ import com.l2jserver.gameserver.model.effects.L2EffectType;
 import com.l2jserver.gameserver.model.entity.Castle;
 import com.l2jserver.gameserver.model.entity.Duel;
 import com.l2jserver.gameserver.model.entity.Fort;
+import com.l2jserver.gameserver.model.entity.HuntingSystem;
 import com.l2jserver.gameserver.model.entity.Instance;
 import com.l2jserver.gameserver.model.entity.L2Event;
+import com.l2jserver.gameserver.model.entity.RecoBonus;
 import com.l2jserver.gameserver.model.entity.Siege;
 import com.l2jserver.gameserver.model.entity.TvTEvent;
 import com.l2jserver.gameserver.model.events.Containers;
@@ -478,6 +481,9 @@ public final class L2PcInstance extends L2Playable {
 	/** True if the L2PcInstance is sitting */
 	private boolean _waitTypeSitting;
 	private boolean _observerMode = false;
+	// High Five: Hunting Bonus System
+	private final HuntingSystem _huntingBonusSystem = new HuntingSystem(this);
+	private int _recoBonusTime = 0;
 	/** The number of recommendation obtained by the player. */
 	private int _recomHave;
 	/** The number of recommendation that the player can give. */
@@ -486,6 +492,7 @@ public final class L2PcInstance extends L2Playable {
 	private ScheduledFuture<?> _recoBonusTask;
 	/** Recommendation task **/
 	private ScheduledFuture<?> _recoGiveTask;
+	private boolean _isHourglassEffected, _isRecomTimerActive;
 	/** Recommendation Two Hours bonus **/
 	private boolean _recoTwoHoursGiven = false;
 	private PcWarehouse _warehouse;
@@ -738,6 +745,8 @@ public final class L2PcInstance extends L2Playable {
 		player.setNewbie(1);
 		// Give 20 recommendations
 		player.setRecomLeft(20);
+		// Give one hour bonus for new chars
+		player.setRecomBonusTime(3600);
 		// Add the player in the characters table of the database
 		return DAOFactory.getInstance().getPlayerDAO().insert(player) ? player : null;
 	}
@@ -823,6 +832,13 @@ public final class L2PcInstance extends L2Playable {
 				final long masks = player.getVariables().getLong(COND_OVERRIDE_KEY, PcCondOverride.getAllExceptionsMask());
 				player.setOverrideCond(masks);
 			}
+			
+			// Starting recommendations give task, init Task give = 10 reco 2hs & 1 every 1hs.
+			player.startRecomGiveTask();
+			
+			// Load player's recommendations and bonus time
+			DAOFactory.getInstance().getRecommendationBonusDAO().load(player);
+			
 			return player;
 		} catch (Exception e) {
 			LOG.error("Failed loading character.", e);
@@ -1626,9 +1642,7 @@ public final class L2PcInstance extends L2Playable {
 	 * Increment the number of recommendation that the L2PcInstance can give.
 	 */
 	protected void decRecomLeft() {
-		if (_recomLeft > 0) {
-			_recomLeft--;
-		}
+		_recomLeft--;
 	}
 	
 	public void giveRecom(L2PcInstance target) {
@@ -2097,6 +2111,13 @@ public final class L2PcInstance extends L2Playable {
 				pet.broadcastPacket(new SocialAction(getObjectId(), SocialAction.LEVEL_UP));
 				pet.updateAndBroadcastStatus(1);
 			}
+		}
+		
+		// Get Nevit Blessing Points on level up
+		if (getActingPlayer().getHuntingBonus().isNevitBlessingActive()) {
+			getActingPlayer().getHuntingBonus().addPoints(hunting().getNevitLevelAcquirePoints2());
+		} else {
+			getActingPlayer().getHuntingBonus().addPoints(hunting().getNevitLevelAcquirePoints());
 		}
 		
 		StatusUpdate su = new StatusUpdate(this);
@@ -4466,7 +4487,7 @@ public final class L2PcInstance extends L2Playable {
 						}
 					}
 					// If player is Lucky shouldn't get penalized.
-					if (character().delevel() && !isLucky() && (insideSiegeZone || !insidePvpZone)) {
+					if (character().delevel() && !isLucky() && !(insideSiegeZone || insidePvpZone) && !getHuntingBonus().isNevitBlessingActive()) {
 						calculateDeathExpPenalty(killer, isAtWarWith(pk));
 					}
 				}
@@ -4895,7 +4916,9 @@ public final class L2PcInstance extends L2Playable {
 		// Calculate the Experience loss
 		long lostExp = 0;
 		if (!L2Event.isParticipant(this)) {
-			if (lvl < character().getMaxPlayerLevel()) {
+			if (getHuntingBonus().isNevitBlessingActive()) {
+				lostExp = 0;
+			} else if (lvl < character().getMaxPlayerLevel()) {
 				lostExp = Math.round(((getStat().getExpForLevel(lvl + 1) - getStat().getExpForLevel(lvl)) * percentLost) / 100);
 			} else {
 				lostExp = Math.round(((getStat().getExpForLevel(character().getMaxPlayerLevel() + 1) - getStat().getExpForLevel(character().getMaxPlayerLevel())) * percentLost) / 100);
@@ -4944,7 +4967,7 @@ public final class L2PcInstance extends L2Playable {
 		stopChargeTask();
 		stopFameTask();
 		stopVitalityTask();
-		stopRecoBonusTask();
+		stopRecomBonusTask();
 		stopRecoGiveTask();
 	}
 	
@@ -7946,6 +7969,8 @@ public final class L2PcInstance extends L2Playable {
 	public void onPlayerEnter() {
 		startWarnUserTakeBreak();
 		
+		getHuntingBonus().onPlayerLogin();
+		
 		if (SevenSigns.getInstance().isSealValidationPeriod() || SevenSigns.getInstance().isCompResultsPeriod()) {
 			if (!isGM() && isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(getObjectId()) != SevenSigns.getInstance().getCabalHighestScore())) {
 				teleToLocation(TeleportWhereType.TOWN);
@@ -8581,6 +8606,9 @@ public final class L2PcInstance extends L2Playable {
 		if (isChannelized()) {
 			getSkillChannelized().abortChannelization();
 		}
+		
+		// Hunting System
+		getHuntingBonus().onPlayerLogout();
 		
 		// Stop all toggles.
 		getEffectList().stopAllToggles();
@@ -10504,38 +10532,8 @@ public final class L2PcInstance extends L2Playable {
 	 * Update L2PcInstance Recommendations data.
 	 */
 	public void storeRecommendations() {
-		long recoTaskEnd = 0;
-		if (_recoBonusTask != null) {
-			recoTaskEnd = Math.max(0, _recoBonusTask.getDelay(TimeUnit.MILLISECONDS));
-		}
-		
-		DAOFactory.getInstance().getRecommendationBonusDAO().insert(this, recoTaskEnd);
-	}
-	
-	public void checkRecoBonusTask() {
-		final long taskTime = DAOFactory.getInstance().getRecommendationBonusDAO().load(this);
-		if (taskTime > 0) {
-			// Add 20 recos on first login
-			if (taskTime == 3600000) {
-				setRecomLeft(getRecomLeft() + 20);
-			}
-			
-			// If player have some timeleft, start bonus task
-			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTaskEnd(this), taskTime);
-		}
-		
-		// Create task to give new recommendations
-		_recoGiveTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new RecoGiveTask(this), 7200000, 3600000);
-		
-		// Store new data
-		storeRecommendations();
-	}
-	
-	public void stopRecoBonusTask() {
-		if (_recoBonusTask != null) {
-			_recoBonusTask.cancel(false);
-			_recoBonusTask = null;
-		}
+		int recomTime = _recoBonusTask != null ? (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)) : getRecomBonusTime();
+		DAOFactory.getInstance().getRecommendationBonusDAO().insert(this, recomTime);
 	}
 	
 	public void stopRecoGiveTask() {
@@ -10545,25 +10543,119 @@ public final class L2PcInstance extends L2Playable {
 		}
 	}
 	
-	public boolean isRecoTwoHoursGiven() {
-		return _recoTwoHoursGiven;
-	}
-	
 	public void setRecoTwoHoursGiven(boolean val) {
 		_recoTwoHoursGiven = val;
 	}
 	
 	public int getRecomBonusTime() {
-		if (_recoBonusTask != null) {
-			return (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-		}
-		
-		return 0;
+		return _recoBonusTime;
 	}
 	
 	public int getRecomBonusType() {
 		// Maintain = 1
 		return 0;
+	}
+	
+	public HuntingSystem getHuntingBonus() {
+		return _huntingBonusSystem;
+	}
+	
+	public int getNevitBlessingPoints() {
+		return getStat().getNevitBlessingPoints();
+	}
+	
+	public void setNevitBlessingPoints(int points) {
+		getStat().setNevitBlessingPoints(points);
+	}
+	
+	public int getHuntingBonusTime() {
+		return getStat().getHuntingBonusTime();
+	}
+	
+	public void setHuntingBonusTime(int time) {
+		getStat().setHuntingBonusTime(time);
+	}
+	
+	public int getNevitBlessingTime() {
+		return getStat().getNevitBlessingTime();
+	}
+	
+	public void setNevitBlessingTime(int time) {
+		getStat().setNevitBlessingTime(time);
+	}
+	
+	public void startRecomGiveTask() {
+		_recoGiveTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new RecoGiveTask(this), 7200000, 3600000);
+	}
+	
+	public void startRecomBonusTask() {
+		if ((_recoBonusTask == null) && (_recoBonusTime > 0) && isRecomTimerActive() && !isHourglassEffected()) {
+			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), _recoBonusTime * 1000);
+		}
+	}
+	
+	public boolean isHourglassEffected() {
+		return _isHourglassEffected;
+	}
+	
+	public void setHourlassEffected(boolean val) {
+		_isHourglassEffected = val;
+	}
+	
+	public void startHourglassEffect() {
+		setHourlassEffected(true);
+		stopRecomBonusTask();
+		sendPacket(new ExVoteSystemInfo(this));
+	}
+	
+	public void stopHourglassEffect() {
+		setHourlassEffected(false);
+		startRecomBonusTask();
+		sendPacket(new ExVoteSystemInfo(this));
+	}
+	
+	public boolean isRecomTimerActive() {
+		return _isRecomTimerActive;
+	}
+	
+	public void setRecomTimerActive(boolean val) {
+		if (_isRecomTimerActive == val) {
+			return;
+		}
+		
+		_isRecomTimerActive = val;
+		
+		if (val) {
+			startRecomBonusTask();
+		} else {
+			stopRecomBonusTask();
+		}
+		
+		sendPacket(new ExVoteSystemInfo(this));
+	}
+	
+	public void stopRecomBonusTask() {
+		if (_recoBonusTask != null) {
+			setRecomBonusTime((int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)));
+			_recoBonusTask.cancel(false);
+			_recoBonusTask = null;
+		}
+	}
+	
+	public boolean isRecoTwoHoursGiven() {
+		return _recoTwoHoursGiven;
+	}
+	
+	public void setRecomBonusTime(int time) {
+		_recoBonusTime = time;
+	}
+	
+	public int getRecomBonus() {
+		return (getRecomBonusTime() > 0) || isHourglassEffected() ? RecoBonus.getRecoBonus(this) : 0;
+	}
+	
+	public double getNevitHourglassMultiplier() {
+		return (getRecomBonusTime() > 0) || isHourglassEffected() ? RecoBonus.getRecoMultiplier(this) : 0;
 	}
 	
 	public String getLastPetitionGmName() {
