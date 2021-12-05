@@ -42,6 +42,10 @@ public class TaskRecom extends Task {
 	
 	private static final String NAME = "recommendations";
 	
+	private static final int RESET_REC_LEFT = 0;
+	private static final int RESET_REC_BONUS_TIME = 3600;
+	private static final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=GREATEST(rec_have-2,0), rec_left=?, time_left=?";
+	
 	@Override
 	public String getName() {
 		return NAME;
@@ -49,30 +53,26 @@ public class TaskRecom extends Task {
 	
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
-		final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=?, rec_left=?, time_left=? WHERE charId=?";
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
-			try (var con = ConnectionFactory.getInstance().getConnection();
-				var ps = con.prepareStatement(UPDATE_CHARACTERS_RECO)) {
-				ps.setInt(1, player.getRecomHave());
-				ps.setInt(2, player.getRecomLeft());
-				ps.setInt(3, player.getRecomBonusTime());
-				ps.setInt(4, player.getObjectId());
-				ps.executeUpdate();
-			} catch (Exception e) {
-				LOG.warn("{}: Recommendations System not reseted!", getClass().getSimpleName(), e);
-			}
-			
-			if ((player != null)) {
-				player.setRecomHave(player.getRecomHave() - 2);
-				player.setRecomLeft(0);
-				player.setRecomBonusTime(3600);
-				if (player.isOnline()) {
-					player.sendPacket(new UserInfo(player));
-					player.sendPacket(new ExBrExtraUserInfo(player));
-					player.sendPacket(new ExVoteSystemInfo(player));
-				}
+			player.setRecomHave(player.getRecomHave() - 2);
+			player.setRecomLeft(RESET_REC_LEFT);
+			player.setRecomBonusTime(RESET_REC_BONUS_TIME);
+			if (player.isOnline()) {
+				player.sendPacket(new UserInfo(player));
+				player.sendPacket(new ExBrExtraUserInfo(player));
+				player.sendPacket(new ExVoteSystemInfo(player));
 			}
 		}
+		
+		try (var con = ConnectionFactory.getInstance().getConnection();
+			var ps = con.prepareStatement(UPDATE_CHARACTERS_RECO)) {
+			ps.setInt(1, RESET_REC_LEFT);
+			ps.setInt(2, RESET_REC_BONUS_TIME);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			LOG.warn("{}: Failed to execute SQL-Query for the reset of the Recommendations System!", getClass().getSimpleName(), e);
+		}
+		
 		LOG.info("Recommendations System reseted.");
 	}
 	

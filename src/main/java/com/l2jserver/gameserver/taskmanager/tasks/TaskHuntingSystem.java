@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2004-2021 L2J Server
+ * Copyright © 2004-2021 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -36,7 +36,11 @@ import com.l2jserver.gameserver.taskmanager.TaskTypes;
  */
 public class TaskHuntingSystem extends Task {
 	protected static final Logger LOG = LoggerFactory.getLogger(TaskHuntingSystem.class);
+
 	private static final String NAME = "hunting_system";
+
+	private static final int RESET_HUNTING_BONUS = 0;
+	private static final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=? WHERE charId=?";
 	
 	@Override
 	public String getName() {
@@ -45,26 +49,23 @@ public class TaskHuntingSystem extends Task {
 	
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
-		final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=? WHERE charId=?";
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
-			try (var con = ConnectionFactory.getInstance().getConnection();
-				var ps = con.prepareStatement(UPDATE_CHARACTERS_HUNTING)) {
-				ps.setInt(1, player.getHuntingBonusTime());
-				ps.setInt(2, player.getObjectId());
-				ps.executeUpdate();
-			} catch (Exception e) {
-				LOG.warn("{}: Hunting System not reseted!", getClass().getSimpleName(), e);
-			}
-			
-			if ((player != null)) {
-				player.setHuntingBonusTime(0);
-				if (player.isOnline()) {
-					if (player.getHuntingBonus().isHuntingBonusTaskActive()) {
-						player.sendPacket(new ExNevitAdventTimeChange(player.getHuntingBonusTime(), false));
-					}
+			player.setHuntingBonusTime(RESET_HUNTING_BONUS);
+			if (player.isOnline()) {
+				if (player.getHuntingBonus().isHuntingBonusTaskActive()) {
+					player.sendPacket(new ExNevitAdventTimeChange(player.getHuntingBonusTime(), false));
 				}
 			}
 		}
+
+		try (var con = ConnectionFactory.getInstance().getConnection();
+			var ps = con.prepareStatement(UPDATE_CHARACTERS_HUNTING)) {
+			ps.setInt(1, RESET_HUNTING_BONUS);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			LOG.warn("{}: Failed to execute SQL-Query for the reset of the Hunting-System!", getClass().getSimpleName(), e);
+		}
+
 		LOG.info("Hunting System reseted.");
 	}
 	
