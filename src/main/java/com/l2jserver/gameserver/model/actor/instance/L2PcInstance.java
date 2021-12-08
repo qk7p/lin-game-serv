@@ -483,7 +483,6 @@ public final class L2PcInstance extends L2Playable {
 	private boolean _observerMode = false;
 	// High Five: Hunting Bonus System
 	private final HuntingSystem _huntingBonusSystem = new HuntingSystem(this);
-	private int _recoBonusTime = 0;
 	/** The number of recommendation obtained by the player. */
 	private int _recomHave;
 	/** The number of recommendation that the player can give. */
@@ -10548,12 +10547,7 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	public int getRecomBonusTime() {
-		return _recoBonusTime;
-	}
-	
-	public int getRecomBonusType() {
-		// Maintain = 1
-		return 0;
+		return getStat().getRecomBonusTime();
 	}
 	
 	public HuntingSystem getHuntingBonus() {
@@ -10589,8 +10583,8 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	public void startRecomBonusTask() {
-		if ((_recoBonusTask == null) && (_recoBonusTime > 0) && isRecomTimerActive() && !isHourglassEffected()) {
-			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), _recoBonusTime * 1000);
+		if ((_recoBonusTask == null) && (getRecomBonusTime() > 0) && isRecomTimerActive() && !isHourglassEffected()) {
+			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), getRecomBonusTime() * 1000);
 		}
 	}
 	
@@ -10647,7 +10641,12 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	public void setRecomBonusTime(int time) {
-		_recoBonusTime = time;
+		if (_recoBonusTask != null) {
+			_recoBonusTask.cancel(true);
+			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), time * 1000);
+			time = (int) _recoBonusTask.getDelay(TimeUnit.SECONDS);
+		}
+		getStat().setRecomBonusTime(time);
 	}
 	
 	public int getRecomBonus() {
