@@ -80,7 +80,7 @@ public class HuntingSystem {
 	}
 	
 	public void addPoints(int val) {
-		if (_huntingBonusTask != null) {
+		if (getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
 			getActiveChar().setNevitBlessingPoints(getActiveChar().getNevitBlessingPoints() + val);
 		}
 		
@@ -93,8 +93,8 @@ public class HuntingSystem {
 	}
 	
 	public void startHuntingSystemTask() {
-		if ((_huntingBonusTask == null) && (getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit())) {
-			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), hunting().getNevitBonusRefreshRate() * 1000L, hunting().getNevitBonusRefreshRate() * 1000L);
+		if ((_huntingBonusTask == null) && ((getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()))) {
+			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), hunting().getNevitBonusRefreshRate() * 1000, hunting().getNevitBonusRefreshRate() * 1000);
 			if (hunting().getHuntingBonusLimit()) {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
 			}
@@ -139,7 +139,7 @@ public class HuntingSystem {
 		}
 	}
 	
-	private void checkNevitBlessingEffect(int value) {
+	public void checkNevitBlessingEffect(int value) {
 		if (getActiveChar().getNevitBlessingTime() > 0) {
 			stopNevitBlessingEffectTask(false);
 			value = getActiveChar().getNevitBlessingTime();

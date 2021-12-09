@@ -36,9 +36,9 @@ import com.l2jserver.gameserver.taskmanager.TaskTypes;
  */
 public class TaskHuntingSystem extends Task {
 	protected static final Logger LOG = LoggerFactory.getLogger(TaskHuntingSystem.class);
-
+	
 	private static final String NAME = "hunting_system";
-
+	
 	private static final int RESET_HUNTING_BONUS = 0;
 	private static final String UPDATE_CHARACTERS_HUNTING = "UPDATE characters SET hunting_bonus=?";
 	
@@ -57,7 +57,7 @@ public class TaskHuntingSystem extends Task {
 				}
 			}
 		}
-
+		
 		try (var con = ConnectionFactory.getInstance().getConnection();
 			var ps = con.prepareStatement(UPDATE_CHARACTERS_HUNTING)) {
 			ps.setInt(1, RESET_HUNTING_BONUS);
@@ -65,7 +65,7 @@ public class TaskHuntingSystem extends Task {
 		} catch (Exception e) {
 			LOG.warn("{}: Failed to execute SQL-Query for the reset of the Hunting-System!", getClass().getSimpleName(), e);
 		}
-
+		
 		LOG.info("Hunting System reseted.");
 	}
 	

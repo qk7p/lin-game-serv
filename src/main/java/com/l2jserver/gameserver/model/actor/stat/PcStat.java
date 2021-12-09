@@ -368,7 +368,7 @@ public class PcStat extends PlayableStat {
 	 * Return current nevit points in integer format
 	 */
 	public int getNevitBlessingPoints() {
-		return (int) _nevitPoints;
+		return _nevitPoints;
 	}
 	
 	/*
@@ -380,7 +380,7 @@ public class PcStat extends PlayableStat {
 	}
 	
 	public int getHuntingBonusTime() {
-		return (int) _huntingBonusTime;
+		return _huntingBonusTime;
 	}
 	
 	public void setHuntingBonusTime(int time) {
@@ -388,7 +388,7 @@ public class PcStat extends PlayableStat {
 	}
 	
 	public int getNevitBlessingTime() {
-		return (int) _nevitBlessingTime;
+		return _nevitBlessingTime;
 	}
 	
 	public void setNevitBlessingTime(int time) {
@@ -396,7 +396,7 @@ public class PcStat extends PlayableStat {
 	}
 	
 	public int getRecomBonusTime() {
-		return (int) _recoBonusTime;
+		return _recoBonusTime;
 	}
 	
 	public void setRecomBonusTime(int time) {
