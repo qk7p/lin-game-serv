@@ -44,7 +44,7 @@ public class TaskRecom extends Task {
 	
 	private static final int RESET_REC_LEFT = 0;
 	private static final int RESET_REC_BONUS_TIME = 3600;
-	private static final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=GREATEST(rec_have-2,0), rec_left=?, time_left=?";
+	private static final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=rec_have-LEAST(rec_have,2), rec_left=?, time_left=?";
 	
 	@Override
 	public String getName() {
