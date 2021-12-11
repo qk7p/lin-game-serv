@@ -54,10 +54,6 @@ public final class L2EnchantSkillLearn {
 		return (level % 100) - 1;
 	}
 	
-	public static int getEnchantType(int level) {
-		return ((level - 1) / 100) - 1;
-	}
-	
 	public L2EnchantSkillGroup getFirstRouteGroup() {
 		return EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.firstEntry().getValue());
 	}
@@ -74,27 +70,27 @@ public final class L2EnchantSkillLearn {
 	}
 	
 	public boolean isMaxEnchant(int level) {
-		int enchantType = getEnchantRoute(level);
-		if ((enchantType < 1) || !_enchantRoutes.containsKey(enchantType)) {
+		int route = getEnchantRoute(level);
+		if ((route < 1) || !_enchantRoutes.containsKey(route)) {
 			return false;
 		}
 		int index = getEnchantIndex(level);
 		
-		return (index + 1) >= EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType)).getEnchantGroupDetails().size();
+		return (index + 1) >= EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(route)).getEnchantGroupDetails().size();
 	}
 	
 	public EnchantSkillHolder getEnchantSkillHolder(int level) {
-		int enchantType = getEnchantRoute(level);
-		if ((enchantType < 1) || !_enchantRoutes.containsKey(enchantType)) {
+		int route = getEnchantRoute(level);
+		if ((route < 1) || !_enchantRoutes.containsKey(route)) {
 			return null;
 		}
 		int index = getEnchantIndex(level);
-		L2EnchantSkillGroup group = EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType));
+		L2EnchantSkillGroup group = EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(route));
 		
 		if (index < 0) {
 			return group.getEnchantGroupDetails().get(0);
 		} else if (index >= group.getEnchantGroupDetails().size()) {
-			return group.getEnchantGroupDetails().get(EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType)).getEnchantGroupDetails().size() - 1);
+			return group.getEnchantGroupDetails().get(EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(route)).getEnchantGroupDetails().size() - 1);
 		}
 		return group.getEnchantGroupDetails().get(index);
 	}
