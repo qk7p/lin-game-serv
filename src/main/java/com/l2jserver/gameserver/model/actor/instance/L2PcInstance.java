@@ -489,6 +489,7 @@ public final class L2PcInstance extends L2Playable {
 	private int _recomLeft;
 	/** Recommendation Bonus task **/
 	private ScheduledFuture<?> _recoBonusTask;
+	private int _recoBonusTime = 0;
 	/** Recommendation task **/
 	private ScheduledFuture<?> _recoGiveTask;
 	private boolean _isHourglassEffected, _isRecomTimerActive;
@@ -10630,8 +10631,9 @@ public final class L2PcInstance extends L2Playable {
 	
 	public void stopRecomBonusTask() {
 		if (_recoBonusTask != null) {
-			setRecomBonusTime((int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)));
-			_recoBonusTask.cancel(false);
+			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			setRecomBonusTime(_recoBonusTime);
+			_recoBonusTask.cancel(true);
 			_recoBonusTask = null;
 		}
 	}
@@ -10642,9 +10644,11 @@ public final class L2PcInstance extends L2Playable {
 	
 	public void setRecomBonusTime(int time) {
 		if (_recoBonusTask != null) {
-			_recoBonusTask.cancel(true);
-			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), time * 1000);
-			time = (int) _recoBonusTask.getDelay(TimeUnit.SECONDS);
+			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			if (_recoBonusTime > 0) {
+				_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), time * 1000);
+				time = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			}
 		}
 		getStat().setRecomBonusTime(time);
 	}
