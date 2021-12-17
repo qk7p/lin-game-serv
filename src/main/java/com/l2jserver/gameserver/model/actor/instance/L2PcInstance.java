@@ -6482,7 +6482,7 @@ public final class L2PcInstance extends L2Playable {
 		
 		// Target the player if skill type is AURA, PARTY, CLAN or SELF
 		target = switch (sklTargetType) {
-			case PARTY, GROUND, SELF -> this;
+			case GROUND, SELF -> this;
 			case SUMMON -> getSummon();
 			default -> getTarget();
 		};
@@ -6605,7 +6605,6 @@ public final class L2PcInstance extends L2Playable {
 			// Check if a Forced ATTACK is in progress on non-attackable target
 			if (!target.isAutoAttackable(this) && !forceUse) {
 				switch (sklTargetType) {
-					case PARTY:
 					case SELF:
 					case GROUND:
 					case DOOR_TREASURE:
@@ -6647,7 +6646,6 @@ public final class L2PcInstance extends L2Playable {
 		
 		// Check if this is a Pvp skill and target isn't a non-flagged/non-karma player
 		switch (sklTargetType) {
-			case PARTY:
 			case GROUND:
 			case SELF:
 			case ENEMY:

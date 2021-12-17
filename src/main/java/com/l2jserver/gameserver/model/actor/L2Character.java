@@ -127,6 +127,7 @@ import com.l2jserver.gameserver.model.skills.EffectScope;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.skills.SkillChannelized;
 import com.l2jserver.gameserver.model.skills.SkillChannelizer;
+import com.l2jserver.gameserver.model.skills.targets.AffectScope;
 import com.l2jserver.gameserver.model.skills.targets.TargetType;
 import com.l2jserver.gameserver.model.stats.Calculator;
 import com.l2jserver.gameserver.model.stats.Formulas;
@@ -4515,7 +4516,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					}
 					
 					// Healing party members should ignore LOS.
-					if (((skill.getTargetType() != TargetType.PARTY) || !skill.hasEffectType(L2EffectType.HP)) //
+					if (((skill.getAffectScope() != AffectScope.PARTY) || !skill.hasEffectType(L2EffectType.HP)) //
 						&& !GeoData.getInstance().canSeeTarget(this, target)) {
 						skipLOS++;
 						continue;

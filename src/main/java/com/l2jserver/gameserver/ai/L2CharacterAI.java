@@ -28,6 +28,7 @@ import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_MOVE_TO;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_PICK_UP;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_REST;
 import static com.l2jserver.gameserver.config.Configuration.geodata;
+import static com.l2jserver.gameserver.model.skills.targets.AffectScope.PARTY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,6 @@ import com.l2jserver.gameserver.model.items.L2Weapon;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.items.type.WeaponType;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.model.skills.targets.TargetType;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ActionFailed;
 import com.l2jserver.gameserver.network.serverpackets.AutoAttackStop;
@@ -1301,6 +1301,6 @@ public class L2CharacterAI extends AbstractAI {
 	}
 	
 	public boolean isParty(Skill sk) {
-		return (sk.getTargetType() == TargetType.PARTY);
+		return sk.getAffectScope() == PARTY;
 	}
 }

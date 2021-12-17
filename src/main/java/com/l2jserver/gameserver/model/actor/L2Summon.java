@@ -538,8 +538,8 @@ public abstract class L2Summon extends L2Playable {
 		
 		// Get the target for the skill
 		L2Object target = switch (skill.getTargetType()) {
-			// PARTY, SELF should be cast even if no target has been found
-			case PARTY, SELF -> this;
+			// SELF should be cast even if no target has been found
+			case SELF -> this;
 			// Get the first target of the list
 			default -> {
 				final var targets = skill.getTargets(this);
@@ -622,7 +622,7 @@ public abstract class L2Summon extends L2Playable {
 				}
 				
 				// Check if a Forced attack is in progress on non-attackable target
-				if (!target.isAutoAttackable(this) && !forceUse && !target.isNpc() && (skill.getTargetType() != TargetType.PARTY) && (skill.getTargetType() != TargetType.SELF)) {
+				if (!target.isAutoAttackable(this) && !forceUse && !target.isNpc() && (skill.getTargetType() != TargetType.SELF)) {
 					return false;
 				}
 			}
