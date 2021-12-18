@@ -26,6 +26,7 @@ import static com.l2jserver.gameserver.config.Configuration.general;
 import static com.l2jserver.gameserver.config.Configuration.geodata;
 import static com.l2jserver.gameserver.config.Configuration.npc;
 import static com.l2jserver.gameserver.config.Configuration.territoryWar;
+import static com.l2jserver.gameserver.model.skills.targets.AffectScope.PARTY;
 import static com.l2jserver.gameserver.model.stats.Stats.NUM_STATS;
 
 import java.util.ArrayList;
@@ -127,7 +128,6 @@ import com.l2jserver.gameserver.model.skills.EffectScope;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.skills.SkillChannelized;
 import com.l2jserver.gameserver.model.skills.SkillChannelizer;
-import com.l2jserver.gameserver.model.skills.targets.AffectScope;
 import com.l2jserver.gameserver.model.skills.targets.TargetType;
 import com.l2jserver.gameserver.model.stats.Calculator;
 import com.l2jserver.gameserver.model.stats.Formulas;
@@ -4487,15 +4487,11 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 * @param mut
 	 */
 	public void onMagicLaunchedTimer(MagicUseTask mut) {
-		final var skill = mut.getSkill();
-		final var targets = mut.getTargets();
-		
-		if ((skill == null) || (targets == null) || targets.isEmpty()) {
-			abortCast();
-			return;
-		}
+		// TODO(Zoey76): The target list should be managed by the target type and affect scope and should not be modified here.
+		// TODO(Zoey76): The best approach would be to include the effect range and LOS validation in AffectScope.
 		
 		// Escaping from under skill's radius and peace zone check. First version, not perfect in AoE skills.
+		final var skill = mut.getSkill();
 		int escapeRange = 0;
 		if (skill.getEffectRange() > escapeRange) {
 			escapeRange = skill.getEffectRange();
@@ -4503,6 +4499,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			escapeRange = skill.getAffectRange();
 		}
 		
+		final var targets = mut.getTargets();
 		if (!targets.isEmpty() && (escapeRange > 0)) {
 			int skipRange = 0;
 			int skipLOS = 0;
@@ -4516,7 +4513,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					}
 					
 					// Healing party members should ignore LOS.
-					if (((skill.getAffectScope() != AffectScope.PARTY) || !skill.hasEffectType(L2EffectType.HP)) //
+					if (((skill.getAffectScope() != PARTY) || !skill.hasEffectType(L2EffectType.HP)) //
 						&& !GeoData.getInstance().canSeeTarget(this, target)) {
 						skipLOS++;
 						continue;
