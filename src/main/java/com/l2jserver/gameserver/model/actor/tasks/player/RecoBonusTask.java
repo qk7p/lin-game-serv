@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2004-2021 L2J Server
+ * Copyright © 2004-2021 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -22,6 +22,7 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 
 /**
+ * @author UnAfraid
  * @author Maneco2
  * @since 2.6.3.0
  */
