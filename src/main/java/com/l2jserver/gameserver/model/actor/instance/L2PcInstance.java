@@ -492,7 +492,7 @@ public final class L2PcInstance extends L2Playable {
 	private int _recoBonusTime = 0;
 	/** Recommendation task **/
 	private ScheduledFuture<?> _recoGiveTask;
-	private boolean _isHourglassEffected, _isRecomTimerActive;
+	private boolean _isRecomTimerActive;
 	/** Recommendation Two Hours bonus **/
 	private boolean _recoTwoHoursGiven = false;
 	private PcWarehouse _warehouse;
@@ -10584,29 +10584,19 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	public void startRecomBonusTask() {
-		if ((_recoBonusTask == null) && (getRecomBonusTime() > 0) && isRecomTimerActive() && !isHourglassEffected()) {
+		if ((_recoBonusTask == null) && (getRecomBonusTime() > 0) && isRecomTimerActive() && !hasAbnormalTypeVote()) {
 			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), getRecomBonusTime() * 1000);
 		}
 	}
 	
-	public boolean isHourglassEffected() {
-		return _isHourglassEffected;
+	public boolean hasAbnormalType(AbnormalType at)
+	{
+		return getEffectList().getBuffInfoByAbnormalType(at) != null;
 	}
 	
-	public void setHourlassEffected(boolean val) {
-		_isHourglassEffected = val;
-	}
-	
-	public void startHourglassEffect() {
-		setHourlassEffected(true);
-		stopRecomBonusTask();
-		sendPacket(new ExVoteSystemInfo(this));
-	}
-	
-	public void stopHourglassEffect() {
-		setHourlassEffected(false);
-		startRecomBonusTask();
-		sendPacket(new ExVoteSystemInfo(this));
+	public boolean hasAbnormalTypeVote()
+	{
+		return hasAbnormalType(AbnormalType.VOTE);
 	}
 	
 	public boolean isRecomTimerActive() {
@@ -10654,11 +10644,11 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	public int getRecomBonus() {
-		return (getRecomBonusTime() > 0) || isHourglassEffected() ? RecoBonus.getRecoBonus(this) : 0;
+		return (getRecomBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoBonus(this) : 0;
 	}
 	
 	public double getNevitHourglassMultiplier() {
-		return (getRecomBonusTime() > 0) || isHourglassEffected() ? RecoBonus.getRecoMultiplier(this) : 0;
+		return (getRecomBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(this) : 0;
 	}
 	
 	public String getLastPetitionGmName() {

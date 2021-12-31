@@ -36,7 +36,7 @@ public class ExVoteSystemInfo extends L2GameServerPacket {
 		_recomHave = player.getRecomHave();
 		_bonusTime = player.getRecomBonusTime();
 		_bonusVal = player.getRecomBonus();
-		_bonusType = !player.isRecomTimerActive() || player.isHourglassEffected();
+		_bonusType = !player.isRecomTimerActive() || player.hasAbnormalTypeVote();
 	}
 	
 	@Override
