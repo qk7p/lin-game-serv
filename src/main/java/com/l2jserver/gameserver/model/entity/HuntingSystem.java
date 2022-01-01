@@ -40,6 +40,8 @@ import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventTimeChange;
  */
 public class HuntingSystem {
 	
+	private static final int HUNTING_BONUS_REFRESH_RATE = 1;
+	
 	private boolean _message45;
 	private boolean _message50;
 	private boolean _message75;
@@ -94,7 +96,7 @@ public class HuntingSystem {
 	
 	public void startHuntingSystemTask() {
 		if ((_huntingBonusTask == null) && ((getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()))) {
-			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), hunting().getNevitBonusRefreshRate() * 1000, hunting().getNevitBonusRefreshRate() * 1000);
+			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), 1000, 1000);
 			if (hunting().getHuntingBonusLimit()) {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
 			}
@@ -104,7 +106,7 @@ public class HuntingSystem {
 	public class HuntingBonusTask implements Runnable {
 		@Override
 		public void run() {
-			getActiveChar().setHuntingBonusTime(getActiveChar().getHuntingBonusTime() + hunting().getNevitBonusRefreshRate());
+			getActiveChar().setHuntingBonusTime(getActiveChar().getHuntingBonusTime() + HUNTING_BONUS_REFRESH_RATE);
 			if (getActiveChar().getHuntingBonusTime() >= hunting().getHuntingBonusMaxTime() && hunting().getHuntingBonusLimit()) {
 				getActiveChar().setHuntingBonusTime(hunting().getHuntingBonusMaxTime());
 				stopHuntingBonusTask(true);
@@ -115,14 +117,10 @@ public class HuntingSystem {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
 			}
 			
-			addPoints(hunting().getNevitBonusPointsOnRefresh());
-			BuffInfo hourglass = getActiveChar().getEffectList().getBuffInfoByAbnormalType(AbnormalType.VOTE);
-			if (hourglass != null) {
-				addPoints(hunting().getNevitRegularPoints2());
+			if (getActiveChar().getNevitBlessingTime() > 0) {
+				addPoints(hunting().getNevitRegularPoints());
 			} else {
-				if (getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime()) {
-					addPoints(hunting().getNevitRegularPoints());
-				}
+				addPoints(hunting().getNevitRegularPoints2());
 			}
 		}
 	}

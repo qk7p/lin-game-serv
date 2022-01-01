@@ -4701,10 +4701,6 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			getAI().clientStartAutoAttack();
 		}
 		
-		if (skill.getAbnormalType() == AbnormalType.VOTE) {
-			player.setRecomTimerActive(false);
-		}
-		
 		// Notify the AI of the L2Character with EVT_FINISH_CASTING
 		getAI().notifyEvent(CtrlEvent.EVT_FINISH_CASTING);
 		

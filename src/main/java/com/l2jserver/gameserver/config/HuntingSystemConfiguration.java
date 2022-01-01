@@ -67,12 +67,6 @@ public interface HuntingSystemConfiguration extends Reloadable {
 	@Key("NevitDecreaseVitalityAcquirePoints")
 	Integer getNevitDecreaseVitalityAcquirePoints();
 	
-	@Key("NevitBonusRefreshRate")
-	Integer getNevitBonusRefreshRate();
-	
-	@Key("NevitBonusRefreshPoints")
-	Integer getNevitBonusPointsOnRefresh();
-	
 	@Key("NevitBonusEffectTime")
 	Integer getNevitBlessingEffetcTime();
 	
