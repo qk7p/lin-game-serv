@@ -492,7 +492,6 @@ public final class L2PcInstance extends L2Playable {
 	private int _recoBonusTime = 0;
 	/** Recommendation task **/
 	private ScheduledFuture<?> _recoGiveTask;
-	private boolean _isRecomTimerActive;
 	/** Recommendation Two Hours bonus **/
 	private boolean _recoTwoHoursGiven = false;
 	private PcWarehouse _warehouse;
@@ -10584,48 +10583,32 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	public void startRecomBonusTask() {
-		if ((_recoBonusTask == null) && (getRecomBonusTime() > 0) && isRecomTimerActive() && !hasAbnormalTypeVote()) {
+		if (!isRecomTimerActive() && getRecomBonusTime() > 0) {
 			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), getRecomBonusTime() * 1000);
 		}
 	}
 	
-	public boolean hasAbnormalType(AbnormalType at)
-	{
-		return getEffectList().getBuffInfoByAbnormalType(at) != null;
-	}
-	
-	public boolean hasAbnormalTypeVote()
-	{
-		return hasAbnormalType(AbnormalType.VOTE);
+	public void stopRecomBonusTask() {
+		if (isRecomTimerActive()) {
+			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			setRecomBonusTime(_recoBonusTime);
+			_recoBonusTask.cancel(true);
+			_recoBonusTask = null;
+		}
 	}
 	
 	public boolean isRecomTimerActive() {
-		return _isRecomTimerActive;
+		return _recoBonusTask != null;
 	}
 	
-	public void setRecomTimerActive(boolean val) {
-		if (_isRecomTimerActive == val) {
-			return;
-		}
-		
-		_isRecomTimerActive = val;
-		
-		if (val) {
+	public void setRecomTimerActive(boolean active) {
+		if (active) {
 			startRecomBonusTask();
 		} else {
 			stopRecomBonusTask();
 		}
 		
 		sendPacket(new ExVoteSystemInfo(this));
-	}
-	
-	public void stopRecomBonusTask() {
-		if (_recoBonusTask != null) {
-			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-			setRecomBonusTime(_recoBonusTime);
-			_recoBonusTask.cancel(true);
-			_recoBonusTask = null;
-		}
 	}
 	
 	public boolean isRecoTwoHoursGiven() {
@@ -10649,6 +10632,14 @@ public final class L2PcInstance extends L2Playable {
 	
 	public double getNevitHourglassMultiplier() {
 		return (getRecomBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(this) : 0;
+	}
+	
+	public boolean hasAbnormalType(AbnormalType at) {
+		return getEffectList().getBuffInfoByAbnormalType(at) != null;
+	}
+	
+	public boolean hasAbnormalTypeVote() {
+		return hasAbnormalType(AbnormalType.VOTE);
 	}
 	
 	public String getLastPetitionGmName() {
