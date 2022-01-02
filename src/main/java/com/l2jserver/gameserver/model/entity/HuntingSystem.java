@@ -40,9 +40,10 @@ import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventTimeChange;
  */
 public class HuntingSystem {
 	
+	private static final int ADDITIONAL_NEVIT_POINTS = 2;
 	private static final int HUNTING_BONUS_REFRESH_RATE = 1;
 	
-	private boolean _message45;
+	private boolean _message25;
 	private boolean _message50;
 	private boolean _message75;
 	
@@ -117,6 +118,7 @@ public class HuntingSystem {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
 			}
 			
+			addPoints(ADDITIONAL_NEVIT_POINTS);
 			if (getActiveChar().getNevitBlessingTime() > 0) {
 				addPoints(hunting().getNevitRegularPoints());
 			} else {
@@ -145,8 +147,8 @@ public class HuntingSystem {
 		
 		if ((getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) && (value > 0)) {
 			final int percent = calcPercent(getActiveChar().getNevitBlessingPoints());
-			if (percent < 45) {
-				_message45 = false;
+			if (percent < 25) {
+				_message25 = false;
 				_message50 = false;
 				_message75 = false;
 			}
@@ -196,9 +198,9 @@ public class HuntingSystem {
 				_message50 = true;
 				getActiveChar().sendPacket(SystemMessageId.YOU_ARE_FURTHER_INFUSED_WITH_THE_BLESSINGS_OF_NEVIT);
 			}
-		} else if (percent >= 45) {
-			if (!_message45) {
-				_message45 = true;
+		} else if (percent >= 25) {
+			if (!_message25) {
+				_message25 = true;
 				getActiveChar().sendPacket(SystemMessageId.YOU_ARE_STARTING_TO_FEEL_THE_EFFECTS_OF_NEVITS_ADVENT_BLESSING);
 			}
 		}
