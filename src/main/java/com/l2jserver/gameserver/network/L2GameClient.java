@@ -324,7 +324,7 @@ public final class L2GameClient extends MMOClient<MMOConnection<L2GameClient>> i
 		try {
 			if (getActiveChar() != null) {
 				getActiveChar().storeMe();
-				getActiveChar().storeRecommendations();
+				getActiveChar().getRecSystem().store();
 				if (general().updateItemsOnCharStore()) {
 					getActiveChar().getInventory().updateDatabase();
 					getActiveChar().getWarehouse().updateDatabase();

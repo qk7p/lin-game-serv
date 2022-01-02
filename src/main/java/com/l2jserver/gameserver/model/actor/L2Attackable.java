@@ -447,10 +447,7 @@ public class L2Attackable extends L2Npc {
 											attacker.getHuntingBonus().addPoints(hunting().getNevitNormalPoints());
 										}
 										
-										BuffInfo info = attacker.getEffectList().getBuffInfoByAbnormalType(AbnormalType.VOTE);
-										if (info == null) {
-											attacker.setRecomTimerActive(true);
-										}
+										attacker.getRecSystem().startBonusTask(true);
 									}
 								}
 							}

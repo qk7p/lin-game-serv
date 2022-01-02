@@ -65,21 +65,21 @@ public final class RequestVoteNew extends L2GameClientPacket {
 			return;
 		}
 		
-		if (activeChar.getRecomLeft() <= 0) {
+		if (activeChar.getRecSystem().getLeft() <= 0) {
 			activeChar.sendPacket(SystemMessageId.YOU_CURRENTLY_DO_NOT_HAVE_ANY_RECOMMENDATIONS);
 			return;
 		}
 		
-		if (target.getRecomHave() >= 255) {
+		if (target.getRecSystem().getHave() >= 255) {
 			activeChar.sendPacket(SystemMessageId.YOUR_TARGET_NO_LONGER_RECEIVE_A_RECOMMENDATION);
 			return;
 		}
 		
-		activeChar.giveRecom(target);
+		activeChar.getRecSystem().give(target);
 		
 		SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_HAVE_RECOMMENDED_C1_YOU_HAVE_S2_RECOMMENDATIONS_LEFT);
 		sm.addPcName(target);
-		sm.addInt(activeChar.getRecomLeft());
+		sm.addInt(activeChar.getRecSystem().getLeft());
 		activeChar.sendPacket(sm);
 		
 		sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_HAVE_BEEN_RECOMMENDED_BY_C1);

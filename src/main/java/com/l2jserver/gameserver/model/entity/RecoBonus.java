@@ -136,9 +136,9 @@ public final class RecoBonus {
 	};
 	
 	public static int getRecoBonus(L2PcInstance activeChar) {
-		if ((activeChar != null) && activeChar.isOnline() && (activeChar.getRecomHave() != 0)) {
+		if ((activeChar != null) && activeChar.isOnline() && (activeChar.getRecSystem().getHave() != 0)) {
 			final int lvl = activeChar.getLevel() / 10;
-			final int exp = (Math.min(100, activeChar.getRecomHave()) - 1) / 10;
+			final int exp = (Math.min(100, activeChar.getRecSystem().getHave()) - 1) / 10;
 			
 			return _recoBonus[lvl][exp];
 		}

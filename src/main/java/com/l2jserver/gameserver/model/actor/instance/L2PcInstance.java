@@ -57,12 +57,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.gameserver.GameTimeController;
@@ -178,8 +178,6 @@ import com.l2jserver.gameserver.model.actor.tasks.player.InventoryEnableTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.LookingForFishTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.PetFeedTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.PvPFlagTask;
-import com.l2jserver.gameserver.model.actor.tasks.player.RecoBonusTask;
-import com.l2jserver.gameserver.model.actor.tasks.player.RecoGiveTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.RentPetTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.ResetChargesTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.ResetSoulsTask;
@@ -204,6 +202,7 @@ import com.l2jserver.gameserver.model.entity.HuntingSystem;
 import com.l2jserver.gameserver.model.entity.Instance;
 import com.l2jserver.gameserver.model.entity.L2Event;
 import com.l2jserver.gameserver.model.entity.RecoBonus;
+import com.l2jserver.gameserver.model.entity.RecommendationSystem;
 import com.l2jserver.gameserver.model.entity.Siege;
 import com.l2jserver.gameserver.model.entity.TvTEvent;
 import com.l2jserver.gameserver.model.events.Containers;
@@ -481,19 +480,8 @@ public final class L2PcInstance extends L2Playable {
 	/** True if the L2PcInstance is sitting */
 	private boolean _waitTypeSitting;
 	private boolean _observerMode = false;
-	// High Five: Hunting Bonus System
 	private final HuntingSystem _huntingBonusSystem = new HuntingSystem(this);
-	/** The number of recommendation obtained by the player. */
-	private int _recomHave;
-	/** The number of recommendation that the player can give. */
-	private int _recomLeft;
-	/** Recommendation Bonus task **/
-	private ScheduledFuture<?> _recoBonusTask;
-	private int _recoBonusTime = 0;
-	/** Recommendation task **/
-	private ScheduledFuture<?> _recoGiveTask;
-	/** Recommendation Two Hours bonus **/
-	private boolean _recoTwoHoursGiven = false;
+	private final RecommendationSystem _recSystem = new RecommendationSystem(this);
 	private PcWarehouse _warehouse;
 	private PcRefund _refund;
 	private PrivateStoreType _privateStoreType = PrivateStoreType.NONE;
@@ -743,9 +731,9 @@ public final class L2PcInstance extends L2Playable {
 		// Kept for backwards compatibility.
 		player.setNewbie(1);
 		// Give 20 recommendations
-		player.setRecomLeft(20);
+		player.getRecSystem().setLeft(20);
 		// Give one hour bonus for new chars
-		player.setRecomBonusTime(3600);
+		player.getRecSystem().setBonusTime(3600);
 		// Add the player in the characters table of the database
 		return DAOFactory.getInstance().getPlayerDAO().insert(player) ? player : null;
 	}
@@ -833,7 +821,7 @@ public final class L2PcInstance extends L2Playable {
 			}
 			
 			// Starting recommendations give task, init Task give = 10 reco 2hs & 1 every 1hs.
-			player.startRecomGiveTask();
+			player.getRecSystem().startGiveTask();
 			
 			// Load player's recommendations and bonus time
 			DAOFactory.getInstance().getRecommendationBonusDAO().load(player);
@@ -1596,57 +1584,6 @@ public final class L2PcInstance extends L2Playable {
 	 */
 	public void setDeleteTimer(long deleteTimer) {
 		_deleteTimer = deleteTimer;
-	}
-	
-	/**
-	 * @return the number of recommendation obtained by the L2PcInstance.
-	 */
-	public int getRecomHave() {
-		return _recomHave;
-	}
-	
-	/**
-	 * Set the number of recommendation obtained by the L2PcInstance (Max : 255).
-	 * @param value
-	 */
-	public void setRecomHave(int value) {
-		_recomHave = Math.min(Math.max(value, 0), 255);
-	}
-	
-	/**
-	 * Increment the number of recommendation obtained by the L2PcInstance (Max : 255).
-	 */
-	protected void incRecomHave() {
-		if (_recomHave < 255) {
-			_recomHave++;
-		}
-	}
-	
-	/**
-	 * @return the number of recommendation that the L2PcInstance can give.
-	 */
-	public int getRecomLeft() {
-		return _recomLeft;
-	}
-	
-	/**
-	 * Set the number of recommendation obtained by the L2PcInstance (Max : 255).
-	 * @param value
-	 */
-	public void setRecomLeft(int value) {
-		_recomLeft = Math.min(Math.max(value, 0), 255);
-	}
-	
-	/**
-	 * Increment the number of recommendation that the L2PcInstance can give.
-	 */
-	protected void decRecomLeft() {
-		_recomLeft--;
-	}
-	
-	public void giveRecom(L2PcInstance target) {
-		target.incRecomHave();
-		decRecomLeft();
 	}
 	
 	public long getExpBeforeDeath() {
@@ -4966,8 +4903,8 @@ public final class L2PcInstance extends L2Playable {
 		stopChargeTask();
 		stopFameTask();
 		stopVitalityTask();
-		stopRecomBonusTask();
-		stopRecoGiveTask();
+		getRecSystem().stopBonusTask(false);
+		getRecSystem().stopGiveTask();
 	}
 	
 	@Override
@@ -8571,7 +8508,7 @@ public final class L2PcInstance extends L2Playable {
 		
 		// Recommendations must be saved before task (timer) is canceled
 		try {
-			storeRecommendations();
+			getRecSystem().store();
 		} catch (Exception e) {
 			LOG.error("deleteMe() {}", e);
 		}
@@ -10527,31 +10464,14 @@ public final class L2PcInstance extends L2Playable {
 		_handysBlockCheckerEventArena = arena;
 	}
 	
-	/**
-	 * Update L2PcInstance Recommendations data.
-	 */
-	public void storeRecommendations() {
-		int recomTime = _recoBonusTask != null ? (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)) : getRecomBonusTime();
-		DAOFactory.getInstance().getRecommendationBonusDAO().insert(this, recomTime);
-	}
-	
-	public void stopRecoGiveTask() {
-		if (_recoGiveTask != null) {
-			_recoGiveTask.cancel(false);
-			_recoGiveTask = null;
-		}
-	}
-	
-	public void setRecoTwoHoursGiven(boolean val) {
-		_recoTwoHoursGiven = val;
-	}
-	
-	public int getRecomBonusTime() {
-		return getStat().getRecomBonusTime();
-	}
-	
+	/** @return the hunting system controller for this player */
 	public HuntingSystem getHuntingBonus() {
 		return _huntingBonusSystem;
+	}
+	
+	/** @return the recommendation system controller for this player */
+	public RecommendationSystem getRecSystem() {
+		return _recSystem;
 	}
 	
 	public int getNevitBlessingPoints() {
@@ -10578,60 +10498,8 @@ public final class L2PcInstance extends L2Playable {
 		getStat().setNevitBlessingTime(time);
 	}
 	
-	public void startRecomGiveTask() {
-		_recoGiveTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new RecoGiveTask(this), 7200000, 3600000);
-	}
-	
-	public void startRecomBonusTask() {
-		if (!isRecomTimerActive() && getRecomBonusTime() > 0) {
-			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), getRecomBonusTime() * 1000);
-		}
-	}
-	
-	public void stopRecomBonusTask() {
-		if (isRecomTimerActive()) {
-			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-			setRecomBonusTime(_recoBonusTime);
-			_recoBonusTask.cancel(true);
-			_recoBonusTask = null;
-		}
-	}
-	
-	public boolean isRecomTimerActive() {
-		return _recoBonusTask != null;
-	}
-	
-	public void setRecomTimerActive(boolean active) {
-		if (active) {
-			startRecomBonusTask();
-		} else {
-			stopRecomBonusTask();
-		}
-		
-		sendPacket(new ExVoteSystemInfo(this));
-	}
-	
-	public boolean isRecoTwoHoursGiven() {
-		return _recoTwoHoursGiven;
-	}
-	
-	public void setRecomBonusTime(int time) {
-		if (_recoBonusTask != null) {
-			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-			if (_recoBonusTime > 0) {
-				_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), time * 1000);
-				time = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-			}
-		}
-		getStat().setRecomBonusTime(time);
-	}
-	
-	public int getRecomBonus() {
-		return (getRecomBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoBonus(this) : 0;
-	}
-	
 	public double getNevitHourglassMultiplier() {
-		return (getRecomBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(this) : 0;
+		return (getRecSystem().getBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(this) : 0;
 	}
 	
 	public boolean hasAbnormalType(AbnormalType at) {
@@ -11104,5 +10972,25 @@ public final class L2PcInstance extends L2Playable {
 	// TODO(Zoey76): Improve this.
 	public void getDwarvenRecipeBookClear() {
 		_dwarvenRecipeBook.clear();
+	}
+	
+	public void debugFeature(String feature, String msg) {
+		msg = feature + " (" + getName() + ") " + msg;
+		LOG.debug(msg);
+		sendDebugMessage(msg);
+	}
+	
+	public void debugFeature(String feature, String msg, Object arg) {
+		msg = feature + " (" + getName() + ") " + msg;
+		var formatted = MessageFormatter.format(msg, arg);
+		LOG.debug(formatted.getMessage());
+		sendDebugMessage(formatted.getMessage());
+	}
+
+	public void debugFeature(String feature, String msg, Object... args) {
+		msg = feature + " (" + getName() + ") " + msg;
+		var formatted = MessageFormatter.format(msg, args);
+		LOG.debug(formatted.getMessage());
+		sendDebugMessage(formatted.getMessage());
 	}
 }

@@ -51,7 +51,7 @@ public class L2PeaceZone extends L2ZoneType {
 			
 			// Pause Hunting System times
 			player.getHuntingBonus().stopHuntingBonusTask(true);
-			player.setRecomTimerActive(false);
+			player.getRecSystem().stopBonusTask(true);
 		}
 		
 		if (general().getPeaceZoneMode() != 2) {

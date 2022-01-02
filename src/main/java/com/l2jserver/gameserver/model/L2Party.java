@@ -682,10 +682,7 @@ public class L2Party extends AbstractPlayerGroup {
 							member.getHuntingBonus().addPoints(hunting().getNevitNormalPoints());
 						}
 						
-						BuffInfo info = member.getEffectList().getBuffInfoByAbnormalType(AbnormalType.VOTE);
-						if (info == null) {
-							member.setRecomTimerActive(true);
-						}
+						member.getRecSystem().startBonusTask(true);
 					}
 				}
 			} else {

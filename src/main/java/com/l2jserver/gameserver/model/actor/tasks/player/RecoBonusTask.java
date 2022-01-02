@@ -36,7 +36,7 @@ public class RecoBonusTask implements Runnable {
 	@Override
 	public void run() {
 		if (_player != null) {
-			_player.setRecomBonusTime(0);
+			_player.getRecSystem().setBonusTime(0);
 			_player.sendPacket(new ExVoteSystemInfo(_player));
 		}
 	}

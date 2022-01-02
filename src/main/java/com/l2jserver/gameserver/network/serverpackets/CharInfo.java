@@ -269,7 +269,7 @@ public class CharInfo extends L2GameServerPacket {
 			
 			writeC(_activeChar.isInsideZone(ZoneId.WATER) ? 1 : _activeChar.isFlyingMounted() ? 2 : 0);
 			
-			writeH(_activeChar.getRecomHave()); // Blue value for name (0 = white, 255 = pure blue)
+			writeH(_activeChar.getRecSystem().getHave()); // Blue value for name (0 = white, 255 = pure blue)
 			writeD(_activeChar.getMountNpcId() + 1000000);
 			writeD(_activeChar.getClassId().getId());
 			writeD(0x00); // ?

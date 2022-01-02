@@ -44,11 +44,11 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO {
 			ps.setInt(1, player.getObjectId());
 			try (var rs = ps.executeQuery()) {
 				if (rs.next()) {
-					player.setRecomHave(rs.getInt("rec_have"));
-					player.setRecomLeft(rs.getInt("rec_left"));
-					player.setRecomBonusTime(rs.getInt("time_left"));
+					player.getRecSystem().setHave(rs.getInt("rec_have"));
+					player.getRecSystem().setLeft(rs.getInt("rec_left"));
+					player.getRecSystem().setBonusTime(rs.getInt("time_left"));
 				} else {
-					player.setRecomBonusTime(3600);
+					player.getRecSystem().setBonusTime(3600);
 				}
 			}
 		} catch (Exception e) {
@@ -61,12 +61,12 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO {
 		try (var con = ConnectionFactory.getInstance().getConnection();
 			var ps = con.prepareStatement(INSERT)) {
 			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, player.getRecomHave());
-			ps.setInt(3, player.getRecomLeft());
+			ps.setInt(2, player.getRecSystem().getHave());
+			ps.setInt(3, player.getRecSystem().getLeft());
 			ps.setLong(4, recomTime);
 			// Update part
-			ps.setInt(5, player.getRecomHave());
-			ps.setInt(6, player.getRecomLeft());
+			ps.setInt(5, player.getRecSystem().getHave());
+			ps.setInt(6, player.getRecSystem().getLeft());
 			ps.setLong(7, recomTime);
 			ps.execute();
 		} catch (Exception e) {

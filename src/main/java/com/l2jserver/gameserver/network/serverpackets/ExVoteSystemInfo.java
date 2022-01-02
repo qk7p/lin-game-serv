@@ -18,6 +18,8 @@
  */
 package com.l2jserver.gameserver.network.serverpackets;
 
+import java.util.Objects;
+
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 
 /**
@@ -25,28 +27,21 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
  * @author Gnacik
  */
 public class ExVoteSystemInfo extends L2GameServerPacket {
-	private final int _recomLeft;
-	private final int _recomHave;
-	private final int _bonusTime;
-	private final int _bonusVal;
-	private final boolean _bonusType;
+	private final L2PcInstance _player;
 	
 	public ExVoteSystemInfo(L2PcInstance player) {
-		_recomLeft = player.getRecomLeft();
-		_recomHave = player.getRecomHave();
-		_bonusTime = player.getRecomBonusTime();
-		_bonusVal = player.getRecomBonus();
-		_bonusType = !player.isRecomTimerActive() || player.hasAbnormalTypeVote();
+		Objects.requireNonNull(player);
+		_player = player;
 	}
 	
 	@Override
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0xC9);
-		writeD(_recomLeft);
-		writeD(_recomHave);
-		writeD(_bonusTime);
-		writeD(_bonusVal);
-		writeD(_bonusType ? 0x01 : 0x00);
+		writeD(_player.getRecSystem().getLeft());
+		writeD(_player.getRecSystem().getHave());
+		writeD(_player.getRecSystem().getBonusTime());
+		writeD(_player.getRecSystem().getBonus());
+		writeD((!_player.getRecSystem().isBonusTaskActive() && _player.getRecSystem().getBonusTime() > 0) ? 0x01 : 0x00);
 	}
 }

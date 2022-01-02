@@ -54,9 +54,9 @@ public class TaskRecom extends Task {
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
-			player.setRecomHave(player.getRecomHave() - 2);
-			player.setRecomLeft(RESET_REC_LEFT);
-			player.setRecomBonusTime(RESET_REC_BONUS_TIME);
+			player.getRecSystem().setHave(player.getRecSystem().getHave() - 2);
+			player.getRecSystem().setLeft(RESET_REC_LEFT);
+			player.getRecSystem().setBonusTime(RESET_REC_BONUS_TIME);
 			if (player.isOnline()) {
 				player.sendPacket(new UserInfo(player));
 				player.sendPacket(new ExBrExtraUserInfo(player));
