@@ -443,8 +443,8 @@ public class L2Attackable extends L2Npc {
 									attacker.updateVitalityPoints(getVitalityPoints(damage), true, false);
 									if (!attacker.isInsideZone(ZoneId.PEACE) && ((attacker.getLevel() - getLevel()) <= 9)) {
 										if (hunting().getNevitEnable()) {
-											attacker.getHuntingBonus().startHuntingSystemTask();
-											attacker.getHuntingBonus().addPoints(hunting().getNevitNormalPoints());
+											attacker.getHuntingSystem().startHuntingSystemTask();
+											attacker.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
 										}
 										
 										attacker.getRecSystem().startBonusTask(true);

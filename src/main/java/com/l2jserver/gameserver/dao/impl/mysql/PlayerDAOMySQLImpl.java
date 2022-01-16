@@ -143,11 +143,11 @@ public class PlayerDAOMySQLImpl implements PlayerDAO {
 					
 					player.setVitalityPoints(rs.getInt("vitality_points"), true);
 					
-					player.setHuntingBonusTime(rs.getInt("hunting_bonus"));
+					player.getHuntingSystem().setHuntingBonusTime(rs.getInt("hunting_bonus"));
 					
-					player.setNevitBlessingPoints(rs.getInt("nevit_blessing_points"));
+					player.getHuntingSystem().setNevitBlessingPoints(rs.getInt("nevit_blessing_points"));
 					
-					player.setNevitBlessingTime(rs.getInt("nevit_blessing_time"));
+					player.getHuntingSystem().setNevitBlessingTime(rs.getInt("nevit_blessing_time"));
 					
 					// Set the x,y,z position of the L2PcInstance and make it invisible
 					player.setXYZInvisible(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
@@ -318,9 +318,9 @@ public class PlayerDAOMySQLImpl implements PlayerDAO {
 			ps.setLong(46, player.getDeathPenaltyBuffLevel());
 			ps.setInt(47, player.getBookMarkSlot());
 			ps.setInt(48, player.getVitalityPoints());
-			ps.setInt(49, player.getHuntingBonusTime());
-			ps.setInt(50, player.getNevitBlessingPoints());
-			ps.setInt(51, player.getNevitBlessingTime());
+			ps.setInt(49, player.getHuntingSystem().getHuntingBonusTime());
+			ps.setInt(50, player.getHuntingSystem().getNevitBlessingPoints());
+			ps.setInt(51, player.getHuntingSystem().getNevitBlessingTime());
 			ps.setString(52, player.getLang());
 			ps.setInt(53, player.getObjectId());
 			

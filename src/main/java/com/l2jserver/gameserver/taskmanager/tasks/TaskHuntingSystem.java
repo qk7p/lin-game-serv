@@ -50,10 +50,10 @@ public class TaskHuntingSystem extends Task {
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
-			player.setHuntingBonusTime(RESET_HUNTING_BONUS);
+			player.getHuntingSystem().setHuntingBonusTime(RESET_HUNTING_BONUS);
 			if (player.isOnline()) {
-				if (player.getHuntingBonus().isHuntingBonusTaskActive()) {
-					player.sendPacket(new ExNevitAdventTimeChange(player.getHuntingBonusTime(), false));
+				if (player.getHuntingSystem().isHuntingBonusTaskActive()) {
+					player.sendPacket(new ExNevitAdventTimeChange(player.getHuntingSystem().getHuntingBonusTime(), false));
 				}
 			}
 		}

@@ -678,8 +678,8 @@ public class L2Party extends AbstractPlayerGroup {
 					member.updateVitalityPoints(vitalityPoints, true, false);
 					if (!member.isInsideZone(ZoneId.PEACE) && ((member.getLevel() - target.getLevel()) <= 9)) {
 						if (hunting().getNevitEnable()) {
-							member.getHuntingBonus().startHuntingSystemTask();
-							member.getHuntingBonus().addPoints(hunting().getNevitNormalPoints());
+							member.getHuntingSystem().startHuntingSystemTask();
+							member.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
 						}
 						
 						member.getRecSystem().startBonusTask(true);

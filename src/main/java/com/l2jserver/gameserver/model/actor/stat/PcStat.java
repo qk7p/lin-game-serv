@@ -259,7 +259,7 @@ public class PcStat extends PlayableStat {
 		if (!quiet && (level != _vitalityLevel)) {
 			if (level < _vitalityLevel) {
 				// Gain Nevit Points on Decrease Vitality Level
-				getActiveChar().getHuntingBonus().addPoints(hunting().getNevitDecreaseVitalityAcquirePoints());
+				getActiveChar().getHuntingSystem().addPoints(hunting().getNevitDecreaseVitalityAcquirePoints());
 				getActiveChar().sendPacket(SystemMessageId.VITALITY_HAS_DECREASED);
 			} else {
 				getActiveChar().sendPacket(SystemMessageId.VITALITY_HAS_INCREASED);
@@ -309,7 +309,7 @@ public class PcStat extends PlayableStat {
 			if (points < 0) {
 				int stat = (int) calcStat(Stats.VITALITY_CONSUME_RATE, 1, getActiveChar(), null);
 				
-				if (getActiveChar().getHuntingBonus().isNevitBlessingActive()) {
+				if (getActiveChar().getHuntingSystem().isNevitBlessingActive()) {
 					stat = -10; // Increase Vitality During Blessing
 				}
 				
@@ -358,7 +358,7 @@ public class PcStat extends PlayableStat {
 	}
 	
 	public byte getVitalityLevel() {
-		if (getActiveChar().getHuntingBonus().isNevitBlessingActive()) {
+		if (getActiveChar().getHuntingSystem().isNevitBlessingActive()) {
 			return 4;
 		}
 		return _vitalityLevel;
@@ -411,7 +411,7 @@ public class PcStat extends PlayableStat {
 		double vitality = getVitalityMultiplier();
 		
 		// Bonus from Nevit's Blessing / Nevit's Hunting
-		double nevits = getActiveChar().getNevitHourglassMultiplier();
+		double nevits = getActiveChar().getHuntingSystem().getNevitHourglassMultiplier();
 		
 		// Bonus exp from skills
 		double bonusExp = 1 + (calcStat(Stats.BONUS_EXP, 0, null, null) / 100);
@@ -444,7 +444,7 @@ public class PcStat extends PlayableStat {
 		double vitality = getVitalityMultiplier();
 		
 		// Bonus from Nevit's Blessing / Nevit's Hunting
-		double nevits = getActiveChar().getNevitHourglassMultiplier();
+		double nevits = getActiveChar().getHuntingSystem().getNevitHourglassMultiplier();
 		
 		// Bonus sp from skills
 		double bonusSp = 1 + (calcStat(Stats.BONUS_SP, 0, null, null) / 100);

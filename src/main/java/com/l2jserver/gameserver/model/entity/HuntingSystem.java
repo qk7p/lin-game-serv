@@ -21,14 +21,13 @@ package com.l2jserver.gameserver.model.entity;
 import static com.l2jserver.gameserver.config.Configuration.hunting;
 
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
-import com.l2jserver.gameserver.model.skills.AbnormalType;
 import com.l2jserver.gameserver.model.skills.AbnormalVisualEffect;
-import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventEffect;
 import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventPointInfoPacket;
@@ -43,16 +42,15 @@ public class HuntingSystem {
 	private static final int ADDITIONAL_NEVIT_POINTS = 2;
 	private static final int HUNTING_BONUS_REFRESH_RATE = 1;
 	
+	private final L2PcInstance _activeChar;
+	private ScheduledFuture<?> _huntingBonusTask;
+	private ScheduledFuture<?> _nevitBlessingTimeTask;
 	private boolean _message25;
 	private boolean _message50;
 	private boolean _message75;
 	
-	private final L2PcInstance _activeChar;
-	
-	private ScheduledFuture<?> _huntingBonusTask;
-	private ScheduledFuture<?> _nevitBlessingTimeTask;
-	
 	public HuntingSystem(L2PcInstance player) {
+		Objects.requireNonNull(player);
 		_activeChar = player;
 	}
 	
@@ -65,14 +63,14 @@ public class HuntingSystem {
 		
 		// Reset Hunting System
 		if ((getActiveChar().getLastAccess() < (cal.getTimeInMillis() / 1000L)) && (System.currentTimeMillis() > cal.getTimeInMillis())) {
-			getActiveChar().setHuntingBonusTime(0);
+			setHuntingBonusTime(0);
 		}
 		
 		// Send Hunting Bonus UI Packets
-		getActiveChar().sendPacket(new ExNevitAdventPointInfoPacket(getActiveChar().getNevitBlessingPoints()));
-		getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), true));
+		getActiveChar().sendPacket(new ExNevitAdventPointInfoPacket(getNevitBlessingPoints()));
+		getActiveChar().sendPacket(new ExNevitAdventTimeChange(getHuntingBonusTime(), true));
 		
-		checkNevitBlessingEffect(getActiveChar().getNevitBlessingTime());
+		checkNevitBlessingEffect(getNevitBlessingTime());
 		
 		checkSystemMessageSend();
 	}
@@ -83,12 +81,12 @@ public class HuntingSystem {
 	}
 	
 	public void addPoints(int val) {
-		if (getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
-			getActiveChar().setNevitBlessingPoints(getActiveChar().getNevitBlessingPoints() + val);
+		if (getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
+			setNevitBlessingPoints(getNevitBlessingPoints() + val);
 		}
 		
-		if (getActiveChar().getNevitBlessingPoints() > hunting().getNevitBlessingMaxPoints()) {
-			getActiveChar().setNevitBlessingPoints(0);
+		if (getNevitBlessingPoints() > hunting().getNevitBlessingMaxPoints()) {
+			setNevitBlessingPoints(0);
 			checkNevitBlessingEffect(hunting().getNevitBlessingEffetcTime());
 		}
 		
@@ -96,10 +94,10 @@ public class HuntingSystem {
 	}
 	
 	public void startHuntingSystemTask() {
-		if ((_huntingBonusTask == null) && ((getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()))) {
+		if ((_huntingBonusTask == null) && ((getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()))) {
 			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), 1000, 1000);
 			if (hunting().getHuntingBonusLimit()) {
-				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
+				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getHuntingBonusTime(), false));
 			}
 		}
 	}
@@ -107,19 +105,19 @@ public class HuntingSystem {
 	public class HuntingBonusTask implements Runnable {
 		@Override
 		public void run() {
-			getActiveChar().setHuntingBonusTime(getActiveChar().getHuntingBonusTime() + HUNTING_BONUS_REFRESH_RATE);
-			if (getActiveChar().getHuntingBonusTime() >= hunting().getHuntingBonusMaxTime() && hunting().getHuntingBonusLimit()) {
-				getActiveChar().setHuntingBonusTime(hunting().getHuntingBonusMaxTime());
+			setHuntingBonusTime(getHuntingBonusTime() + HUNTING_BONUS_REFRESH_RATE);
+			if (getHuntingBonusTime() >= hunting().getHuntingBonusMaxTime() && hunting().getHuntingBonusLimit()) {
+				setHuntingBonusTime(hunting().getHuntingBonusMaxTime());
 				stopHuntingBonusTask(true);
 				return;
 			}
 			
 			if (hunting().getHuntingBonusLimit()) {
-				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), false));
+				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getHuntingBonusTime(), false));
 			}
 			
 			addPoints(ADDITIONAL_NEVIT_POINTS);
-			if (getActiveChar().getNevitBlessingTime() > 0) {
+			if (getNevitBlessingTime() > 0) {
 				addPoints(hunting().getNevitRegularPoints());
 			} else {
 				addPoints(hunting().getNevitRegularPoints2());
@@ -130,9 +128,9 @@ public class HuntingSystem {
 	public class NevitEffectEnd implements Runnable {
 		@Override
 		public void run() {
-			getActiveChar().setNevitBlessingTime(0);
+			setNevitBlessingTime(0);
 			getActiveChar().sendPacket(new ExNevitAdventEffect(0));
-			getActiveChar().sendPacket(new ExNevitAdventPointInfoPacket(getActiveChar().getNevitBlessingPoints()));
+			getActiveChar().sendPacket(new ExNevitAdventPointInfoPacket(getNevitBlessingPoints()));
 			getActiveChar().sendPacket(SystemMessageId.NEVITS_ADVENT_BLESSING_HAS_ENDED);
 			getActiveChar().stopAbnormalVisualEffect(true, AbnormalVisualEffect.NEVIT_ADVENT);
 			stopNevitBlessingEffectTask(false);
@@ -140,19 +138,19 @@ public class HuntingSystem {
 	}
 	
 	public void checkNevitBlessingEffect(int value) {
-		if (getActiveChar().getNevitBlessingTime() > 0) {
+		if (getNevitBlessingTime() > 0) {
 			stopNevitBlessingEffectTask(false);
-			value = getActiveChar().getNevitBlessingTime();
+			value = getNevitBlessingTime();
 		}
 		
-		if ((getActiveChar().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) && (value > 0)) {
-			final int percent = calcPercent(getActiveChar().getNevitBlessingPoints());
+		if ((getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) && (value > 0)) {
+			final int percent = calcPercent(getNevitBlessingPoints());
 			if (percent < 25) {
 				_message25 = false;
 				_message50 = false;
 				_message75 = false;
 			}
-			getActiveChar().setNevitBlessingTime(value);
+			setNevitBlessingTime(value);
 			getActiveChar().sendPacket(new ExNevitAdventEffect(value));
 			getActiveChar().sendPacket(SystemMessageId.THE_ANGEL_NEVIT_HAS_BLESSED_YOU_FROM_ABOVE);
 			getActiveChar().startAbnormalVisualEffect(true, AbnormalVisualEffect.NEVIT_ADVENT);
@@ -167,7 +165,7 @@ public class HuntingSystem {
 		}
 		
 		if (sendPacket) {
-			getActiveChar().sendPacket(new ExNevitAdventTimeChange(getActiveChar().getHuntingBonusTime(), true));
+			getActiveChar().sendPacket(new ExNevitAdventTimeChange(getHuntingBonusTime(), true));
 		}
 	}
 	
@@ -176,9 +174,9 @@ public class HuntingSystem {
 			if (value) {
 				int time = (int) _nevitBlessingTimeTask.getDelay(TimeUnit.SECONDS);
 				if (time > 0) {
-					getActiveChar().setNevitBlessingTime(time);
+					setNevitBlessingTime(time);
 				} else {
-					getActiveChar().setNevitBlessingTime(0);
+					setNevitBlessingTime(0);
 				}
 			}
 			_nevitBlessingTimeTask.cancel(true);
@@ -187,7 +185,7 @@ public class HuntingSystem {
 	}
 	
 	public void checkSystemMessageSend() {
-		final int percent = calcPercent(getActiveChar().getNevitBlessingPoints());
+		final int percent = calcPercent(getNevitBlessingPoints());
 		if (percent >= 75) {
 			if (!_message75) {
 				_message75 = true;
@@ -220,5 +218,33 @@ public class HuntingSystem {
 	
 	public L2PcInstance getActiveChar() {
 		return _activeChar;
+	}
+	
+	public int getNevitBlessingPoints() {
+		return getActiveChar().getStat().getNevitBlessingPoints();
+	}
+	
+	public void setNevitBlessingPoints(int points) {
+		getActiveChar().getStat().setNevitBlessingPoints(points);
+	}
+	
+	public int getHuntingBonusTime() {
+		return getActiveChar().getStat().getHuntingBonusTime();
+	}
+	
+	public void setHuntingBonusTime(int time) {
+		getActiveChar().getStat().setHuntingBonusTime(time);
+	}
+	
+	public int getNevitBlessingTime() {
+		return getActiveChar().getStat().getNevitBlessingTime();
+	}
+	
+	public void setNevitBlessingTime(int time) {
+		getActiveChar().getStat().setNevitBlessingTime(time);
+	}
+	
+	public double getNevitHourglassMultiplier() {
+		return (getActiveChar().getRecSystem().getBonusTime() > 0) || getActiveChar().hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(getActiveChar()) : 0;
 	}
 }

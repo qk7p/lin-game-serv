@@ -50,7 +50,7 @@ public class L2PeaceZone extends L2ZoneType {
 			}
 			
 			// Pause Hunting System times
-			player.getHuntingBonus().stopHuntingBonusTask(true);
+			player.getHuntingSystem().stopHuntingBonusTask(true);
 			player.getRecSystem().stopBonusTask(true);
 		}
 		

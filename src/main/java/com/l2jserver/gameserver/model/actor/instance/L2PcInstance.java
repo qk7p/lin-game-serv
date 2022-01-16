@@ -201,7 +201,6 @@ import com.l2jserver.gameserver.model.entity.Fort;
 import com.l2jserver.gameserver.model.entity.HuntingSystem;
 import com.l2jserver.gameserver.model.entity.Instance;
 import com.l2jserver.gameserver.model.entity.L2Event;
-import com.l2jserver.gameserver.model.entity.RecoBonus;
 import com.l2jserver.gameserver.model.entity.RecommendationSystem;
 import com.l2jserver.gameserver.model.entity.Siege;
 import com.l2jserver.gameserver.model.entity.TvTEvent;
@@ -480,7 +479,7 @@ public final class L2PcInstance extends L2Playable {
 	/** True if the L2PcInstance is sitting */
 	private boolean _waitTypeSitting;
 	private boolean _observerMode = false;
-	private final HuntingSystem _huntingBonusSystem = new HuntingSystem(this);
+	private final HuntingSystem _huntingSystem = new HuntingSystem(this);
 	private final RecommendationSystem _recSystem = new RecommendationSystem(this);
 	private PcWarehouse _warehouse;
 	private PcRefund _refund;
@@ -2050,10 +2049,10 @@ public final class L2PcInstance extends L2Playable {
 		}
 		
 		// Get Nevit Blessing Points on level up
-		if (getActingPlayer().getHuntingBonus().isNevitBlessingActive()) {
-			getActingPlayer().getHuntingBonus().addPoints(hunting().getNevitLevelAcquirePoints2());
+		if (getActingPlayer().getHuntingSystem().isNevitBlessingActive()) {
+			getActingPlayer().getHuntingSystem().addPoints(hunting().getNevitLevelAcquirePoints2());
 		} else {
-			getActingPlayer().getHuntingBonus().addPoints(hunting().getNevitLevelAcquirePoints());
+			getActingPlayer().getHuntingSystem().addPoints(hunting().getNevitLevelAcquirePoints());
 		}
 		
 		StatusUpdate su = new StatusUpdate(this);
@@ -4423,7 +4422,7 @@ public final class L2PcInstance extends L2Playable {
 						}
 					}
 					// If player is Lucky shouldn't get penalized.
-					if (character().delevel() && !isLucky() && !(insideSiegeZone || insidePvpZone) && !getHuntingBonus().isNevitBlessingActive()) {
+					if (character().delevel() && !isLucky() && !(insideSiegeZone || insidePvpZone) && !getHuntingSystem().isNevitBlessingActive()) {
 						calculateDeathExpPenalty(killer, isAtWarWith(pk));
 					}
 				}
@@ -4852,7 +4851,7 @@ public final class L2PcInstance extends L2Playable {
 		// Calculate the Experience loss
 		long lostExp = 0;
 		if (!L2Event.isParticipant(this)) {
-			if (getHuntingBonus().isNevitBlessingActive()) {
+			if (getHuntingSystem().isNevitBlessingActive()) {
 				lostExp = 0;
 			} else if (lvl < character().getMaxPlayerLevel()) {
 				lostExp = Math.round(((getStat().getExpForLevel(lvl + 1) - getStat().getExpForLevel(lvl)) * percentLost) / 100);
@@ -7905,7 +7904,7 @@ public final class L2PcInstance extends L2Playable {
 	public void onPlayerEnter() {
 		startWarnUserTakeBreak();
 		
-		getHuntingBonus().onPlayerLogin();
+		getHuntingSystem().onPlayerLogin();
 		
 		if (SevenSigns.getInstance().isSealValidationPeriod() || SevenSigns.getInstance().isCompResultsPeriod()) {
 			if (!isGM() && isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(getObjectId()) != SevenSigns.getInstance().getCabalHighestScore())) {
@@ -8544,7 +8543,7 @@ public final class L2PcInstance extends L2Playable {
 		}
 		
 		// Hunting System
-		getHuntingBonus().onPlayerLogout();
+		getHuntingSystem().onPlayerLogout();
 		
 		// Stop all toggles.
 		getEffectList().stopAllToggles();
@@ -10465,41 +10464,13 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	/** @return the hunting system controller for this player */
-	public HuntingSystem getHuntingBonus() {
-		return _huntingBonusSystem;
+	public HuntingSystem getHuntingSystem() {
+		return _huntingSystem;
 	}
 	
 	/** @return the recommendation system controller for this player */
 	public RecommendationSystem getRecSystem() {
 		return _recSystem;
-	}
-	
-	public int getNevitBlessingPoints() {
-		return getStat().getNevitBlessingPoints();
-	}
-	
-	public void setNevitBlessingPoints(int points) {
-		getStat().setNevitBlessingPoints(points);
-	}
-	
-	public int getHuntingBonusTime() {
-		return getStat().getHuntingBonusTime();
-	}
-	
-	public void setHuntingBonusTime(int time) {
-		getStat().setHuntingBonusTime(time);
-	}
-	
-	public int getNevitBlessingTime() {
-		return getStat().getNevitBlessingTime();
-	}
-	
-	public void setNevitBlessingTime(int time) {
-		getStat().setNevitBlessingTime(time);
-	}
-	
-	public double getNevitHourglassMultiplier() {
-		return (getRecSystem().getBonusTime() > 0) || hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(this) : 0;
 	}
 	
 	public boolean hasAbnormalType(AbnormalType at) {
