@@ -33,6 +33,8 @@ import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 public class RecommendationSystem {
 	private final L2PcInstance _player;
 	
+	/** Recommendation task time */
+	private int _recoBonusTime;
 	/** number of recommendation obtained by other players */
 	private int _recomHave;
 	/** number of recommendations the player can give to other players. */
@@ -41,7 +43,6 @@ public class RecommendationSystem {
 	private ScheduledFuture<?> _recoGiveTask;
 	/** Recommendation Two Hours bonus **/
 	private boolean _recoTwoHoursGiven = false;
-
 	/** recommendation bonus time end task */
 	private ScheduledFuture<?> _recoBonusTask;
 	/** recommendation bonus time paused by peace zone entrance */
@@ -53,10 +54,10 @@ public class RecommendationSystem {
 		Objects.requireNonNull(player);
 		_player = player;
 	}
-
+	
 	/** Update L2PcInstance Recommendations data. */
 	public void store() {
-		int recomTime = isBonusTaskActive() ? (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)) : getBonusTime();
+		int recomTime = isBonusTaskActive() ? (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)) : getRecomBonusTime();
 		DAOFactory.getInstance().getRecommendationBonusDAO().insert(_player, recomTime);
 	}
 	
@@ -74,11 +75,11 @@ public class RecommendationSystem {
 			_recoGiveTask = null;
 		}
 	}
-
+	
 	/**
-	 * Method to start the recommentation bonus task. Actions which usually resume the recommendation bonus time just have to call this method, specifying if it is from xpSpGain or other mechanisms.<br><br>
+	 * Method to start the recommentation bonus task. Actions which usually resume the recommendation bonus time just have to call this method, specifying if it is from xpSpGain or other mechanisms.<br>
+	 * <br>
 	 * <b>All checks for the recommendation bonus timer are inside this method, no outside checks allowed!</b>
-	 * 
 	 * @param xpSpGain Whether the start is coming from xpSpGain or other mechanisms.
 	 */
 	public void startBonusTask(boolean xpSpGain) {
@@ -90,8 +91,8 @@ public class RecommendationSystem {
 			_player.debugFeature("RecBonus", "Decrement count of other pauses to {}", newCount);
 		}
 		
-		if (getBonusTime() <= 0) {
-			_player.debugFeature("RecBonus", "Not scheduling task because bonus time is {}.", getBonusTime());
+		if (getRecomBonusTime() <= 0) {
+			_player.debugFeature("RecBonus", "Not scheduling task because bonus time is {}.", getRecomBonusTime());
 			return;
 		}
 		
@@ -109,16 +110,16 @@ public class RecommendationSystem {
 			_player.debugFeature("RecBonus", "Not scheduling task because it was already scheduled.");
 			return;
 		}
-
+		
 		_player.debugFeature("RecBonus", "Starting task.");
-		_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), getBonusTime() * 1000);
+		_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), getRecomBonusTime() * 1000);
 		_player.sendPacket(new ExVoteSystemInfo(_player));
 	}
 	
 	/**
-	 * Method to stop the recommentation bonus task. Actions which usually suspenmd the recommendation bonus time just have to call this method, specifying if it is from entering a pace zone or other mechanisms.<br><br>
+	 * Method to stop the recommentation bonus task. Actions which usually suspenmd the recommendation bonus time just have to call this method, specifying if it is from entering a pace zone or other mechanisms.<br>
+	 * <br>
 	 * <b>All checks for the recommendation bonus timer are inside this method, no outside checks allowed!</b>
-	 * 
 	 * @param peaceZone Whether the stop is coming from entering a peace zone or other mechanisms.
 	 */
 	public void stopBonusTask(boolean peaceZone) {
@@ -134,9 +135,10 @@ public class RecommendationSystem {
 			_player.debugFeature("RecBonus", "Not stopping task because it is not started.");
 			return;
 		}
-
+		
 		_player.debugFeature("RecBonus", "Stopping task.");
-		setBonusTime((int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)));
+		_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+		setRecomBonusTime(_recoBonusTime);
 		_recoBonusTask.cancel(true);
 		_recoBonusTask = null;
 		_player.sendPacket(new ExVoteSystemInfo(_player));
@@ -144,7 +146,6 @@ public class RecommendationSystem {
 	
 	/**
 	 * Give a recommendation to another player.
-	 * 
 	 * @param target the target to recommend
 	 */
 	public void give(L2PcInstance target) {
@@ -168,7 +169,6 @@ public class RecommendationSystem {
 	
 	/**
 	 * Set the number of recommendations received by other players
-	 * 
 	 * @param value recommendations received by other players
 	 */
 	public void setHave(int value) {
@@ -177,7 +177,6 @@ public class RecommendationSystem {
 	
 	/**
 	 * Set the number of recommendations the player can give to other players
-	 * 
 	 * @param value recommendations the player can give to other players
 	 */
 	public void setLeft(int value) {
@@ -188,23 +187,25 @@ public class RecommendationSystem {
 		_recoTwoHoursGiven = val;
 	}
 	
-	public void setBonusTime(int time) {
+	public void setRecomBonusTime(int time) {
 		if (_recoBonusTask != null) {
-			_recoBonusTask.cancel(true);
-			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), time * 1000);
-			time = (int) _recoBonusTask.getDelay(TimeUnit.SECONDS);
+			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			if (_recoBonusTime > 0) {
+				_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), time * 1000);
+				time = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			}
 		}
-		_player.getStat().setRecomBonusTime(time);
+		_recoBonusTime = time;
 	}
 	
 	/** @return remaining recommendation bonus time */
-	public int getBonusTime() {
-		return _player.getStat().getRecomBonusTime();
+	public int getRecomBonusTime() {
+		return _recoBonusTime;
 	}
 	
 	/** @return recommendation bonus percentage */
 	public int getBonus() {
-		return (getBonusTime() > 0) || _player.hasAbnormalTypeVote() ? RecoBonus.getRecoBonus(_player) : 0;
+		return (getRecomBonusTime() > 0) || _player.hasAbnormalTypeVote() ? RecoBonus.getRecoBonus(_player) : 0;
 	}
 	
 	/** @return recommendations received by other players */

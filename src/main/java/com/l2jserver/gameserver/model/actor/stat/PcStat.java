@@ -41,7 +41,6 @@ public class PcStat extends PlayableStat {
 	private int _oldMaxMp; // stats watch
 	private int _oldMaxCp; // stats watch
 	private float _vitalityPoints = 1;
-	private int _recoBonusTime = 0;
 	private int _nevitPoints = 0;
 	private int _huntingBonusTime = 0;
 	private int _nevitBlessingTime = 0;
@@ -393,14 +392,6 @@ public class PcStat extends PlayableStat {
 	
 	public void setNevitBlessingTime(int time) {
 		_nevitBlessingTime = time;
-	}
-	
-	public int getRecomBonusTime() {
-		return _recoBonusTime;
-	}
-	
-	public void setRecomBonusTime(int time) {
-		_recoBonusTime = time;
 	}
 	
 	public double getExpBonusMultiplier() {
