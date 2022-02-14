@@ -189,6 +189,11 @@ public class RecommendationSystem {
 	}
 	
 	public void setBonusTime(int time) {
+		if (_recoBonusTask != null) {
+			_recoBonusTask.cancel(true);
+			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), time * 1000);
+			time = (int) _recoBonusTask.getDelay(TimeUnit.SECONDS);
+		}
 		_player.getStat().setRecomBonusTime(time);
 	}
 	
