@@ -46,9 +46,9 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO {
 				if (rs.next()) {
 					player.getRecSystem().setHave(rs.getInt("rec_have"));
 					player.getRecSystem().setLeft(rs.getInt("rec_left"));
-					player.getRecSystem().setRecomBonusTime(rs.getInt("time_left"));
+					player.getRecSystem().setBonusTime(rs.getInt("time_left"));
 				} else {
-					player.getRecSystem().setRecomBonusTime(3600);
+					player.getRecSystem().setBonusTime(3600);
 				}
 			}
 		} catch (Exception e) {

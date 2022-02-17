@@ -245,6 +245,6 @@ public class HuntingSystem {
 	}
 	
 	public double getNevitHourglassMultiplier() {
-		return (getActiveChar().getRecSystem().getRecomBonusTime() > 0) || getActiveChar().hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(getActiveChar()) : 0;
+		return (getActiveChar().getRecSystem().getBonusTime() > 0) || getActiveChar().hasAbnormalTypeVote() ? RecoBonus.getRecoMultiplier(getActiveChar()) : 0;
 	}
 }

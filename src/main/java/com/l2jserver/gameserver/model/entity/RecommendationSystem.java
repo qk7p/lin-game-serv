@@ -57,8 +57,7 @@ public class RecommendationSystem {
 	
 	/** Update L2PcInstance Recommendations data. */
 	public void store() {
-		int recomTime = isBonusTaskActive() ? (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS)) : getRecomBonusTime();
-		DAOFactory.getInstance().getRecommendationBonusDAO().insert(_player, recomTime);
+		DAOFactory.getInstance().getRecommendationBonusDAO().insert(_player, getBonusTime());
 	}
 	
 	/** Start timer to give recommendations left */
@@ -91,8 +90,8 @@ public class RecommendationSystem {
 			_player.debugFeature("RecBonus", "Decrement count of other pauses to {}", newCount);
 		}
 		
-		if (getRecomBonusTime() <= 0) {
-			_player.debugFeature("RecBonus", "Not scheduling task because bonus time is {}.", getRecomBonusTime());
+		if (getBonusTime() <= 0) {
+			_player.debugFeature("RecBonus", "Not scheduling task because bonus time is {}.", getBonusTime());
 			return;
 		}
 		
@@ -111,8 +110,9 @@ public class RecommendationSystem {
 			return;
 		}
 		
+		scheduleBonusTask(getBonusTime());
+		
 		_player.debugFeature("RecBonus", "Starting task.");
-		_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), getRecomBonusTime() * 1000);
 		_player.sendPacket(new ExVoteSystemInfo(_player));
 	}
 	
@@ -135,12 +135,24 @@ public class RecommendationSystem {
 			_player.debugFeature("RecBonus", "Not stopping task because it is not started.");
 			return;
 		}
-		
+
+		int remainingTime = getBonusTime();
+		cancelBonusTask();
+		setBonusTime(remainingTime);
+
 		_player.debugFeature("RecBonus", "Stopping task.");
-		_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-		setRecomBonusTime(_recoBonusTime);
-		_recoBonusTask.cancel(true);
-		_recoBonusTask = null;
+		_player.sendPacket(new ExVoteSystemInfo(_player));
+	}
+	
+	/**
+	 * Method to be called by task which gets fired when the recommendation bonus time is up.
+	 */
+	public void finishBonusTask()
+	{
+		cancelBonusTask();
+		setBonusTime(0);
+		
+		_player.debugFeature("RecBonus", "Finishing task.");
 		_player.sendPacket(new ExVoteSystemInfo(_player));
 	}
 	
@@ -187,25 +199,27 @@ public class RecommendationSystem {
 		_recoTwoHoursGiven = val;
 	}
 	
-	public void setRecomBonusTime(int time) {
-		if (_recoBonusTask != null) {
-			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-			if (_recoBonusTime > 0) {
-				_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), time * 1000);
-				time = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
-			}
+	public void setBonusTime(int time) {
+		if (isBonusTaskActive()) {
+			cancelBonusTask();
+			scheduleBonusTask(time);
 		}
+
 		_recoBonusTime = time;
 	}
 	
 	/** @return remaining recommendation bonus time */
-	public int getRecomBonusTime() {
+	public int getBonusTime() {
+		if (isBonusTaskActive()) {
+			return (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+		}
+
 		return _recoBonusTime;
 	}
 	
 	/** @return recommendation bonus percentage */
 	public int getBonus() {
-		return (getRecomBonusTime() > 0) || _player.hasAbnormalTypeVote() ? RecoBonus.getRecoBonus(_player) : 0;
+		return (getBonusTime() > 0) || _player.hasAbnormalTypeVote() ? RecoBonus.getRecoBonus(_player) : 0;
 	}
 	
 	/** @return recommendations received by other players */
@@ -225,5 +239,14 @@ public class RecommendationSystem {
 	
 	public boolean isTwoHoursGiven() {
 		return _recoTwoHoursGiven;
+	}
+	
+	private void scheduleBonusTask(int delay) {
+		_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(_player), delay * 1000);
+	}
+	
+	private void cancelBonusTask() {
+		_recoBonusTask.cancel(true);
+		_recoBonusTask = null;
 	}
 }

@@ -732,7 +732,7 @@ public final class L2PcInstance extends L2Playable {
 		// Give 20 recommendations
 		player.getRecSystem().setLeft(20);
 		// Give one hour bonus for new chars
-		player.getRecSystem().setRecomBonusTime(3600);
+		player.getRecSystem().setBonusTime(3600);
 		// Add the player in the characters table of the database
 		return DAOFactory.getInstance().getPlayerDAO().insert(player) ? player : null;
 	}

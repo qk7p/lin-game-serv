@@ -18,8 +18,9 @@
  */
 package com.l2jserver.gameserver.model.actor.tasks.player;
 
+import java.util.Objects;
+
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
-import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 
 /**
  * @author UnAfraid
@@ -30,14 +31,12 @@ public class RecoBonusTask implements Runnable {
 	private final L2PcInstance _player;
 	
 	public RecoBonusTask(L2PcInstance player) {
+		Objects.requireNonNull(player);
 		_player = player;
 	}
 	
 	@Override
 	public void run() {
-		if (_player != null) {
-			_player.getRecSystem().setRecomBonusTime(0);
-			_player.sendPacket(new ExVoteSystemInfo(_player));
-		}
+		_player.getRecSystem().finishBonusTask();
 	}
 }
