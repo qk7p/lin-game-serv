@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -30,6 +30,10 @@ import com.l2jserver.gameserver.model.actor.tasks.player.RecoBonusTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.RecoGiveTask;
 import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 
+/**
+ * @author HorridoJoho
+ * @since 2.6.3.0
+ */
 public class RecommendationSystem {
 	private final L2PcInstance _player;
 	
