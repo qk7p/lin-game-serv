@@ -43,6 +43,7 @@ import com.l2jserver.gameserver.model.actor.instance.L2ChestInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2DoorInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2StaticObjectInstance;
 import com.l2jserver.gameserver.model.effects.L2EffectType;
+import com.l2jserver.gameserver.model.holders.SkillUseHolder;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.skills.Skill;
 
@@ -103,7 +104,7 @@ public enum TargetType {
 			
 			final var player = caster.getActingPlayer();
 			if (player != null) {
-				if (!player.checkIfPvP((L2Character) target) && !player.getCurrentSkill().isCtrlPressed()) {
+				if (!player.checkIfPvP((L2Character) target) && !getCurrentPlayableSkill(caster).isCtrlPressed()) {
 					caster.sendPacket(INCORRECT_TARGET);
 					return null;
 				}
@@ -350,7 +351,7 @@ public enum TargetType {
 			final var player = caster.getActingPlayer();
 			if (player != null) {
 				if (target.isAutoAttackable(caster)) {
-					final var currentSkill = player.getCurrentSkill();
+					final var currentSkill = getCurrentPlayableSkill(caster);
 					if ((currentSkill != null) && !currentSkill.isCtrlPressed()) {
 						caster.sendPacket(INCORRECT_TARGET);
 						return null;
@@ -398,5 +399,12 @@ public enum TargetType {
 			return List.of();
 		}
 		return skill.getAffectScope().affectTargets(caster, actualTarget, skill);
+	}
+
+	private static final SkillUseHolder getCurrentPlayableSkill(L2Character caster) {
+		if (caster.isSummon()) {
+			return caster.getActingPlayer().getCurrentPetSkill();
+		}
+		return caster.getActingPlayer().getCurrentSkill();
 	}
 }
