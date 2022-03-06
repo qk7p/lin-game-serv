@@ -176,7 +176,7 @@ public class NpcData implements IXmlReader {
 												set.set("baseCritRate", parseInteger(attrs, "critical"));
 												set.set("accuracy", parseDouble(attrs, "accuracy"));// TODO: Implement me
 												set.set("basePAtkSpd", parseInteger(attrs, "attackSpeed"));
-												set.set("reuseDelay", parseInteger(attrs, "reuseDelay"));// TODO: Implement me
+												set.set("reuseDelay", parseInteger(attrs, "reuseDelay"));
 												set.set("baseAtkType", parseString(attrs, "type"));
 												set.set("baseAtkRange", parseInteger(attrs, "range"));
 												set.set("distance", parseInteger(attrs, "distance"));// TODO: Implement me

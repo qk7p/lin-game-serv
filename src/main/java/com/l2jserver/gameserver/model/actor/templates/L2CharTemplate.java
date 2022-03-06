@@ -59,6 +59,7 @@ public class L2CharTemplate extends ListenersContainer {
 	private int _baseShldRate;
 	private int _baseCritRate;
 	private int _baseMCritRate;
+	private int _baseReuseDelay;
 	// SpecialStats
 	private int _baseBreath;
 	private int _baseFire;
@@ -116,6 +117,7 @@ public class L2CharTemplate extends ListenersContainer {
 		_baseShldRate = set.getInt("baseShldRate", 0);
 		_baseCritRate = set.getInt("baseCritRate", 4);
 		_baseMCritRate = set.getInt("baseMCritRate", 0);
+		_baseReuseDelay = set.getInt("reuseDelay", 0);
 		
 		// SpecialStats
 		_baseBreath = set.getInt("baseBreath", 100);
@@ -392,6 +394,13 @@ public class L2CharTemplate extends ListenersContainer {
 	 */
 	public int getBaseMCritRate() {
 		return _baseMCritRate;
+	}
+	
+	/**
+	 * @return the baseReuseDelay
+	 */
+	public int getBaseReuseDelay() {
+		return _baseReuseDelay;
 	}
 	
 	public void setBaseMoveSpeed(MoveType type, double val) {

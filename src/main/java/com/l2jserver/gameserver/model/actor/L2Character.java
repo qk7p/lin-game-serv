@@ -268,7 +268,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	private L2Object _target;
 	/** Represents the time where the attack should end, in nanoseconds. */
 	private volatile long _attackEndTime;
-	private int _disableBowAttackEndTime;
+	private long _disableBowAttackEndTime;
 	
 	private int _castInterruptTime;
 	
@@ -723,11 +723,13 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		}
 		L2Weapon weaponItem = getActiveWeaponItem();
 		
-		if ((weaponItem == null) || !weaponItem.isRange()) {
-			return false;
-		}
+		final long betweenRangedAttack = _disableBowAttackEndTime - System.currentTimeMillis();
 		// Check for arrows and MP
 		if (isPlayer()) {
+			if ((weaponItem == null) || !weaponItem.isRange()) {
+				return false;
+			}
+			
 			// Equip arrows needed in left hand and send a Server->Client packet ItemList to the L2PcInstance then return True
 			if (!checkAndEquipArrows()) {
 				// Cancel the action because the L2PcInstance have no arrow
@@ -738,37 +740,38 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			}
 			
 			// Verify if the bow can be use
-			if (_disableBowAttackEndTime <= GameTimeController.getInstance().getGameTicks()) {
-				// Verify if L2PcInstance owns enough MP
-				int mpConsume = weaponItem.getMpConsume();
-				if ((weaponItem.getReducedMpConsume() > 0) && (Rnd.get(100) < weaponItem.getReducedMpConsumeChance())) {
-					mpConsume = weaponItem.getReducedMpConsume();
-				}
-				mpConsume = (int) calcStat(Stats.BOW_MP_CONSUME_RATE, mpConsume, null, null);
-				
-				if (getCurrentMp() < mpConsume) {
-					// If L2PcInstance doesn't have enough MP, stop the attack
-					ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), 1000);
-					sendPacket(SystemMessageId.NOT_ENOUGH_MP);
-					sendPacket(ActionFailed.STATIC_PACKET);
-					return false;
-				}
-				
-				// If L2PcInstance have enough MP, the bow consumes it
-				if (mpConsume > 0) {
-					getStatus().reduceMp(mpConsume);
-				}
-				
-				// Set the period of bow no re-use
-				_disableBowAttackEndTime = (5 * GameTimeController.TICKS_PER_SECOND) + GameTimeController.getInstance().getGameTicks();
-			} else {
+			if (betweenRangedAttack > 0) {
 				// Cancel the action because the bow can't be re-use at this moment
-				ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), 1000);
+				ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), betweenRangedAttack);
 				sendPacket(ActionFailed.STATIC_PACKET);
 				return false;
 			}
+			// Verify if L2PcInstance owns enough MP
+			int mpConsume = weaponItem.getMpConsume();
+			if ((weaponItem.getReducedMpConsume() > 0) && (Rnd.get(100) < weaponItem.getReducedMpConsumeChance())) {
+				mpConsume = weaponItem.getReducedMpConsume();
+			}
+			mpConsume = (int) calcStat(Stats.BOW_MP_CONSUME_RATE, mpConsume, null, null);
+			
+			if (getCurrentMp() < mpConsume) {
+				// If L2PcInstance doesn't have enough MP, stop the attack
+				ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), 100);
+				sendPacket(SystemMessageId.NOT_ENOUGH_MP);
+				sendPacket(ActionFailed.STATIC_PACKET);
+				return false;
+			}
+			
+			// If L2PcInstance have enough MP, the bow consumes it
+			if (mpConsume > 0) {
+				getStatus().reduceMp(mpConsume);
+			}
 		} else if (isNpc()) {
-			return _disableBowAttackEndTime <= GameTimeController.getInstance().getGameTicks();
+			// Verify reuse attack
+			if (betweenRangedAttack > 0) {
+				ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), betweenRangedAttack);
+				sendPacket(ActionFailed.STATIC_PACKET);
+				return false;
+			}
 		}
 		return true;
 	}
@@ -896,21 +899,28 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			setHeading(Util.calculateHeadingFrom(this, target));
 			int reuse = calculateReuseTime(weaponItem);
 			
+			if (isNpc()) {
+				if (weaponItem == null) {
+					reuse = timeAtk;
+				}
+				reuse = reuse + getTemplate().getBaseReuseDelay();
+			}
+			
 			boolean hitted;
 			switch (getAttackType()) {
 				case BOW: {
-					if (isPlayer() && !canUseRangeWeapon()) {
+					if (!canUseRangeWeapon()) {
 						return;
 					}
-					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeToHit + (reuse / 2), TimeUnit.MILLISECONDS);
+					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeAtk, TimeUnit.MILLISECONDS);
 					hitted = doAttackHitByBow(attack, target, timeAtk, reuse);
 					break;
 				}
 				case CROSSBOW: {
-					if (isPlayer() && !canUseRangeWeapon()) {
+					if (!canUseRangeWeapon()) {
 						return;
 					}
-					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeToHit + (reuse / 2), TimeUnit.MILLISECONDS);
+					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeAtk, TimeUnit.MILLISECONDS);
 					hitted = doAttackHitByCrossBow(attack, target, timeAtk, reuse);
 					break;
 				}
@@ -977,8 +987,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 				broadcastPacket(attack);
 			}
 			
-			// Notify AI with EVT_READY_TO_ACT
-			ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), timeAtk + reuse);
+			ThreadPoolManager.getInstance().scheduleAi(new NotifyAITask(this, CtrlEvent.EVT_READY_TO_ACT), timeAtk);
 		} finally {
 			_attackLock.unlockWrite(stamp);
 		}
@@ -1042,7 +1051,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		ThreadPoolManager.getInstance().scheduleAi(new HitTask(this, target, damage1, crit1, miss1, attack.hasSoulshot(), shld1), sAtk);
 		
 		// Calculate and set the disable delay of the bow in function of the Attack Speed
-		_disableBowAttackEndTime = ((sAtk + reuse) / GameTimeController.MILLIS_IN_TICK) + GameTimeController.getInstance().getGameTicks();
+		_disableBowAttackEndTime = (sAtk + reuse) + System.currentTimeMillis();
 		
 		// Add this hit to the Server-Client packet Attack
 		attack.addHit(target, damage1, miss1, crit1, shld1);
@@ -1109,7 +1118,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		ThreadPoolManager.getInstance().scheduleAi(new HitTask(this, target, damage1, crit1, miss1, attack.hasSoulshot(), shld1), sAtk);
 		
 		// Calculate and set the disable delay of the bow in function of the Attack Speed
-		_disableBowAttackEndTime = ((sAtk + reuse) / GameTimeController.MILLIS_IN_TICK) + GameTimeController.getInstance().getGameTicks();
+		_disableBowAttackEndTime = (sAtk + reuse) + System.currentTimeMillis();
 		
 		// Add this hit to the Server-Client packet Attack
 		attack.addHit(target, damage1, miss1, crit1, shld1);
@@ -5042,10 +5051,6 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	
 	public final long getAttackEndTime() {
 		return _attackEndTime;
-	}
-	
-	public int getBowAttackEndTime() {
-		return _disableBowAttackEndTime;
 	}
 	
 	/**

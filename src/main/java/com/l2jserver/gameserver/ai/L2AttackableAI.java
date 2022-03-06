@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.GeoData;
+import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.data.sql.impl.TerritoryTable;
 import com.l2jserver.gameserver.enums.AISkillScope;
@@ -43,6 +44,7 @@ import com.l2jserver.gameserver.enums.AIType;
 import com.l2jserver.gameserver.instancemanager.DimensionalRiftManager;
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.Location;
+import com.l2jserver.gameserver.model.TeleportWhereType;
 import com.l2jserver.gameserver.model.actor.L2Attackable;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.L2Npc;
@@ -372,6 +374,23 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			_lastBuffTick = GameTimeController.getInstance().getGameTicks();
 		}
 		
+		if (getActiveChar().isSevenNpc()) {
+			final L2PcInstance player = target.getActingPlayer();
+			if (SevenSigns.getInstance().isSealValidationPeriod() || SevenSigns.getInstance().isCompResultsPeriod()) {
+				if (!player.isGM() && player.isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(player.getObjectId()) != SevenSigns.getInstance().getCabalHighestScore())) {
+					player.teleToLocation(TeleportWhereType.TOWN);
+					player.setIsIn7sDungeon(false);
+					player.sendMessage("You have been teleported to the nearest town due to the beginning of the Seal Validation period.");
+				}
+			} else {
+				if (!player.isGM() && player.isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(player.getObjectId()) == SevenSigns.CABAL_NULL)) {
+					player.teleToLocation(TeleportWhereType.TOWN);
+					player.setIsIn7sDungeon(false);
+					player.sendMessage("You have been teleported to the nearest town because you have not signed for any cabal.");
+				}
+			}
+		}
+		
 		// Manage the Attack Intention : Stop current Attack (if necessary), Start a new Attack and Launch Think Event
 		super.onIntentionAttack(target);
 	}
@@ -644,7 +663,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 	 */
 	protected void thinkAttack() {
 		final L2Attackable npc = getActiveChar();
-		if (npc.isCastingNow()) {
+		if (npc.isCastingNow() || npc.isAttackingNow()) {
 			return;
 		}
 		
@@ -778,7 +797,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			}
 		}
 		// Calculate Archer movement
-		if (!npc.isMovementDisabled() && (npc.getAiType() == AIType.ARCHER)) {
+		if (!npc.isMovementDisabled() && (npc.getTemplate().getBaseAttackRange() >= 700)) {
 			if (Rnd.get(100) <= 15) {
 				double distance2 = npc.calculateDistance(mostHate, false, true);
 				if (Math.sqrt(distance2) <= (60 + combinedCollision)) {
@@ -1055,8 +1074,8 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		double dist = npc.calculateDistance(mostHate, false, false);
 		int dist2 = (int) dist - collision;
 		int range = npc.getPhysicalAttackRange() + combinedCollision;
-		if (npc.getAiType() == AIType.ARCHER) {
-			range = 850 + combinedCollision; // Base Bow Range NPC
+		if (npc.getTemplate().getBaseAttackRange() >= 700) {
+			range = npc.getTemplate().getBaseAttackRange(); // Base Bow Range NPC
 		}
 		if (mostHate.isMoving()) {
 			range = range + 50;
@@ -1072,9 +1091,6 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			} else {
 				final L2Character target = getAttackTarget();
 				if (target != null) {
-					if (target.isMoving()) {
-						range -= 100;
-					}
 					moveToPawn(target, Math.max(range, 5));
 				}
 			}

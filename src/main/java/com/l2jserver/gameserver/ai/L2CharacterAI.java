@@ -29,12 +29,13 @@ import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_PICK_UP;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_REST;
 import static com.l2jserver.gameserver.config.Configuration.geodata;
 import static com.l2jserver.gameserver.model.skills.targets.AffectScope.PARTY;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.l2jserver.commons.util.Rnd;
-import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.enums.ItemLocation;
@@ -289,8 +290,8 @@ public class L2CharacterAI extends AbstractAI {
 			return;
 		}
 		
-		if (_actor.getBowAttackEndTime() > GameTimeController.getInstance().getGameTicks()) {
-			ThreadPoolManager.getInstance().scheduleGeneral(new CastTask(_actor, skill, target), (_actor.getBowAttackEndTime() - GameTimeController.getInstance().getGameTicks()) * GameTimeController.MILLIS_IN_TICK);
+		if (_actor.isAttackingNow()) {
+			ThreadPoolManager.getInstance().scheduleGeneral(new CastTask(_actor, skill, target), MILLISECONDS.convert(_actor.getAttackEndTime() - System.nanoTime(), NANOSECONDS));
 		} else {
 			changeIntentionToCast(skill, target);
 		}
@@ -325,7 +326,7 @@ public class L2CharacterAI extends AbstractAI {
 			return;
 		}
 		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow()) {
+		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			return;
@@ -361,7 +362,7 @@ public class L2CharacterAI extends AbstractAI {
 			return;
 		}
 		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow()) {
+		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			return;
@@ -412,7 +413,7 @@ public class L2CharacterAI extends AbstractAI {
 			return;
 		}
 		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow()) {
+		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			return;
@@ -458,7 +459,7 @@ public class L2CharacterAI extends AbstractAI {
 			return;
 		}
 		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow()) {
+		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			return;

@@ -7906,20 +7906,6 @@ public final class L2PcInstance extends L2Playable {
 		
 		getHuntingSystem().onPlayerLogin();
 		
-		if (SevenSigns.getInstance().isSealValidationPeriod() || SevenSigns.getInstance().isCompResultsPeriod()) {
-			if (!isGM() && isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(getObjectId()) != SevenSigns.getInstance().getCabalHighestScore())) {
-				teleToLocation(TeleportWhereType.TOWN);
-				setIsIn7sDungeon(false);
-				sendMessage("You have been teleported to the nearest town due to the beginning of the Seal Validation period.");
-			}
-		} else {
-			if (!isGM() && isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(getObjectId()) == SevenSigns.CABAL_NULL)) {
-				teleToLocation(TeleportWhereType.TOWN);
-				setIsIn7sDungeon(false);
-				sendMessage("You have been teleported to the nearest town because you have not signed for any cabal.");
-			}
-		}
-		
 		if (isGM()) {
 			if (isInvul()) {
 				sendMessage("Entering world in Invulnerable mode.");
