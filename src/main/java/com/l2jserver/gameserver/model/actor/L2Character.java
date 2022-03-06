@@ -4006,6 +4006,11 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			return;
 		}
 		
+		if (isStunned() || isSleeping() || isAfraid() || isPhysicalAttackMuted()) {
+			getAI().notifyEvent(CtrlEvent.EVT_CANCEL);
+			return;
+		}
+		
 		if ((isNpc() && target.isAlikeDead()) || target.isDead() || (!getKnownList().knowsObject(target) && !isDoor())) {
 			// getAI().setIntention(CtrlIntention.AI_INTENTION_ACTIVE, null);
 			// Some times attack is processed but target die before the hit
