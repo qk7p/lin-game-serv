@@ -35,6 +35,7 @@ import com.l2jserver.gameserver.model.events.impl.character.OnCreatureKill;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.quest.QuestState;
 import com.l2jserver.gameserver.model.skills.Skill;
+import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.serverpackets.EtcStatusUpdate;
 
 /**
@@ -216,13 +217,18 @@ public abstract class L2Playable extends L2Character {
 		if (targetPlayer == this) {
 			return false; // Target player is self
 		}
-		if (targetPlayer.getKarma() != 0) {
-			return false; // Target player has karma
+
+		if (player.isInsideZone(ZoneId.PVP) && player.isInsideZone(ZoneId.PVP)) {
+			return true;
 		}
 		
 		if ((player.getClan() != null) && (targetPlayer.getClan() != null) && targetPlayer.getClan().isAtWarWith(player.getClanId()) && player.getClan().isAtWarWith(targetPlayer.getClanId()) && (player.getWantsPeace() == 0) && (targetPlayer.getWantsPeace() == 0) && !player.isAcademyMember()
 			&& !targetPlayer.isAcademyMember()) {
 			return true; // Target player and player has war
+		}
+
+		if (targetPlayer.getKarma() != 0) {
+			return false; // Target player has karma
 		}
 		
 		return targetPlayer.getPvpFlag() != 0;
