@@ -205,10 +205,6 @@ public abstract class L2Playable extends L2Character {
 			return false; // Active player is null
 		}
 		
-		if (player.getKarma() != 0) {
-			return false; // Active player has karma
-		}
-		
 		final L2PcInstance targetPlayer = target.getActingPlayer();
 		if (targetPlayer == null) {
 			return false; // Target player is null
@@ -217,9 +213,14 @@ public abstract class L2Playable extends L2Character {
 		if (targetPlayer == this) {
 			return false; // Target player is self
 		}
-
+		
+		// pvp zone is always pvp 
 		if (player.isInsideZone(ZoneId.PVP) && player.isInsideZone(ZoneId.PVP)) {
 			return true;
+		}
+
+		if (player.getKarma() != 0 || targetPlayer.getKarma() != 0) {
+			return false; // Active player or target player has karma
 		}
 		
 		if ((player.getClan() != null) && (targetPlayer.getClan() != null) && targetPlayer.getClan().isAtWarWith(player.getClanId()) && player.getClan().isAtWarWith(targetPlayer.getClanId()) && (player.getWantsPeace() == 0) && (targetPlayer.getWantsPeace() == 0) && !player.isAcademyMember()
@@ -227,10 +228,6 @@ public abstract class L2Playable extends L2Character {
 			return true; // Target player and player has war
 		}
 
-		if (targetPlayer.getKarma() != 0) {
-			return false; // Target player has karma
-		}
-		
 		return targetPlayer.getPvpFlag() != 0;
 	}
 	
