@@ -90,7 +90,7 @@ public enum TargetType {
 	ENEMY {
 		@Override
 		public L2Object getTarget(Skill skill, L2Character caster, L2Object target) {
-			if ((target == null) || !target.isCharacter()) {
+			if ((target == null) || (caster.getObjectId() == target.getObjectId()) || !target.isCharacter()) {
 				return null;
 			}
 			
