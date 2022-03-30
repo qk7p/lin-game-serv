@@ -180,6 +180,14 @@ public abstract class L2Playable extends L2Character {
 		return true;
 	}
 	
+	public boolean doesSkillNeedCtrl(L2Character target, Skill skill) {
+		if (target.isPlayable()) {
+			return !checkIfPvP(target) && target.getActingPlayer().getKarma() == 0;
+		}
+		
+		return false;
+	}
+	
 	public boolean checkIfPvP(L2Character target) {
 		if (target == null) {
 			return false; // Target is null

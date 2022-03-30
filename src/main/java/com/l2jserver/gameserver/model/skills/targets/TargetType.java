@@ -104,7 +104,7 @@ public enum TargetType {
 			
 			final var player = caster.getActingPlayer();
 			if (player != null) {
-				if (!player.checkIfPvP((L2Character) target) && !getCurrentPlayableSkill(caster).isCtrlPressed()) {
+				if (player.doesSkillNeedCtrl((L2Character) target, skill) && !getCurrentPlayableSkill(caster).isCtrlPressed()) {
 					caster.sendPacket(INCORRECT_TARGET);
 					return null;
 				}
