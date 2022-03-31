@@ -334,10 +334,11 @@ public enum TargetType {
 	SUMMON {
 		@Override
 		public L2Object getTarget(Skill skill, L2Character caster, L2Object target) {
-			if ((target == null) || !target.isServitor()) {
+			if (!caster.hasServitor()) {
 				return null;
 			}
-			return target;
+
+			return caster.getSummon();
 		}
 	},
 	/** Anything targetable. */
