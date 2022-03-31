@@ -215,7 +215,7 @@ public abstract class L2Playable extends L2Character {
 		}
 		
 		// pvp zone is always pvp 
-		if (player.isInsideZone(ZoneId.PVP) && player.isInsideZone(ZoneId.PVP)) {
+		if (player.isInsideZone(ZoneId.PVP) && targetPlayer.isInsideZone(ZoneId.PVP)) {
 			return true;
 		}
 
