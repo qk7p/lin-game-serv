@@ -4923,7 +4923,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 				}
 			}
 		} catch (Exception e) {
-			LOG.warn("callSkill() failed. {}", e);
+			LOG.warn("callSkill() failed. skill={} actor(id={}, name={})", skill.getId(), getObjectId(), getName(), e);
 		}
 	}
 	

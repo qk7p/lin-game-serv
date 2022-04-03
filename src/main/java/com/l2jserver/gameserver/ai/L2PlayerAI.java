@@ -20,7 +20,6 @@ package com.l2jserver.gameserver.ai;
 
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_ATTACK;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_CAST;
-import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_FOLLOW;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_IDLE;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_INTERACT;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_MOVE_TO;
@@ -28,13 +27,11 @@ import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_PICK_UP;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_REST;
 
 import com.l2jserver.gameserver.enums.DuelState;
-import com.l2jserver.gameserver.enums.ItemLocation;
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.Location;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2StaticObjectInstance;
-import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.skills.targets.TargetType;
 import com.l2jserver.gameserver.network.SystemMessageId;
@@ -157,51 +154,6 @@ public class L2PlayerAI extends L2PlayableAI {
 		setIntention(AI_INTENTION_IDLE);
 	}
 	
-	@Override
-	protected void onIntentionAttack(L2Character target) {
-		if (target == null) {
-			clientActionFailed();
-			return;
-		}
-		if (getIntention() == AI_INTENTION_REST) {
-			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
-			clientActionFailed();
-			return;
-		}
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAfraid()) {
-			clientActionFailed();
-			saveNextIntention(AI_INTENTION_ATTACK, target, null);
-			return;
-		}
-		
-		// Check if the Intention is already AI_INTENTION_ATTACK
-		if (getIntention() == AI_INTENTION_ATTACK) {
-			// Check if the AI already targets the L2Character
-			if (getAttackTarget() != target) {
-				// Set the AI attack target (change target)
-				setAttackTarget(target);
-				
-				stopFollow();
-				
-				// Launch the Think Event
-				notifyEvent(CtrlEvent.EVT_THINK);
-			} else {
-				clientActionFailed(); // else client freezes until cancel target
-			}
-		} else {
-			// Set the Intention of this AbstractAI to AI_INTENTION_ATTACK
-			changeIntention(AI_INTENTION_ATTACK, target, null);
-			
-			// Set the AI attack target
-			setAttackTarget(target);
-			
-			stopFollow();
-			
-			// Launch the Think Event
-			notifyEvent(CtrlEvent.EVT_THINK);
-		}
-	}
-	
 	/**
 	 * Manage the Move To Intention : Stop current Attack and Launch a Move to Location Task.<br>
 	 * <B><U> Actions</U> : </B>
@@ -240,107 +192,6 @@ public class L2PlayerAI extends L2PlayableAI {
 		
 		// Move the actor to Location (x,y,z) server side AND client side by sending Server->Client packet CharMoveToLocation (broadcast)
 		moveTo(loc.getX(), loc.getY(), loc.getZ());
-	}
-	
-	@Override
-	protected void onIntentionFollow(L2Character target) {
-		if (getIntention() == AI_INTENTION_REST) {
-			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
-			clientActionFailed();
-			return;
-		}
-		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
-			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
-			clientActionFailed();
-			saveNextIntention(AI_INTENTION_FOLLOW, target, null);
-			return;
-		}
-		
-		// Dead actors can`t follow
-		if (_actor.isDead()) {
-			clientActionFailed();
-			return;
-		}
-		
-		// do not follow yourself
-		if (_actor == target) {
-			clientActionFailed();
-			return;
-		}
-		
-		// Stop the actor auto-attack client side by sending Server->Client packet AutoAttackStop (broadcast)
-		clientStopAutoAttack();
-		
-		// Set the Intention of this AbstractAI to AI_INTENTION_FOLLOW
-		changeIntention(AI_INTENTION_FOLLOW, target, null);
-		
-		// Create and Launch an AI Follow Task to execute every 1s
-		startFollow(target);
-	}
-	
-	@Override
-	protected void onIntentionPickUp(L2Object object) {
-		if (getIntention() == AI_INTENTION_REST) {
-			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
-			clientActionFailed();
-			return;
-		}
-		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
-			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
-			clientActionFailed();
-			saveNextIntention(AI_INTENTION_PICK_UP, object, null);
-			return;
-		}
-		
-		// Stop the actor auto-attack client side by sending Server->Client packet AutoAttackStop (broadcast)
-		clientStopAutoAttack();
-		
-		if ((object instanceof L2ItemInstance) && (((L2ItemInstance) object).getItemLocation() != ItemLocation.VOID)) {
-			return;
-		}
-		
-		// Set the Intention of this AbstractAI to AI_INTENTION_PICK_UP
-		changeIntention(AI_INTENTION_PICK_UP, object, null);
-		
-		// Set the AI pick up target
-		setTarget(object);
-		if ((object.getX() == 0) && (object.getY() == 0)) // TODO: Find the drop&spawn bug
-		{
-			LOG.warn("Object in coords 0,0 - using a temporary fix");
-			object.setXYZ(getActor().getX(), getActor().getY(), getActor().getZ() + 5);
-		}
-		
-		// Move the actor to Pawn server side AND client side by sending Server->Client packet MoveToPawn (broadcast)
-		moveToPawn(object, 20);
-	}
-	
-	@Override
-	protected void onIntentionInteract(L2Object object) {
-		if (getIntention() == AI_INTENTION_REST) {
-			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
-			clientActionFailed();
-			return;
-		}
-		
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
-			clientActionFailed();
-			saveNextIntention(AI_INTENTION_INTERACT, object, null);
-			return;
-		}
-		
-		// Stop the actor auto-attack client side by sending Server->Client packet AutoAttackStop (broadcast)
-		clientStopAutoAttack();
-		
-		// Set the Intention of this AbstractAI to AI_INTENTION_INTERACT
-		changeIntention(AI_INTENTION_INTERACT, object, null);
-		
-		// Set the AI interact target
-		setTarget(object);
-		
-		// Move the actor to Pawn server side AND client side by sending Server->Client packet MoveToPawn (broadcast)
-		moveToPawn(object, 60);
 	}
 	
 	@Override

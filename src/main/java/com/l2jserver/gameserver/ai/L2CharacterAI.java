@@ -238,6 +238,9 @@ public class L2CharacterAI extends AbstractAI {
 		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAfraid()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
+			if (_actor.isPlayer()) {
+				((L2PlayerAI)this).saveNextIntention(AI_INTENTION_ATTACK, target, null);
+			}
 			return;
 		}
 		
@@ -416,6 +419,9 @@ public class L2CharacterAI extends AbstractAI {
 		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
+			if (_actor.isPlayer()) {
+				((L2PlayerAI)this).saveNextIntention(AI_INTENTION_PICK_UP, object, null);
+			}
 			return;
 		}
 		
@@ -462,6 +468,9 @@ public class L2CharacterAI extends AbstractAI {
 		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow() || _actor.isAttackingNow()) {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
+			if (_actor.isPlayer()) {
+				((L2PlayerAI)this).saveNextIntention(AI_INTENTION_INTERACT, object, null);
+			}
 			return;
 		}
 		
