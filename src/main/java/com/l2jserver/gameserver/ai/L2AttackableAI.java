@@ -374,23 +374,6 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			_lastBuffTick = GameTimeController.getInstance().getGameTicks();
 		}
 		
-		if (getActiveChar().isSevenNpc()) {
-			final L2PcInstance player = target.getActingPlayer();
-			if (SevenSigns.getInstance().isSealValidationPeriod() || SevenSigns.getInstance().isCompResultsPeriod()) {
-				if (!player.isGM() && player.isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(player.getObjectId()) != SevenSigns.getInstance().getCabalHighestScore())) {
-					player.teleToLocation(TeleportWhereType.TOWN);
-					player.setIsIn7sDungeon(false);
-					player.sendMessage("You have been teleported to the nearest town due to the beginning of the Seal Validation period.");
-				}
-			} else {
-				if (!player.isGM() && player.isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(player.getObjectId()) == SevenSigns.CABAL_NULL)) {
-					player.teleToLocation(TeleportWhereType.TOWN);
-					player.setIsIn7sDungeon(false);
-					player.sendMessage("You have been teleported to the nearest town because you have not signed for any cabal.");
-				}
-			}
-		}
-		
 		// Manage the Attack Intention : Stop current Attack (if necessary), Start a new Attack and Launch Think Event
 		super.onIntentionAttack(target);
 	}
@@ -701,6 +684,23 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			
 			npc.setWalking();
 			return;
+		}
+		
+		if (npc.isSevenNpc()) {
+			final L2PcInstance target = originalAttackTarget.getActingPlayer();
+			if (SevenSigns.getInstance().isSealValidationPeriod() || SevenSigns.getInstance().isCompResultsPeriod()) {
+				if (!target.isGM() && target.isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(target.getObjectId()) != SevenSigns.getInstance().getCabalHighestScore())) {
+					target.teleToLocation(TeleportWhereType.TOWN);
+					target.setIsIn7sDungeon(false);
+					target.sendMessage("You have been teleported to the nearest town due to the beginning of the Seal Validation period.");
+				}
+			} else {
+				if (!target.isGM() && target.isIn7sDungeon() && (SevenSigns.getInstance().getPlayerCabal(target.getObjectId()) == SevenSigns.CABAL_NULL)) {
+					target.teleToLocation(TeleportWhereType.TOWN);
+					target.setIsIn7sDungeon(false);
+					target.sendMessage("You have been teleported to the nearest town because you have not signed for any cabal.");
+				}
+			}
 		}
 		
 		final int collision = npc.getTemplate().getCollisionRadius();
