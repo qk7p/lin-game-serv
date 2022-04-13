@@ -22,7 +22,7 @@ import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
 
 /**
  * A simple DTO for items; contains item ID and count.<br>
- * Extended by {@link ItemChanceHolder}, {@link QuestItemHolder}, {@link UniqueItemHolder}.
+ * Extended by {@link ItemChanceHolder}, {@link QuestItemChanceHolder}, {@link UniqueItemHolder}.
  * @author UnAfraid
  */
 public class ItemHolder implements IIdentifiable {

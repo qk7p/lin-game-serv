@@ -33,6 +33,7 @@ public interface IAmountMultiplierStrategy {
 	IAmountMultiplierStrategy DROP = DEFAULT_STRATEGY(rates().getDeathDropAmountMultiplier());
 	IAmountMultiplierStrategy SPOIL = DEFAULT_STRATEGY(rates().getCorpseDropAmountMultiplier());
 	IAmountMultiplierStrategy STATIC = (item, victim) -> 1;
+	IAmountMultiplierStrategy QUEST = DEFAULT_STRATEGY(rates().getQuestDropAmountMultiplier());
 	
 	static IAmountMultiplierStrategy DEFAULT_STRATEGY(final double defaultMultiplier) {
 		return (item, victim) -> {

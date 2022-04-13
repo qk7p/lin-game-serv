@@ -42,7 +42,7 @@ public interface IChanceMultiplierStrategy {
 			championmult = customs().getChampionRewardsChance();
 		}
 		
-		return (customs().championEnable() && (victim != null) && victim.isChampion()) ? (rates().getRateQuestDrop() * championmult) : rates().getRateQuestDrop();
+		return (customs().championEnable() && (victim != null) && victim.isChampion()) ? (rates().getQuestDropChanceMultiplier() * championmult) : rates().getQuestDropChanceMultiplier();
 	};
 	
 	static IChanceMultiplierStrategy DEFAULT_STRATEGY(final double defaultMultiplier) {

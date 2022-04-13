@@ -20,7 +20,7 @@ package com.l2jserver.gameserver.model.holders;
 
 /**
  * A DTO for items; contains item ID, count and chance.<br>
- * Complemented by {@link QuestItemHolder}.
+ * Complemented by {@link QuestItemChanceHolder}.
  * @author xban1x
  */
 public class ItemChanceHolder extends ItemHolder {

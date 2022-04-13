@@ -110,8 +110,11 @@ public interface RatesConfiguration extends Reloadable {
 	@Key("RateHellboundTrustDecrease")
 	Float getRateHellboundTrustDecrease();
 	
-	@Key("RateQuestDrop")
-	Float getRateQuestDrop();
+	@Key("QuestDropChanceMultiplier")
+	Float getQuestDropChanceMultiplier();
+
+	@Key("QuestDropAmountMultiplier")
+	Float getQuestDropAmountMultiplier();
 	
 	@Key("RateQuestRewardXP")
 	Float getRateQuestRewardXP();

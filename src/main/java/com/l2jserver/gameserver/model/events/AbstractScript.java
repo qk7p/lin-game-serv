@@ -18,30 +18,6 @@
  */
 package com.l2jserver.gameserver.model.events;
 
-import static com.l2jserver.gameserver.config.Configuration.character;
-import static com.l2jserver.gameserver.config.Configuration.customs;
-import static com.l2jserver.gameserver.config.Configuration.rates;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.commons.util.Util;
 import com.l2jserver.gameserver.GameTimeController;
@@ -128,6 +104,7 @@ import com.l2jserver.gameserver.model.events.listeners.RunnableEventListener;
 import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
+import com.l2jserver.gameserver.model.holders.QuestItemChanceHolder;
 import com.l2jserver.gameserver.model.holders.SkillHolder;
 import com.l2jserver.gameserver.model.interfaces.INamable;
 import com.l2jserver.gameserver.model.interfaces.IPositionable;
@@ -137,6 +114,8 @@ import com.l2jserver.gameserver.model.items.L2EtcItem;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.olympiad.Olympiad;
+import com.l2jserver.gameserver.model.quest.QuestDroplist;
+import com.l2jserver.gameserver.model.quest.QuestDroplist.QuestDropInfo;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.zone.L2ZoneType;
 import com.l2jserver.gameserver.network.NpcStringId;
@@ -148,6 +127,30 @@ import com.l2jserver.gameserver.network.serverpackets.StatusUpdate;
 import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
 import com.l2jserver.gameserver.scripting.ScriptManager;
 import com.l2jserver.gameserver.util.MinionList;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.l2jserver.gameserver.config.Configuration.character;
+import static com.l2jserver.gameserver.config.Configuration.rates;
+import static com.l2jserver.gameserver.model.quest.QuestDroplist.singleDropItem;
 
 /**
  * Abstract script.
@@ -1715,6 +1718,15 @@ public abstract class AbstractScript implements INamable {
 		}
 		return hasQuestItems(player, item.getId());
 	}
+
+	protected static boolean hasItemsAtLimit(L2PcInstance player, QuestItemChanceHolder... items) {
+		if (items == null) {
+			return false;
+		}
+
+		return Arrays.stream(items)
+				.allMatch(item -> getQuestItemsCount(player, item.getId()) >= item.getLimit());
+	}
 	
 	/**
 	 * Check if the player has all the specified items in his inventory and, if necessary, if their count is also as required.
@@ -1971,83 +1983,98 @@ public abstract class AbstractScript implements INamable {
 		
 		sendItemGetMessage(player, item, count);
 	}
-	
+
 	/**
-	 * Give the specified player a set amount of items if he is lucky enough.<br>
-	 * Not recommended to use this for non-stacking items.
-	 * @param player the player to give the item(s) to
-	 * @param itemId the ID of the item to give
-	 * @param amountToGive the amount of items to give
-	 * @param limit the maximum amount of items the player can have. Won't give more if this limit is reached. 0 - no limit.
-	 * @param dropChance the drop chance as a decimal digit from 0 to 1
-	 * @param playSound if true, plays ItemSound.quest_itemget when items are given and ItemSound.quest_middle when the limit is reached
-	 * @return {@code true} if limit > 0 and the limit was reached or if limit <= 0 and items were given; {@code false} in all other cases
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
 	 */
+	@Deprecated
 	public static boolean giveItemRandomly(L2PcInstance player, int itemId, long amountToGive, long limit, double dropChance, boolean playSound) {
-		return giveItemRandomly(player, null, itemId, amountToGive, amountToGive, limit, dropChance, playSound);
+		return giveItemRandomly(player, null, player, singleDropItem(itemId, amountToGive, amountToGive, dropChance * 100), limit, playSound);
 	}
-	
+
 	/**
-	 * Give the specified player a set amount of items if he is lucky enough.<br>
-	 * Not recommended to use this for non-stacking items.
-	 * @param player the player to give the item(s) to
-	 * @param npc the NPC that "dropped" the item (can be null)
-	 * @param itemId the ID of the item to give
-	 * @param amountToGive the amount of items to give
-	 * @param limit the maximum amount of items the player can have. Won't give more if this limit is reached. 0 - no limit.
-	 * @param dropChance the drop chance as a decimal digit from 0 to 1
-	 * @param playSound if true, plays ItemSound.quest_itemget when items are given and ItemSound.quest_middle when the limit is reached
-	 * @return {@code true} if limit > 0 and the limit was reached or if limit <= 0 and items were given; {@code false} in all other cases
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
 	 */
+	@Deprecated
 	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, int itemId, long amountToGive, long limit, double dropChance, boolean playSound) {
-		return giveItemRandomly(player, npc, itemId, amountToGive, amountToGive, limit, dropChance, playSound);
+		return giveItemRandomly(player, npc, player, singleDropItem(itemId, amountToGive, amountToGive, dropChance * 100), limit, playSound);
 	}
-	
+
+	/**
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
+	 */
+	@Deprecated
+	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, int itemId, long minAmount, long maxAmount, long limit, double dropChance, boolean playSound) {
+		return giveItemRandomly(player, npc, player, singleDropItem(itemId, minAmount, maxAmount, dropChance * 100), limit, playSound);
+	}
+
+	/**
+	 * For one-off use when no {@link QuestDroplist} has been created.
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
+	 */
+	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, int itemId, boolean playSound) {
+		return giveItemRandomly(player, npc, player, singleDropItem(itemId, 1, 1, 100.0), 0, playSound);
+	}
+
+	/**
+	 * For one-off use when no {@link QuestDroplist} has been created.
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
+	 */
+	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, QuestItemChanceHolder questItem, boolean playSound) {
+		return giveItemRandomly(player, npc, player, singleDropItem(questItem), questItem.getLimit(), playSound);
+	}
+
+	/**
+	 * For use with {@link QuestDroplist} elements.
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
+	 */
+	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, QuestDropInfo dropInfo, boolean playSound) {
+		if (dropInfo == null) {
+			return false;
+		}
+		return giveItemRandomly(player, npc, player, dropInfo.drop(), dropInfo.getLimit(), playSound);
+	}
+
+	/**
+	 * @see AbstractScript#giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound)
+	 */
+	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, IDropItem dropItem, long limit, boolean playSound) {
+		return giveItemRandomly(player, npc, player, dropItem, limit, playSound);
+	}
+
 	/**
 	 * Give the specified player a random amount of items if he is lucky enough.<br>
 	 * Not recommended to use this for non-stacking items.
 	 * @param player the player to give the item(s) to
 	 * @param npc the NPC that "dropped" the item (can be null)
-	 * @param itemId the ID of the item to give
-	 * @param minAmount the minimum amount of items to give
-	 * @param maxAmount the maximum amount of items to give (will give a random amount between min/maxAmount multiplied by quest rates)
+	 * @param killer the player who killed the NPC
+	 * @param dropItem the item or item group to drop
 	 * @param limit the maximum amount of items the player can have. Won't give more if this limit is reached. 0 - no limit.
-	 * @param dropChance the drop chance as a decimal digit from 0 to 1
 	 * @param playSound if true, plays ItemSound.quest_itemget when items are given and ItemSound.quest_middle when the limit is reached
 	 * @return {@code true} if limit > 0 and the limit was reached or if limit <= 0 and items were given; {@code false} in all other cases
 	 */
-	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, int itemId, long minAmount, long maxAmount, long limit, double dropChance, boolean playSound) {
-		final long currentCount = getQuestItemsCount(player, itemId);
-		
+	public static boolean giveItemRandomly(L2PcInstance player, L2Npc npc, L2PcInstance killer, IDropItem dropItem, long limit, boolean playSound) {
+		if (dropItem == null) {
+			return false;
+		}
+
+		ItemHolder drop = dropItem.calculateDrops(npc, killer).get(0);
+
+		final long currentCount = getQuestItemsCount(player, drop.getId());
+
 		if ((limit > 0) && (currentCount >= limit)) {
 			return true;
 		}
-		
-		minAmount *= rates().getRateQuestDrop();
-		maxAmount *= rates().getRateQuestDrop();
-		dropChance *= rates().getRateQuestDrop(); // TODO separate configs for rate and amount
-		if ((npc != null) && customs().championEnable() && npc.isChampion()) {
-			if ((itemId == Inventory.ADENA_ID) || (itemId == Inventory.ANCIENT_ADENA_ID)) {
-				dropChance *= customs().getChampionAdenasRewardsChance();
-				minAmount *= customs().getChampionAdenasRewardsAmount();
-				maxAmount *= customs().getChampionAdenasRewardsAmount();
-			} else {
-				dropChance *= customs().getChampionRewardsChance();
-				minAmount *= customs().getChampionRewardsAmount();
-				maxAmount *= customs().getChampionRewardsAmount();
-			}
-		}
-		
-		long amountToGive = ((minAmount == maxAmount) ? minAmount : Rnd.get(minAmount, maxAmount));
-		final double random = Rnd.nextDouble();
+
+		long amountToGive = drop.getCount();
 		// Inventory slot check (almost useless for non-stacking items)
-		if ((dropChance >= random) && (amountToGive > 0) && player.getInventory().validateCapacityByItemId(itemId)) {
+		if (amountToGive > 0 && player.getInventory().validateCapacityByItemId(drop.getId())) {
 			if ((limit > 0) && ((currentCount + amountToGive) > limit)) {
 				amountToGive = limit - currentCount;
 			}
 			
 			// Give the item to player
-			L2ItemInstance item = player.addItem("Quest", itemId, amountToGive, npc, true);
+			L2ItemInstance item = player.addItem("Quest", drop.getId(), amountToGive, npc, true);
 			if (item != null) {
 				// limit reached (if there is no limit, this block doesn't execute)
 				if ((currentCount + amountToGive) == limit) {

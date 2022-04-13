@@ -37,7 +37,7 @@ public enum DropListScope implements IDropItemFactory, IGroupedDropItemFactory {
 	STATIC(
 		(itemId, min, max, chance) -> new GeneralDropItem(itemId, min, max, chance, IAmountMultiplierStrategy.STATIC, IChanceMultiplierStrategy.STATIC, IPreciseDeterminationStrategy.ALWAYS, IKillerChanceModifierStrategy.NO_RULES),
 		chance -> new GroupedGeneralDropItem(chance, IGroupedItemDropCalculationStrategy.DEFAULT_STRATEGY, IKillerChanceModifierStrategy.NO_RULES, IPreciseDeterminationStrategy.ALWAYS)),
-	QUEST((itemId, min, max, chance) -> new GeneralDropItem(itemId, min, max, chance, IAmountMultiplierStrategy.STATIC, IChanceMultiplierStrategy.QUEST, IPreciseDeterminationStrategy.ALWAYS, IKillerChanceModifierStrategy.NO_RULES), STATIC);
+	QUEST((itemId, min, max, chance) -> new GeneralDropItem(itemId, min, max, chance, IAmountMultiplierStrategy.QUEST, IChanceMultiplierStrategy.QUEST, IPreciseDeterminationStrategy.ALWAYS, IKillerChanceModifierStrategy.NO_RULES), STATIC);
 	
 	private final IDropItemFactory _factory;
 	private final IGroupedDropItemFactory _groupFactory;
