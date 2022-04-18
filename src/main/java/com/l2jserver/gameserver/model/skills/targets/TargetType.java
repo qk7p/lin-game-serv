@@ -213,7 +213,7 @@ public enum TargetType {
 			}
 			
 			// Cannot PvP.
-			if (!player.checkIfPvP(targetCreature)) {
+			if (!player.checkIfPvP(targetCreature) && (target.isPlayable() && target.getActingPlayer().getKarma() == 0)) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}

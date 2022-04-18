@@ -1898,6 +1898,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 	 */
 	@Override
 	protected void onEvtAttacked(L2Character attacker) {
+		if (attacker == getActiveChar()) {
+			return;
+		}
+
 		L2Attackable me = getActiveChar();
 		
 		// Calculate the attack timeout
@@ -1923,9 +1927,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			setIntention(CtrlIntention.AI_INTENTION_ATTACK, attacker);
 		}
 		
-		if (me instanceof L2MonsterInstance) {
-			L2MonsterInstance master = (L2MonsterInstance) me;
-			
+		if (me instanceof L2MonsterInstance master) {
 			if (master.hasMinions()) {
 				master.getMinionList().onAssist(me, attacker);
 			}

@@ -72,8 +72,6 @@ import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAtt
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
-import com.l2jserver.gameserver.model.skills.AbnormalType;
-import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
@@ -589,7 +587,7 @@ public class L2Attackable extends L2Npc {
 	 * @param aggro The hate (=damage) given by the attacker L2Character
 	 */
 	public void addDamageHate(L2Character attacker, int damage, long aggro) {
-		if (attacker == null) {
+		if (attacker == null || attacker == this) {
 			return;
 		}
 		
