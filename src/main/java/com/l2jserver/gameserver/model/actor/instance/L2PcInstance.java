@@ -1553,6 +1553,10 @@ public final class L2PcInstance extends L2Playable {
 	public int getCommonCraft() {
 		return getSkillLevel(CommonSkill.CREATE_COMMON.getId());
 	}
+
+	public boolean canCrystallize() {
+		return getSkillLevel(CommonSkill.CRYSTALLIZE.getId()) >= 1;
+	}
 	
 	/**
 	 * @return the PK counter of the L2PcInstance.
