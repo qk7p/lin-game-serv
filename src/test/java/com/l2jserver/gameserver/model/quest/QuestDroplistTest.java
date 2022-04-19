@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -175,6 +176,59 @@ public class QuestDroplistTest {
     }
 
     @Test
+    public void shouldAddSingleDropWithRequiredItems() {
+        int[] requiredItemIds = {10, 11};
+
+        QuestDroplist dropList = QuestDroplist.builder()
+                .addSingleDrop(1, QUEST_ITEM_1).withRequiredItems(requiredItemIds)
+                .build();
+
+        QuestDropInfo dropInfo = dropList.get(1);
+        assertThat(dropInfo).isNotNull();
+        assertThat(dropInfo.item()).isEqualTo(QUEST_ITEM_1);
+        assertThat(dropInfo.getLimit()).isEqualTo(QUEST_ITEM_1.getLimit());
+        assertThat(dropInfo.requiredItems()).isEqualTo(requiredItemIds);
+    }
+
+    @Test
+    public void shouldAddRequiredItemsWithoutDuplicates() {
+        int[] requiredItemIds = {10, 11};
+
+        QuestDroplist dropList = QuestDroplist.builder()
+                .addSingleDrop(1, QUEST_ITEM_1).withRequiredItems(10, 11, 11)
+                .build();
+
+        QuestDropInfo dropInfo = dropList.get(1);
+        assertThat(dropInfo).isNotNull();
+        assertThat(dropInfo.item()).isEqualTo(QUEST_ITEM_1);
+        assertThat(dropInfo.getLimit()).isEqualTo(QUEST_ITEM_1.getLimit());
+        assertThat(dropInfo.requiredItems()).isEqualTo(requiredItemIds);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingRequiredItemsWithoutDrop() {
+        assertThatIllegalStateException().isThrownBy(() ->
+                QuestDroplist.builder()
+                        .withRequiredItems(1, 2)
+                        .build());
+    }
+
+    @Test
+    public void shouldOverwriteRequiredItemsIfCalledTwice() {
+        int[] requiredItemIds = {2, 3};
+
+        QuestDroplist dropList = QuestDroplist.builder()
+                .addSingleDrop(1, QUEST_ITEM_1).withRequiredItems(1, 2).withRequiredItems(requiredItemIds)
+                .build();
+
+        QuestDropInfo dropInfo = dropList.get(1);
+        assertThat(dropInfo).isNotNull();
+        assertThat(dropInfo.item()).isEqualTo(QUEST_ITEM_1);
+        assertThat(dropInfo.getLimit()).isEqualTo(QUEST_ITEM_1.getLimit());
+        assertThat(dropInfo.requiredItems()).isEqualTo(requiredItemIds);
+    }
+
+    @Test
     public void shouldBulkAddSingleDrop() {
         QuestDroplist dropList = QuestDroplist.builder()
                 .addSingleDrop(1, QUEST_ITEM_1)
@@ -240,6 +294,23 @@ public class QuestDroplistTest {
             assertThat(dropInfo.item().getCount()).isEqualTo(1);
             assertThat(dropInfo.item().getChance()).isEqualTo(chance);
             assertThat(dropInfo.item().getLimit()).isEqualTo(0);
+        });
+    }
+
+    @Test
+    public void shouldBulkAddSingleDropWithRequiredItems() {
+        int[] requiredItemIds = {10, 11, 12};
+
+        QuestDroplist dropList = QuestDroplist.builder()
+                .addSingleDrop(1, QUEST_ITEM_1)
+                .bulkAddSingleDrop(QUEST_ITEM_1).withNpcs(2, 3, 4).withRequiredItems(requiredItemIds).build()
+                .build();
+
+        IntStream.range(2, 5).forEach(npcId -> {
+            QuestDropInfo dropInfo = dropList.get(npcId);
+            assertThat(dropInfo).isNotNull();
+            assertThat(dropInfo.item()).isEqualTo(QUEST_ITEM_1);
+            assertThat(dropInfo.requiredItems()).isEqualTo(requiredItemIds);
         });
     }
 
@@ -404,6 +475,21 @@ public class QuestDroplistTest {
             assertThat(dropItem.getMin()).isEqualTo(amount);
             assertThat(dropItem.getMax()).isEqualTo(amount);
         });
+    }
+
+    @Test
+    public void shouldAddGroupedDropWithRequiredItems() {
+        int[] requiredItemIds = {10, 11, 12};
+
+        QuestDroplist dropList = QuestDroplist.builder()
+                .addSingleDrop(1, QUEST_ITEM_1)
+                .addGroupedDrop(2, 100.0).withDropItem(QUEST_ITEM_2).withDropItem(QUEST_ITEM_3)
+                .build().withRequiredItems(requiredItemIds)
+                .build();
+
+        QuestDropInfo dropInfo = dropList.get(2);
+        assertThat(dropInfo).isNotNull();
+        assertThat(dropInfo.requiredItems()).isEqualTo(requiredItemIds);
     }
 
     @Test

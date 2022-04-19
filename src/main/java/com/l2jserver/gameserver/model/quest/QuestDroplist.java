@@ -34,8 +34,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Noé Caratini aka Kita
@@ -127,11 +129,18 @@ public class QuestDroplist {
 
     public static class QuestDropListBuilder {
         private final Map<Integer, List<QuestDropInfo>> dropList = new HashMap<>();
+        private Map.Entry<Integer, QuestDropInfo> lastAdded = null;
+
+        public QuestDropListBuilder addSingleDrop(int npcId, QuestItemChanceHolder questItem, long minAmount, long maxAmount, double chance, int[] requiredItemIds) {
+            List<QuestDropInfo> dropsForMob = dropList.computeIfAbsent(npcId, ArrayList::new);
+            QuestDropInfo dropInfo = new QuestDropInfo(questItem, singleDropItem(questItem.getId(), minAmount, maxAmount, chance), requiredItemIds);
+            dropsForMob.add(dropInfo);
+            updateLastAdded(npcId, dropInfo);
+            return this;
+        }
 
         public QuestDropListBuilder addSingleDrop(int npcId, QuestItemChanceHolder questItem, long minAmount, long maxAmount, double chance) {
-            List<QuestDropInfo> dropsForMob = dropList.computeIfAbsent(npcId, ArrayList::new);
-            dropsForMob.add(new QuestDropInfo(questItem, singleDropItem(questItem.getId(), minAmount, maxAmount, chance)));
-            return this;
+            return addSingleDrop(npcId, questItem, minAmount, maxAmount, chance, null);
         }
 
         public QuestDropListBuilder addSingleDrop(int npcId, QuestItemChanceHolder questItem) {
@@ -173,6 +182,25 @@ public class QuestDroplist {
                     new QuestItemChanceHolder(itemId, chance, amount, 0));
         }
 
+        public QuestDropListBuilder withRequiredItems(int... itemIds) {
+            if (lastAdded == null) {
+                throw new IllegalStateException("Cannot add required items without adding a drop first.");
+            }
+
+            int[] uniqueItemIds = Optional.ofNullable(itemIds)
+                    .map(ids -> Arrays.stream(ids).distinct().toArray())
+                    .orElse(null);
+
+            QuestDropInfo oldDropInfo = lastAdded.getValue();
+            QuestDropInfo newDropInfo = new QuestDropInfo(oldDropInfo.item(), oldDropInfo.drop(), uniqueItemIds);
+
+            List<QuestDropInfo> dropsForNpc = dropList.get(lastAdded.getKey());
+            dropsForNpc.remove(oldDropInfo);
+            dropsForNpc.add(newDropInfo);
+            updateLastAdded(lastAdded.getKey(), newDropInfo);
+            return this;
+        }
+
         public SingleDropBuilder bulkAddSingleDrop(QuestItemChanceHolder questItem) {
             return new SingleDropBuilder(this, questItem);
         }
@@ -188,6 +216,7 @@ public class QuestDroplist {
         private QuestDropListBuilder addGroupedDrop(int npcId, QuestDropInfo dropInfo) {
             List<QuestDropInfo> dropsForMob = dropList.computeIfAbsent(npcId, ArrayList::new);
             dropsForMob.add(dropInfo);
+            updateLastAdded(npcId, dropInfo);
             return this;
         }
 
@@ -199,6 +228,10 @@ public class QuestDroplist {
             return new GroupedDropForSingleItemBuilder(this, npcId, questItem, chanceForGroup);
         }
 
+        private void updateLastAdded(int npcId, QuestDropInfo dropInfo) {
+            lastAdded = Map.entry(npcId, dropInfo);
+        }
+
         public QuestDroplist build() {
             return new QuestDroplist(this);
         }
@@ -208,6 +241,7 @@ public class QuestDroplist {
             private final QuestItemChanceHolder item;
 
             private final Set<Integer> npcIds = new HashSet<>();
+            private int[] requiredItems = null;
 
             public SingleDropBuilder(QuestDropListBuilder parentBuilder, QuestItemChanceHolder item) {
                 this.parentBuilder = parentBuilder;
@@ -223,8 +257,13 @@ public class QuestDroplist {
                 return withNpcs(Arrays.stream(npcIds).boxed().collect(Collectors.toSet()));
             }
 
+            public SingleDropBuilder withRequiredItems(int... itemIds) {
+                requiredItems = itemIds;
+                return this;
+            }
+
             public QuestDropListBuilder build() {
-                npcIds.forEach(npcId -> parentBuilder.addSingleDrop(npcId, item));
+                npcIds.forEach(npcId -> parentBuilder.addSingleDrop(npcId, item).withRequiredItems(requiredItems));
                 return parentBuilder;
             }
         }
@@ -300,7 +339,12 @@ public class QuestDroplist {
         }
     }
 
-    public record QuestDropInfo(QuestItemChanceHolder item, IDropItem drop) {
+    public record QuestDropInfo(QuestItemChanceHolder item, IDropItem drop, int[] requiredItems) {
+
+        public QuestDropInfo(QuestItemChanceHolder item, IDropItem drop) {
+            this(item, drop, null);
+        }
+
         public long getLimit() {
             return item.getLimit();
         }
