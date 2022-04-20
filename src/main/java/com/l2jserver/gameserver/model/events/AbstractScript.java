@@ -2058,7 +2058,12 @@ public abstract class AbstractScript implements INamable {
 			return false;
 		}
 
-		ItemHolder drop = dropItem.calculateDrops(npc, killer).get(0);
+		List<ItemHolder> drops = dropItem.calculateDrops(npc, killer);
+		if (drops == null || drops.isEmpty()) {
+			return false;
+		}
+
+		ItemHolder drop = drops.get(0);
 
 		final long currentCount = getQuestItemsCount(player, drop.getId());
 
