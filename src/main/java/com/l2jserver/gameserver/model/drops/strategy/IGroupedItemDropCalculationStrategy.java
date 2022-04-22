@@ -18,23 +18,29 @@
  */
 package com.l2jserver.gameserver.model.drops.strategy;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.drops.GeneralDropItem;
 import com.l2jserver.gameserver.model.drops.GroupedGeneralDropItem;
 import com.l2jserver.gameserver.model.drops.IDropItem;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.l2jserver.gameserver.config.Configuration.general;
 
 /**
  * @author Battlecruiser
  */
 public interface IGroupedItemDropCalculationStrategy {
+	Logger LOG = LoggerFactory.getLogger(IGroupedItemDropCalculationStrategy.class);
 	/**
 	 * The default strategy used in L2J to calculate drops. When the group's chance raises over 100% and group has precise calculation, the dropped item's amount increases.
 	 */
@@ -105,11 +111,29 @@ public interface IGroupedItemDropCalculationStrategy {
 		if ((Rnd.nextDouble() * 100) < (normalized.getChance() % 100)) {
 			rolls++;
 		}
+
 		List<ItemHolder> dropped = new ArrayList<>(rolls);
 		for (int i = 0; i < rolls; i++) {
 			// As further normalizing on already normalized drop group does nothing, we can just pass the calculation to DEFAULT_STRATEGY with precise calculation disabled as we handle it.
-			dropped.addAll(normalized.calculateDrops(victim, killer));
+			List<ItemHolder> drops = normalized.calculateDrops(victim, killer);
+			if (drops != null) {
+				dropped.addAll(drops);
+			}
 		}
+
+		if (general().preciseDropMultipleRollsAggregateDrops()) {
+			Map<Integer, Long> countByItemId = new HashMap<>();
+			for (ItemHolder drop : dropped) {
+				Long currentCount = countByItemId.getOrDefault(drop.getId(), 0L);
+				countByItemId.put(drop.getId(), currentCount + drop.getCount());
+			}
+
+			dropped.clear();
+			for (Map.Entry<Integer, Long> entry : countByItemId.entrySet()) {
+				dropped.add(new ItemHolder(entry.getKey(), entry.getValue()));
+			}
+		}
+
 		return dropped.isEmpty() ? null : dropped;
 	};
 	

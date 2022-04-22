@@ -18,6 +18,7 @@
  */
 package com.l2jserver.gameserver.model.drops;
 
+import static com.l2jserver.gameserver.config.Configuration.general;
 import static com.l2jserver.gameserver.model.drops.strategy.IKillerChanceModifierStrategy.NO_RULES;
 
 import java.util.ArrayList;
@@ -47,7 +48,10 @@ public final class GroupedGeneralDropItem implements IDropItem {
 	 * @param chance the chance of this drop item.
 	 */
 	public GroupedGeneralDropItem(double chance) {
-		this(chance, IGroupedItemDropCalculationStrategy.DEFAULT_STRATEGY, IKillerChanceModifierStrategy.DEFAULT_STRATEGY, IPreciseDeterminationStrategy.DEFAULT);
+		this(chance,
+				general().preciseDropMultipleGroupRolls() ? IGroupedItemDropCalculationStrategy.PRECISE_MULTIPLE_GROUP_ROLLS : IGroupedItemDropCalculationStrategy.DEFAULT_STRATEGY,
+				IKillerChanceModifierStrategy.DEFAULT_STRATEGY,
+				IPreciseDeterminationStrategy.DEFAULT);
 	}
 	
 	/**
