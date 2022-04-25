@@ -79,7 +79,7 @@ public enum TargetType {
 	DOOR_TREASURE {
 		@Override
 		public L2Object getTarget(Skill skill, L2Character caster, L2Object target) {
-			if ((target == null) || !target.isDoor() || !(target instanceof L2ChestInstance)) {
+			if ((target == null) || (!target.isDoor() && !(target instanceof L2ChestInstance))) {
 				caster.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
