@@ -66,10 +66,13 @@ public class QuestDroplist {
             return null;
         }
 
-        return dropsByNpcId.get(npcId).stream()
-                .filter(dropInfo -> dropInfo.item().getId() == itemId)
-                .findFirst()
-                .orElse(null);
+        for (QuestDropInfo dropInfo : dropsByNpcId.get(npcId)) {
+            if (dropInfo.item().getId() == itemId) {
+                return dropInfo;
+            }
+        }
+
+        return null;
     }
 
     public QuestDropInfo get(int npcId, ItemHolder item) {
@@ -82,6 +85,21 @@ public class QuestDroplist {
 
     public Set<Integer> getNpcIds() {
         return dropsByNpcId.keySet();
+    }
+
+    public Set<Integer> getItemIds() {
+        return dropsByNpcId.values().stream().flatMap(List::stream)
+                .map(QuestDropInfo::drop)
+                .flatMap(dropItem -> {
+                    if (dropItem instanceof GeneralDropItem gen) {
+                        return Stream.of(gen.getItemId());
+                    } else if (dropItem instanceof  GroupedGeneralDropItem grp) {
+                        return grp.getItems().stream().map(GeneralDropItem::getItemId);
+                    } else {
+                        return Stream.empty();
+                    }
+                })
+                .collect(Collectors.toSet());
     }
 
     public static IDropItem singleDropItem(ItemChanceHolder itemHolder) {
@@ -112,7 +130,7 @@ public class QuestDroplist {
         return groupedDropItem(chance, List.of(itemHolders));
     }
 
-    public static IDropItem groupedDropItem(double chance, List<? extends ItemChanceHolder> itemHolders) {
+    private static IDropItem groupedDropItem(double chance, List<? extends ItemChanceHolder> itemHolders) {
         GroupedGeneralDropItem group = DropListScope.QUEST.newGroupedDropItem(chance);
         List<GeneralDropItem> dropItems = itemHolders.stream()
                 .map(QuestDroplist::singleDropItem)

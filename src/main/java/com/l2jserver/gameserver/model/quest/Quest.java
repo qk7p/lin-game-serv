@@ -21,17 +21,20 @@ package com.l2jserver.gameserver.model.quest;
 import static com.l2jserver.gameserver.config.Configuration.general;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.function.Predicate;
 import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 import com.l2jserver.commons.database.ConnectionFactory;
 import com.l2jserver.commons.util.Rnd;
@@ -94,7 +97,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	protected boolean _onEnterWorld = false;
 	private boolean _isCustom = false;
 	
-	public int[] _questItemIds = null;
+	private int[] _questItemIds = null;
 	
 	private static final String DEFAULT_NO_QUEST_MSG = "<html><body>You are either not on a quest that involves this NPC, or you don't meet this NPC's minimum quest requirements.</body></html>";
 	private static final String DEFAULT_ALREADY_COMPLETED_MSG = "<html><body>This quest has already been completed.</body></html>";
@@ -2272,10 +2275,17 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	
 	/**
 	 * Registers all items that have to be destroyed in case player abort the quest or finish it.
-	 * @param items
 	 */
 	public void registerQuestItems(int... items) {
-		_questItemIds = items;
+		if (_questItemIds != null) {
+			_questItemIds = IntStream.concat(Arrays.stream(_questItemIds), IntStream.of(items)).toArray();
+		} else {
+			_questItemIds = items;
+		}
+	}
+
+	public void registerQuestItems(Set<Integer> itemIds) {
+		registerQuestItems(itemIds.stream().mapToInt(i -> i).toArray());
 	}
 	
 	/**

@@ -712,4 +712,20 @@ public class QuestDroplistTest {
         QuestDropInfo dropInfo3 = dropList.get(1, QUEST_ITEM_3.getId());
         assertThat(dropInfo3).isNull();
     }
+
+    @Test
+    public void shouldGetAllItemIds() {
+        QuestDroplist dropList = QuestDroplist.builder()
+                .addSingleDrop(1, QUEST_ITEM_1)
+                .addGroupedDrop(2, 100.0)
+                .withDropItem(QUEST_ITEM_2)
+                .withDropItem(QUEST_ITEM_3)
+                .build()
+                .addSingleDrop(3, QUEST_ITEM_1)
+                .build();
+
+        Set<Integer> itemIds = dropList.getItemIds();
+
+        assertThat(itemIds).containsExactlyInAnyOrder(QUEST_ITEM_1.getId(), QUEST_ITEM_2.getId(), QUEST_ITEM_3.getId());
+    }
 }
