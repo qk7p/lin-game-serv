@@ -18,18 +18,17 @@
  */
 package com.l2jserver.gameserver.instancemanager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.model.L2Spawn;
 import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.instance.L2RaidBossInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author godson
@@ -42,9 +41,9 @@ public final class DayNightSpawnManager {
 	
 	private final List<L2Spawn> _nightCreatures = new ArrayList<>();
 	
-	private final Map<L2Spawn, L2RaidBossInstance> _bosses = new ConcurrentHashMap<>();
+	private final Map<L2Spawn, L2RaidBossInstance> _bosses = new HashMap<>();
 	
-	protected DayNightSpawnManager() {
+	private DayNightSpawnManager() {
 		// Prevent external initialization.
 	}
 	
@@ -165,7 +164,7 @@ public final class DayNightSpawnManager {
 				}
 				
 				if ((boss != null) && (boss.getId() == 25328) && boss.getRaidStatus().equals(RaidBossSpawnManager.StatusEnum.ALIVE)) {
-					handleHellmans(boss, mode);
+					handleHellmann(boss, mode);
 				}
 				return;
 			}
@@ -174,17 +173,17 @@ public final class DayNightSpawnManager {
 		}
 	}
 	
-	private void handleHellmans(L2RaidBossInstance boss, int mode) {
+	private void handleHellmann(L2RaidBossInstance boss, int mode) {
 		switch (mode) {
 			case 0 -> {
 				boss.deleteMe();
-				LOG.info("Deleting Hellman raidboss.");
+				LOG.info("Deleting Hellmann raidboss.");
 			}
 			case 1 -> {
 				if (!boss.isVisible()) {
 					boss.spawnMe();
 				}
-				LOG.info("Spawning Hellman raidboss.");
+				LOG.info("Spawning Hellmann raidboss.");
 			}
 		}
 	}
@@ -199,6 +198,8 @@ public final class DayNightSpawnManager {
 			_bosses.put(bossSpawn, raidboss);
 			
 			return raidboss;
+		} else {
+			_bosses.put(bossSpawn, null);
 		}
 		return null;
 	}
