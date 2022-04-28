@@ -450,6 +450,7 @@ public abstract class L2Summon extends L2Playable {
 	}
 	
 	public void setRestoreSummon(boolean val) {
+		_restoreSummon = val;
 	}
 	
 	@Override

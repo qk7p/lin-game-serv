@@ -147,11 +147,6 @@ public class L2ServitorInstance extends L2Summon implements Runnable {
 	}
 	
 	@Override
-	public void setRestoreSummon(boolean val) {
-		_restoreSummon = val;
-	}
-	
-	@Override
 	public final void stopSkillEffects(boolean removed, int skillId) {
 		super.stopSkillEffects(removed, skillId);
 		SummonEffectsTable.getInstance().removeServitorEffects(getOwner(), getReferenceSkill(), skillId);
