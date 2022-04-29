@@ -19,6 +19,7 @@
 package com.l2jserver.gameserver.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
@@ -221,12 +222,12 @@ public final class Elementals {
 			}
 			
 			switch (_elementalType) {
-				case FIRE -> player.addStatFunc(new FuncAdd(isArmor ? Stats.FIRE_RES : Stats.FIRE_POWER, 0x40, this, _elementalValue, null));
-				case WATER -> player.addStatFunc(new FuncAdd(isArmor ? Stats.WATER_RES : Stats.WATER_POWER, 0x40, this, _elementalValue, null));
-				case WIND -> player.addStatFunc(new FuncAdd(isArmor ? Stats.WIND_RES : Stats.WIND_POWER, 0x40, this, _elementalValue, null));
-				case EARTH -> player.addStatFunc(new FuncAdd(isArmor ? Stats.EARTH_RES : Stats.EARTH_POWER, 0x40, this, _elementalValue, null));
-				case DARK -> player.addStatFunc(new FuncAdd(isArmor ? Stats.DARK_RES : Stats.DARK_POWER, 0x40, this, _elementalValue, null));
-				case HOLY -> player.addStatFunc(new FuncAdd(isArmor ? Stats.HOLY_RES : Stats.HOLY_POWER, 0x40, this, _elementalValue, null));
+				case FIRE -> player.addStatFuncs(new FuncAdd(isArmor ? Stats.FIRE_RES : Stats.FIRE_POWER, 0x40, this, _elementalValue, null));
+				case WATER -> player.addStatFuncs(new FuncAdd(isArmor ? Stats.WATER_RES : Stats.WATER_POWER, 0x40, this, _elementalValue, null));
+				case WIND -> player.addStatFuncs(new FuncAdd(isArmor ? Stats.WIND_RES : Stats.WIND_POWER, 0x40, this, _elementalValue, null));
+				case EARTH -> player.addStatFuncs(new FuncAdd(isArmor ? Stats.EARTH_RES : Stats.EARTH_POWER, 0x40, this, _elementalValue, null));
+				case DARK -> player.addStatFuncs(new FuncAdd(isArmor ? Stats.DARK_RES : Stats.DARK_POWER, 0x40, this, _elementalValue, null));
+				case HOLY -> player.addStatFuncs(new FuncAdd(isArmor ? Stats.HOLY_RES : Stats.HOLY_POWER, 0x40, this, _elementalValue, null));
 			}
 			
 			_active = true;

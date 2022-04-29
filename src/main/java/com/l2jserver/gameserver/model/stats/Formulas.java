@@ -69,6 +69,7 @@ import com.l2jserver.gameserver.model.items.type.WeaponType;
 import com.l2jserver.gameserver.model.skills.AttributeType;
 import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.model.skills.Skill;
+import com.l2jserver.gameserver.model.stats.functions.AbstractFunction;
 import com.l2jserver.gameserver.model.stats.functions.formulas.FuncArmorSet;
 import com.l2jserver.gameserver.model.stats.functions.formulas.FuncAtkAccuracy;
 import com.l2jserver.gameserver.model.stats.functions.formulas.FuncAtkCritical;
@@ -205,50 +206,54 @@ public final class Formulas {
 	 * @param player the player
 	 */
 	public static void addFuncsToNewPlayer(L2PcInstance player) {
-		player.addStatFunc(FuncMaxHpMul.getInstance());
-		player.addStatFunc(FuncMaxCpMul.getInstance());
-		player.addStatFunc(FuncMaxMpMul.getInstance());
-		player.addStatFunc(FuncPAtkMod.getInstance());
-		player.addStatFunc(FuncMAtkMod.getInstance());
-		player.addStatFunc(FuncPDefMod.getInstance());
-		player.addStatFunc(FuncMDefMod.getInstance());
-		player.addStatFunc(FuncAtkCritical.getInstance());
-		player.addStatFunc(FuncMAtkCritical.getInstance());
-		player.addStatFunc(FuncAtkAccuracy.getInstance());
-		player.addStatFunc(FuncAtkEvasion.getInstance());
-		player.addStatFunc(FuncPAtkSpeed.getInstance());
-		player.addStatFunc(FuncMAtkSpeed.getInstance());
-		player.addStatFunc(FuncMoveSpeed.getInstance());
-		
-		player.addStatFunc(FuncHenna.getInstance(STAT_STR));
-		player.addStatFunc(FuncHenna.getInstance(STAT_DEX));
-		player.addStatFunc(FuncHenna.getInstance(STAT_INT));
-		player.addStatFunc(FuncHenna.getInstance(STAT_MEN));
-		player.addStatFunc(FuncHenna.getInstance(STAT_CON));
-		player.addStatFunc(FuncHenna.getInstance(STAT_WIT));
-		
-		player.addStatFunc(FuncArmorSet.getInstance(STAT_STR));
-		player.addStatFunc(FuncArmorSet.getInstance(STAT_DEX));
-		player.addStatFunc(FuncArmorSet.getInstance(STAT_INT));
-		player.addStatFunc(FuncArmorSet.getInstance(STAT_MEN));
-		player.addStatFunc(FuncArmorSet.getInstance(STAT_CON));
-		player.addStatFunc(FuncArmorSet.getInstance(STAT_WIT));
+		player.addStatFuncs(List.of(
+				FuncMaxHpMul.getInstance(),
+				FuncMaxCpMul.getInstance(),
+				FuncMaxMpMul.getInstance(),
+				FuncPAtkMod.getInstance(),
+				FuncMAtkMod.getInstance(),
+				FuncPDefMod.getInstance(),
+				FuncMDefMod.getInstance(),
+				FuncAtkCritical.getInstance(),
+				FuncMAtkCritical.getInstance(),
+				FuncAtkAccuracy.getInstance(),
+				FuncAtkEvasion.getInstance(),
+				FuncPAtkSpeed.getInstance(),
+				FuncMAtkSpeed.getInstance(),
+				FuncMoveSpeed.getInstance(),
+
+				FuncHenna.getInstance(STAT_STR),
+				FuncHenna.getInstance(STAT_DEX),
+				FuncHenna.getInstance(STAT_INT),
+				FuncHenna.getInstance(STAT_MEN),
+				FuncHenna.getInstance(STAT_CON),
+				FuncHenna.getInstance(STAT_WIT),
+
+				FuncArmorSet.getInstance(STAT_STR),
+				FuncArmorSet.getInstance(STAT_DEX),
+				FuncArmorSet.getInstance(STAT_INT),
+				FuncArmorSet.getInstance(STAT_MEN),
+				FuncArmorSet.getInstance(STAT_CON),
+				FuncArmorSet.getInstance(STAT_WIT)
+		));
 	}
 	
 	public static void addFuncsToNewSummon(L2Summon summon) {
-		summon.addStatFunc(FuncMaxHpMul.getInstance());
-		summon.addStatFunc(FuncMaxMpMul.getInstance());
-		summon.addStatFunc(FuncPAtkMod.getInstance());
-		summon.addStatFunc(FuncMAtkMod.getInstance());
-		summon.addStatFunc(FuncPDefMod.getInstance());
-		summon.addStatFunc(FuncMDefMod.getInstance());
-		summon.addStatFunc(FuncAtkCritical.getInstance());
-		summon.addStatFunc(FuncMAtkCritical.getInstance());
-		summon.addStatFunc(FuncAtkAccuracy.getInstance());
-		summon.addStatFunc(FuncAtkEvasion.getInstance());
-		summon.addStatFunc(FuncMoveSpeed.getInstance());
-		summon.addStatFunc(FuncPAtkSpeed.getInstance());
-		summon.addStatFunc(FuncMAtkSpeed.getInstance());
+		summon.addStatFuncs(List.of(
+				FuncMaxHpMul.getInstance(),
+				FuncMaxMpMul.getInstance(),
+				FuncPAtkMod.getInstance(),
+				FuncMAtkMod.getInstance(),
+				FuncPDefMod.getInstance(),
+				FuncMDefMod.getInstance(),
+				FuncAtkCritical.getInstance(),
+				FuncMAtkCritical.getInstance(),
+				FuncAtkAccuracy.getInstance(),
+				FuncAtkEvasion.getInstance(),
+				FuncMoveSpeed.getInstance(),
+				FuncPAtkSpeed.getInstance(),
+				FuncMAtkSpeed.getInstance()
+		));
 	}
 	
 	/**

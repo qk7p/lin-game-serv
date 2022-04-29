@@ -2884,7 +2884,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 * </ul>
 	 * @param function The Func object to add to the Calculator corresponding to the state affected
 	 */
-	public final void addStatFunc(AbstractFunction function) {
+	private final void addStatFunc(AbstractFunction function) {
 		if (function == null) {
 			return;
 		}
@@ -2943,6 +2943,10 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			broadcastModifiedStats(modifiedStats);
 		}
 	}
+
+	public final void addStatFuncs(AbstractFunction function) {
+		addStatFuncs(List.of(function));
+	}
 	
 	/**
 	 * Remove a Func from the Calculator set of the L2Character.<br>
@@ -2959,7 +2963,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 * </ul>
 	 * @param function The Func object to remove from the Calculator corresponding to the state affected
 	 */
-	public final void removeStatFunc(AbstractFunction function) {
+	private final void removeStatFunc(AbstractFunction function) {
 		if (function == null) {
 			return;
 		}
