@@ -381,12 +381,14 @@ public class L2Npc extends L2Character {
 	 * @return the aggression range
 	 */
 	public int getAggroRange() {
-		if (hasAIValue("aggroRange")) {
-			return getAIValue("aggroRange");
+		final int aiAggroRange = getAIValue("aggroRange");
+		if (aiAggroRange >= 0) {
+			return aiAggroRange;
 		}
-		
-		if (npc().getMaxAggroRange() > 0) {
-			return Math.min(getTemplate().getAggroRange(), npc().getMaxAggroRange());
+
+		final int maxAggroRange = npc().getMaxAggroRange();
+		if (maxAggroRange > 0) {
+			return Math.min(getTemplate().getAggroRange(), maxAggroRange);
 		}
 		return getTemplate().getAggroRange();
 	}
@@ -1417,7 +1419,10 @@ public class L2Npc extends L2Character {
 	 * @return given AI parameter value
 	 */
 	public int getAIValue(final String paramName) {
-		return hasAIValue(paramName) ? NpcPersonalAIData.getInstance().getAIValue(getSpawn().getName(), paramName) : -1;
+		if (getSpawn() == null || getSpawn().getName() == null) {
+			return -1;
+		}
+		return NpcPersonalAIData.getInstance().getAIValue(getSpawn().getName(), paramName);
 	}
 	
 	/**

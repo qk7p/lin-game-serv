@@ -61,8 +61,11 @@ public class NpcPersonalAIData {
 	 * @param paramName parameter to check
 	 * @return value of given parameter for given spawn name
 	 */
-	public int getAIValue(String spawnName, String paramName) {
-		return hasAIValue(spawnName, paramName) ? _AIData.get(spawnName).get(paramName) : -1;
+	public int getAIValue(final String spawnName, final String paramName) {
+		if (_AIData.containsKey(spawnName)) {
+			return _AIData.get(spawnName).getOrDefault(paramName, -1);
+		}
+		return -1;
 	}
 	
 	/**
