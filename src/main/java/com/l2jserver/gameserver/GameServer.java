@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -163,6 +163,8 @@ public final class GameServer {
 	private static final String SCRIPT = "-s";
 	
 	private static final String GEODATA = "-gd";
+	
+	private static final String L2JHOME_VARIABLE = "L2J_HOME";
 	
 	private final SelectorThread<L2GameClient> _selectorThread;
 	
@@ -496,5 +498,21 @@ public final class GameServer {
 		}
 		s = sBuilder.toString();
 		LOG.info(s);
+	}
+	
+	/**
+	 * Returns either the value of the L2J_HOME variable or null.
+	 * <br><br>
+	 * When the L2J_HOME variable can be found as system property or environment
+	 * variable, it's value is returned (favoring the system property). If the
+	 * variable is not available, null is returned.
+	 * @return returns the value of the L2J_HOME variable or null
+	 */
+	public static String getL2jHomeVariable() {
+		String l2jHome = System.getProperty(L2JHOME_VARIABLE);
+		if (l2jHome == null) {
+			l2jHome = System.getenv(L2JHOME_VARIABLE);
+		}
+		return l2jHome;
 	}
 }

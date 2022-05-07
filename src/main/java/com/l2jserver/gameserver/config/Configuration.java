@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -18,7 +18,11 @@
  */
 package com.l2jserver.gameserver.config;
 
+import java.nio.file.Path;
+
 import org.aeonbits.owner.ConfigFactory;
+
+import com.l2jserver.gameserver.GameServer;
 
 /**
  * Configuration.
@@ -26,6 +30,10 @@ import org.aeonbits.owner.ConfigFactory;
  * @version 2.6.1.0
  */
 public class Configuration {
+	
+	public static final String DEFAULT_PATH = "config/";
+	
+	public static final String CUSTOM_SUBPATH = "custom/game/config/";
 	
 	public static final String EOL = System.lineSeparator();
 	
@@ -217,5 +225,31 @@ public class Configuration {
 	
 	public static DiscordConfiguration discord() {
 		return discord;
+	}
+	
+	public static String getDefaultPath(String filename) {
+		return DEFAULT_PATH + filename;
+	}
+	
+	public static String getCustomSubpath(String filename) {
+		return CUSTOM_SUBPATH + filename;
+	}
+	
+	/**
+	 * Returns either the custom or default path of the config file.
+	 * <br><br>
+	 * When the L2J_HOME variable is defined, the custom path to the config
+	 * file is returned. If not, the default path to the config file is
+	 * returned.
+	 * @param filename the filename
+	 * @return either the custom or default path to the config file
+	 */
+	public static Path getCustomOrDefaultPath(String filename) {
+		String l2jHome = GameServer.getL2jHomeVariable();
+		if (l2jHome == null) {
+			return Path.of(getDefaultPath(filename));
+		}
+
+		return Path.of(l2jHome, getCustomSubpath(filename));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -24,6 +24,7 @@ import static org.aeonbits.owner.Config.LoadType.MERGE;
 
 import java.math.BigInteger;
 
+import org.aeonbits.owner.Accessible;
 import org.aeonbits.owner.Config.HotReload;
 import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
@@ -38,18 +39,22 @@ import com.l2jserver.gameserver.config.converter.HexIdConverter;
  * @version 2.6.1.0
  */
 @Sources({
-	"file:${L2J_HOME}/custom/game/config/hexid.txt",
-	"file:./config/hexid.txt",
-	"classpath:config/hexid.txt"
+	"file:${L2J_HOME}/" + Configuration.CUSTOM_SUBPATH + HexIdConfiguration.FILENAME,
+	"file:" + Configuration.DEFAULT_PATH + HexIdConfiguration.FILENAME,
+	"classpath:" + Configuration.DEFAULT_PATH + HexIdConfiguration.FILENAME
 })
 @LoadPolicy(MERGE)
 @HotReload(value = 20, unit = MINUTES, type = ASYNC)
-public interface HexIdConfiguration extends Mutable, Reloadable {
+public interface HexIdConfiguration extends Mutable, Reloadable, Accessible {
+	public static final String FILENAME = "hexid.txt";
 	
-	@Key("ServerID")
+	public static final String SERVERID_KEY = "ServerID";
+	public static final String HEXID_KEY = "HexID";
+	
+	@Key(SERVERID_KEY)
 	Integer getServerID();
 	
-	@Key("HexID")
+	@Key(HEXID_KEY)
 	@ConverterClass(HexIdConverter.class)
 	BigInteger getHexID();
 }

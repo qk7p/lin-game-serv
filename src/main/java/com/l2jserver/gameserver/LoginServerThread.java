@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -24,8 +24,6 @@ import static com.l2jserver.gameserver.config.Configuration.ip;
 import static com.l2jserver.gameserver.config.Configuration.server;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +31,9 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
@@ -42,7 +43,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -54,6 +54,8 @@ import com.l2jserver.commons.network.BaseSendablePacket;
 import com.l2jserver.commons.security.crypt.NewCrypt;
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.commons.util.Util;
+import com.l2jserver.gameserver.config.Configuration;
+import com.l2jserver.gameserver.config.HexIdConfiguration;
 import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.L2GameClient;
@@ -87,8 +89,6 @@ public class LoginServerThread extends Thread {
 	protected static final Logger LOG = LoggerFactory.getLogger(LoginServerThread.class);
 	
 	protected static final Logger LOG_ACCOUNTING = LoggerFactory.getLogger("accounting");
-	
-	private static final String HEXID_FILE = "./config/hexid.txt";
 	
 	private static final int TEENAGER = 15;
 	
@@ -222,13 +222,13 @@ public class LoginServerThread extends Thread {
 						}
 						case 0x01 -> {
 							LoginServerFail lsf = new LoginServerFail(incoming);
-							LOG.info("Damn! Registeration Failed: {}", lsf.getReasonString());
+							LOG.info("Damn! Registration Failed: {}", lsf.getReasonString());
 						}
 						case 0x02 -> {
 							AuthResponse aresp = new AuthResponse(incoming);
 							int serverID = aresp.getServerId();
 							_serverName = aresp.getServerName();
-							saveHexid(serverID, hexToString(_hexID), HEXID_FILE);
+							saveHexid(serverID, hexToString(_hexID));
 							LOG.info("Registered on login as Server {}: {}", serverID, _serverName);
 							ServerStatus st = new ServerStatus();
 							if (general().getServerListBrackets()) {
@@ -674,21 +674,18 @@ public class LoginServerThread extends Thread {
 	 * Save hexadecimal ID of the server in the L2Properties file.
 	 * @param serverId the ID of the server whose hexId to save
 	 * @param hexId the hexadecimal ID to store
-	 * @param fileName name of the L2Properties file
 	 */
-	public static void saveHexid(int serverId, String hexId, String fileName) {
-		try {
-			Properties hexSetting = new Properties();
-			File file = new File(fileName);
-			// Create a new empty file only if it doesn't exist
-			file.createNewFile();
-			try (OutputStream out = new FileOutputStream(file)) {
-				hexSetting.setProperty("ServerID", String.valueOf(serverId));
-				hexSetting.setProperty("HexID", hexId);
-				hexSetting.store(out, "the hexID to auth into login");
-			}
+	public static void saveHexid(int serverId, String hexId) {
+		Path hexIdFilePath = Configuration.getCustomOrDefaultPath(HexIdConfiguration.FILENAME);
+
+		hexId().setProperty(HexIdConfiguration.SERVERID_KEY, String.valueOf(serverId));
+		hexId().setProperty(HexIdConfiguration.HEXID_KEY, hexId);
+
+		try (OutputStream out = Files.newOutputStream(hexIdFilePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			hexId().store(out, "the hexID to auth into login");
+			LOG.info("Saved {}.", hexIdFilePath);
 		} catch (Exception ex) {
-			LOG.warn("Failed to save hex Id to {} file.", fileName, ex);
+			LOG.warn("Failed to save {}.", hexIdFilePath, ex);
 		}
 	}
 	
