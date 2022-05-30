@@ -38,10 +38,9 @@ import com.l2jserver.gameserver.model.actor.instance.L2GuardInstance;
 public class KnownListUpdateTaskManager {
 	protected static final Logger _log = Logger.getLogger(KnownListUpdateTaskManager.class.getName());
 	
-	private static final int FULL_UPDATE_TIMER = 100;
+	private static final int FULL_UPDATE_TIMER = 1;
 	public static boolean updatePass = true;
 	
-	// Do full update every FULL_UPDATE_TIMER * KNOWNLIST_UPDATE_INTERVAL
 	public static int _fullUpdateTimer = FULL_UPDATE_TIMER;
 	
 	protected static final Set<L2WorldRegion> FAILED_REGIONS = ConcurrentHashMap.newKeySet(1);

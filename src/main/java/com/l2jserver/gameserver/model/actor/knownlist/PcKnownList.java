@@ -131,21 +131,7 @@ public class PcKnownList extends PlayableKnownList {
 		if (object.isVehicle()) {
 			return 10000;
 		}
-		
-		// when knownlist grows, the distance to forget should be at least
-		// the same as the previous watch range, or it becomes possible that
-		// extra charinfo packets are being sent (watch-forget-watch-forget)
-		final int knownlistSize = getKnownObjects().size();
-		if (knownlistSize <= 25) {
-			return 4000;
-		}
-		if (knownlistSize <= 35) {
-			return 3500;
-		}
-		if (knownlistSize <= 70) {
-			return 2910;
-		}
-		return 2310;
+		return getDistanceToWatchObject(object) + 500;
 	}
 	
 	@Override
@@ -155,15 +141,21 @@ public class PcKnownList extends PlayableKnownList {
 		}
 		
 		final int knownlistSize = getKnownObjects().size();
-		if (knownlistSize <= 25) {
-			return 3400; // empty field
+		if ((knownlistSize <= 3) && !object.isAttackable()) {
+			return 4500; // Empty fields
 		}
-		if (knownlistSize <= 35) {
+		if ((knownlistSize <= 10) && !object.isAttackable()) {
+			return 4000; // Empty fields
+		}
+		if ((knownlistSize <= 20) && !object.isAttackable()) {
+			return 3400;
+		}
+		if (knownlistSize <= 30) {
 			return 2900;
 		}
-		if (knownlistSize <= 70) {
+		if (knownlistSize <= 40) {
 			return 2300;
 		}
-		return 1700; // Siege, TOI, city
+		return 3000; // Siege, TOI, City
 	}
 }
