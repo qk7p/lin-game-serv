@@ -1077,11 +1077,8 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		if (npc.getTemplate().getBaseAttackRange() >= 700) {
 			range = npc.getTemplate().getBaseAttackRange(); // Base Bow Range NPC
 		}
-		if (mostHate.isMoving()) {
+		if (mostHate.isMoving() || npc.isMoving()) {
 			range = range + 50;
-			if (npc.isMoving()) {
-				range = range + 50;
-			}
 		}
 		
 		// Starts melee attack
@@ -1097,6 +1094,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			return;
 		}
 		
+		clientStopMoving(null);
 		// Attacks target
 		_actor.doAttack(getAttackTarget());
 	}

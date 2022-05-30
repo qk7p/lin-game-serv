@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.gameserver.GameTimeController;
+import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.Location;
@@ -454,6 +455,10 @@ public abstract class AbstractAI implements Ctrl {
 						return;
 					}
 				}
+			}
+			
+			if (!GeoData.getInstance().canSeeTarget(_actor, pawn)) {
+				offset = 0;
 			}
 			
 			// Set AI movement data
