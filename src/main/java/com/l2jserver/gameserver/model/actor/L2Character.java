@@ -3383,8 +3383,8 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		}
 		
 		if (distFraction < 1) {
-			m._xAccurate += dx;
-			m._yAccurate += dy;
+			m._xAccurate += dx * distFraction;;
+			m._yAccurate += dy * distFraction;;
 			
 			// Set the position of the L2Character to estimated after parcial move
 			super.setXYZ((int) (m._xAccurate), (int) (m._yAccurate), zPrev + (int) ((dz * distFraction) + 0.5));
@@ -3395,14 +3395,14 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		m._moveTimestamp = gameTicks;
 		
 		if (distFraction > 1) {
+			if (isWalker()) {
+				super.setXYZ(m._xDestination, m._yDestination, m._zDestination);
+			}
+			
 			ThreadPoolManager.getInstance().executeAi(() -> {
 				try {
 					if (general().moveBasedKnownList()) {
 						getKnownList().findObjects();
-					}
-					
-					if (isWalker()) {
-						super.setXYZ(m._xDestination, m._yDestination, m._zDestination);
 					}
 					
 					getAI().notifyEvent(CtrlEvent.EVT_ARRIVED);
