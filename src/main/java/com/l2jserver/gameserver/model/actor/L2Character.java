@@ -143,6 +143,7 @@ import com.l2jserver.gameserver.network.serverpackets.Attack;
 import com.l2jserver.gameserver.network.serverpackets.ChangeMoveType;
 import com.l2jserver.gameserver.network.serverpackets.ChangeWaitType;
 import com.l2jserver.gameserver.network.serverpackets.CreatureSay;
+import com.l2jserver.gameserver.network.serverpackets.ExRotation;
 import com.l2jserver.gameserver.network.serverpackets.FlyToLocation.FlyType;
 import com.l2jserver.gameserver.network.serverpackets.L2GameServerPacket;
 import com.l2jserver.gameserver.network.serverpackets.MagicSkillCanceled;
@@ -1561,7 +1562,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		// Make sure that char is facing selected target
 		if (target != this) {
 			setHeading(Util.calculateHeadingFrom(this, target));
-			//broadcastPacket(new ExRotation(getObjectId(), getHeading()));
+			broadcastPacket(new ExRotation(getObjectId(), getHeading()));
 		}
 		
 		if (isPlayable()) {
@@ -3381,7 +3382,12 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			distFraction = distPassed / delta;
 		}
 		
-		if (distFraction < 1) {
+		// if (general().developer()) _log.warning("Move Ticks:" + (gameTicks - m._moveTimestamp) + ", distPassed:" + distPassed + ", distFraction:" + distFraction);
+		
+		if (distFraction > 1) {
+			// Set the position of the L2Character to the destination
+			super.setXYZ(m._xDestination, m._yDestination, m._zDestination);
+		} else {
 			m._xAccurate += dx * distFraction;
 			m._yAccurate += dy * distFraction;
 			
@@ -3394,10 +3400,6 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		m._moveTimestamp = gameTicks;
 		
 		if (distFraction > 1) {
-			if (isWalker()) {
-				super.setXYZ(m._xDestination, m._yDestination, m._zDestination);
-			}
-			
 			ThreadPoolManager.getInstance().executeAi(() -> {
 				try {
 					if (general().moveBasedKnownList()) {
