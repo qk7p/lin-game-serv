@@ -1077,22 +1077,29 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		if (npc.getTemplate().getBaseAttackRange() >= 700) {
 			range = npc.getTemplate().getBaseAttackRange(); // Base Bow Range NPC
 		}
-		if (mostHate.isMoving() || npc.isMoving()) {
-			range = range + 50;
-		}
 		
-		// Starts melee attack
-		if ((dist2 > range) || !GeoData.getInstance().canSeeTarget(npc, mostHate)) {
-			if (npc.isMovementDisabled()) {
-				targetReconsider();
-			} else {
-				final L2Character target = getAttackTarget();
-				if (target != null) {
-					moveToPawn(target, Math.max(range, 5));
-				}
-			}
-			return;
-		}
+         if (mostHate.isMoving()) {
+             range = range + 50;
+             if (npc.isMoving()) {
+                 range = range + 50;
+             }
+         }
+         
+         // Starts melee attack
+         if ((dist2 > range) || !GeoData.getInstance().canSeeTarget(npc, mostHate)) {
+             if (npc.isMovementDisabled()) {
+                 targetReconsider();
+             } else {
+                 final L2Character target = getAttackTarget();
+                 if (target != null) {
+                    if (target.isMoving()) {
+                        range -= 100;
+                    }
+                     moveToPawn(target, Math.max(range, 5));
+                 }
+             }
+             return;
+         }
 		
 		clientStopMoving(null);
 		// Attacks target
