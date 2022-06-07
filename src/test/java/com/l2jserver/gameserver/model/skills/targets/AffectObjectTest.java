@@ -168,6 +168,23 @@ class AffectObjectTest {
 	}
 	
 	@Test
+	@DisplayName("Test affect object NOT_FRIEND, when target is not dead.")
+	void testAffectObjectNotFriendTargetIsNotDead() {
+		when(creature.isDead()).thenReturn(false);
+		when(creature.isAutoAttackable(caster)).thenReturn(true);
+		
+		assertTrue(NOT_FRIEND.affectObject(caster, creature));
+	}
+	
+	@Test
+	@DisplayName("Test affect object NOT_FRIEND, when target is dead.")
+	void testAffectObjectNotFriendTargetIsDead() {
+		when(creature.isDead()).thenReturn(true);
+		
+		assertFalse(NOT_FRIEND.affectObject(caster, creature));
+	}
+	
+	@Test
 	@DisplayName("Test affect object OBJECT_DEAD_NPC_BODY, when target is not NPC.")
 	void testAffectObjectObjectDeadNpcBodyNotNpc() {
 		when(object.isNpc()).thenReturn(false);

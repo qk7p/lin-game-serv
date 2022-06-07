@@ -83,6 +83,10 @@ public enum AffectObjectStaticImpl implements AffectObject {
 	NOT_FRIEND {
 		@Override
 		public boolean affectObject(L2Character caster, L2Object object) {
+			if (object instanceof L2Character target && target.isDead()) {
+				return false;
+			}
+			
 			return object.isAutoAttackable(caster);
 		}
 	},
