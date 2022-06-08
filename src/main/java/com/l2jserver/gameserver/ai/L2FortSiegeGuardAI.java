@@ -48,7 +48,7 @@ import com.l2jserver.gameserver.util.Util;
  * Fort siege guards AI.
  */
 public class L2FortSiegeGuardAI extends L2CharacterAI implements Runnable {
-	private static final int MAX_ATTACK_TIMEOUT = 300; // int ticks, i.e. 30 seconds
+	private static final int MAX_ATTACK_TIMEOUT = 30 * GameTimeController.TICKS_PER_SECOND; // 30s converted to ticks
 	
 	/** The L2Attackable AI task executed every 1s (call onEvtThink method) */
 	private Future<?> _aiTask;

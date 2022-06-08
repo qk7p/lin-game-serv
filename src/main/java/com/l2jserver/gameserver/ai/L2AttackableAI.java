@@ -104,7 +104,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 	protected static final int FEAR_TICKS = 5;
 	private static final int RANDOM_WALK_RATE = 30; // confirmed
 	// private static final int MAX_DRIFT_RANGE = 300;
-	private static final int MAX_ATTACK_TIMEOUT = 1200; // int ticks, i.e. 2min
+	private static final int MAX_ATTACK_TIMEOUT = 120 * GameTimeController.TICKS_PER_SECOND; // int ticks, i.e. 2min
 	/** The L2Attackable AI task executed every 1s (call onEvtThink method). */
 	private Future<?> _aiTask;
 	/** The delay after which the attacked is stopped. */
@@ -356,10 +356,11 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 	@Override
 	protected void onIntentionAttack(L2Character target) {
 		// Calculate the attack timeout
-		_attackTimeout = MAX_ATTACK_TIMEOUT + GameTimeController.getInstance().getGameTicks();
+		final int currentTick = GameTimeController.getInstance().getGameTicks();
+		_attackTimeout = MAX_ATTACK_TIMEOUT + currentTick;
 		
 		// self and buffs
-		if ((_lastBuffTick + 30) < GameTimeController.getInstance().getGameTicks()) {
+		if ((_lastBuffTick + 3 * GameTimeController.TICKS_PER_SECOND) < currentTick) {
 			for (Skill buff : getActiveChar().getTemplate().getAISkills(AISkillScope.BUFF)) {
 				if (checkSkillCastConditions(getActiveChar(), buff)) {
 					if (!_actor.isAffectedBySkill(buff.getId())) {
@@ -371,7 +372,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					}
 				}
 			}
-			_lastBuffTick = GameTimeController.getInstance().getGameTicks();
+			_lastBuffTick = currentTick;
 		}
 		
 		// Manage the Attack Intention : Stop current Attack (if necessary), Start a new Attack and Launch Think Event

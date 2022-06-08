@@ -42,6 +42,8 @@ public final class GameTimeController extends Thread {
 	public static final int SECONDS_PER_IG_DAY = MILLIS_PER_IG_DAY / 1000;
 	public static final int MINUTES_PER_IG_DAY = SECONDS_PER_IG_DAY / 60;
 	public static final int TICKS_PER_IG_DAY = SECONDS_PER_IG_DAY * TICKS_PER_SECOND;
+	public static final int TICKS_PER_IG_HOUR = TICKS_PER_IG_DAY / 24;
+	public static final int TICKS_PER_IG_MINUTE = TICKS_PER_IG_HOUR / 60;
 	public static final int TICKS_SUN_STATE_CHANGE = TICKS_PER_IG_DAY / 4;
 	
 	private static GameTimeController _instance;
@@ -69,7 +71,7 @@ public final class GameTimeController extends Thread {
 	}
 	
 	public int getGameTime() {
-		return (getGameTicks() % TICKS_PER_IG_DAY) / MILLIS_IN_TICK;
+		return (getGameTicks() % TICKS_PER_IG_DAY) / TICKS_PER_IG_MINUTE;
 	}
 	
 	public int getGameHour() {
@@ -136,7 +138,7 @@ public final class GameTimeController extends Thread {
 		}
 		
 		while (true) {
-			nextTickTime = ((System.currentTimeMillis() / MILLIS_IN_TICK) * MILLIS_IN_TICK) + 100;
+			nextTickTime = System.currentTimeMillis() + MILLIS_IN_TICK;
 			
 			try {
 				moveObjects();

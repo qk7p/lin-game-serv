@@ -211,7 +211,7 @@ public abstract class ItemContainer {
 			float adenaRate = rates().getDropAmountMultiplierByItemId().getOrDefault(Inventory.ADENA_ID, 1f);
 			if ((item.getId() == Inventory.ADENA_ID) && (count < (10000 * adenaRate))) {
 				// Small adena changes won't be saved to database all the time
-				if ((GameTimeController.getInstance().getGameTicks() % 5) == 0) {
+				if ((GameTimeController.getInstance().getGameTicks() % (GameTimeController.TICKS_PER_SECOND / 2)) == 0) {
 					item.updateDatabase();
 				}
 			} else {
@@ -285,7 +285,7 @@ public abstract class ItemContainer {
 			float adenaRate = rates().getDropAmountMultiplierByItemId().getOrDefault(Inventory.ADENA_ID, 1f);
 			if ((itemId == Inventory.ADENA_ID) && (count < (10000 * adenaRate))) {
 				// Small adena changes won't be saved to database all the time
-				if ((GameTimeController.getInstance().getGameTicks() % 5) == 0) {
+				if ((GameTimeController.getInstance().getGameTicks() % (GameTimeController.TICKS_PER_SECOND / 2)) == 0) {
 					item.updateDatabase();
 				}
 			} else {
@@ -424,7 +424,7 @@ public abstract class ItemContainer {
 				item.setLastChange(L2ItemInstance.MODIFIED);
 				
 				// don't update often for untraced items
-				if ((process != null) || ((GameTimeController.getInstance().getGameTicks() % 10) == 0)) {
+				if ((process != null) || ((GameTimeController.getInstance().getGameTicks() % GameTimeController.TICKS_PER_SECOND) == 0)) {
 					item.updateDatabase();
 				}
 				

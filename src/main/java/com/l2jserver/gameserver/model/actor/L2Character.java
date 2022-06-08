@@ -1514,7 +1514,9 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			setLastSimultaneousSkillCast(skill);
 		} else {
 			setIsCastingNow(true);
-			_castInterruptTime = -2 + GameTimeController.getInstance().getGameTicks() + ((int) skillAnimTime / GameTimeController.MILLIS_IN_TICK);
+			_castInterruptTime = (-200 / GameTimeController.MILLIS_IN_TICK) // 200ms converted to ticks
+					+ GameTimeController.getInstance().getGameTicks()
+					+ ((int) skillAnimTime / GameTimeController.MILLIS_IN_TICK);
 			setLastSkillCast(skill);
 		}
 		
@@ -5033,7 +5035,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	public final void forceIsCasting(int newSkillCastEndTick) {
 		setIsCastingNow(true);
 		// for interrupt -400 ms
-		_castInterruptTime = newSkillCastEndTick - 4;
+		_castInterruptTime = newSkillCastEndTick - (400 / GameTimeController.MILLIS_IN_TICK);
 	}
 	
 	private boolean _AIdisabled = false;
