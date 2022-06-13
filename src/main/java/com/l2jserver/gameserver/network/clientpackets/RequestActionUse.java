@@ -759,7 +759,7 @@ public final class RequestActionUse extends L2GameClientPacket {
 		
 		int lvl;
 		if (summon.isPet()) {
-			lvl = PetDataTable.getInstance().getPetData(summon.getId()).getAvailableLevel(skillId, summon.getLevel());
+			lvl = PetDataTable.getInstance().getPetData(summon.getId()).getAvailableLevel(summon, skillId);
 		} else {
 			lvl = SummonSkillsTable.getInstance().getAvailableLevel(summon, skillId);
 		}

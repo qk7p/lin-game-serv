@@ -22,8 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
-import com.l2jserver.gameserver.datatables.SkillData;
+import com.l2jserver.gameserver.model.actor.L2Summon;
 import com.l2jserver.gameserver.model.holders.SkillHolder;
 
 /**
@@ -137,41 +140,22 @@ public class L2PetData {
 		_skills.add(new L2PetSkillLearn(skillId, skillLvl, petLvl));
 	}
 	
-	/**
-	 * TODO: Simplify this.
-	 * @param skillId the skill Id.
-	 * @param petLvl the pet level.
-	 * @return the level of the skill for the given skill Id and pet level.
-	 */
-	public int getAvailableLevel(int skillId, int petLvl) {
-		int lvl = 0;
-		for (L2PetSkillLearn temp : _skills) {
-			if (temp.getSkillId() != skillId) {
-				continue;
-			}
-			if (temp.getSkillLvl() == 0) {
-				if (petLvl < 70) {
-					lvl = (petLvl / 10);
-					if (lvl <= 0) {
-						lvl = 1;
-					}
-				} else {
-					lvl = (7 + ((petLvl - 70) / 5));
-				}
-				
-				// formula usable for skill that have 10 or more skill levels
-				int maxLvl = SkillData.getInstance().getMaxLevel(temp.getSkillId());
-				if (lvl > maxLvl) {
-					lvl = maxLvl;
-				}
-				break;
-			} else if (temp.getMinLevel() <= petLvl) {
-				if (temp.getSkillLvl() > lvl) {
-					lvl = temp.getSkillLvl();
-				}
-			}
-		}
-		return lvl;
+	public int getAvailableLevel(final L2Summon pet, int skillId) {
+		final StatsSet parameters = pet.getTemplate().getParameters();
+		final int currentStep = (int) Math.floor((pet.getLevel() / 5.) - 11);
+		
+		return IntStream.rangeClosed(0, currentStep)
+				.map(i -> currentStep - i)
+				.mapToObj(step -> IntStream.iterate(1, i -> i + 1)
+						.mapToObj(skillNum -> parameters.getObject("step" + step + "_skill0" + skillNum, SkillHolder.class))
+						.takeWhile(Objects::nonNull)
+						.filter(skill -> skill.getSkillId() == skillId)
+						.findFirst())
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.mapToInt(SkillHolder::getSkillLvl)
+				.findFirst()
+				.orElse(0);
 	}
 	
 	/**
