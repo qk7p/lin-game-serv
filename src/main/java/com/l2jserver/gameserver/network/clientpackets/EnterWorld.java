@@ -86,6 +86,7 @@ import com.l2jserver.gameserver.network.serverpackets.ExNotifyPremiumItem;
 import com.l2jserver.gameserver.network.serverpackets.ExShowContactList;
 import com.l2jserver.gameserver.network.serverpackets.ExShowScreenMessage;
 import com.l2jserver.gameserver.network.serverpackets.ExStorageMaxCount;
+import com.l2jserver.gameserver.network.serverpackets.ExUISetting;
 import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 import com.l2jserver.gameserver.network.serverpackets.FriendList;
 import com.l2jserver.gameserver.network.serverpackets.HennaInfo;
@@ -308,6 +309,11 @@ public class EnterWorld extends L2GameClientPacket {
 		}
 		
 		activeChar.broadcastUserInfo();
+		
+		// Send keybinds
+		if (character().storeUISettings()) {
+			activeChar.sendPacket(new ExUISetting(activeChar));
+		}
 		
 		// Send Macro List
 		activeChar.getMacros().sendUpdate();
