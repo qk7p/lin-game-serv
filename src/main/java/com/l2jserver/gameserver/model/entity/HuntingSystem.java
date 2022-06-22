@@ -81,9 +81,7 @@ public class HuntingSystem {
 	}
 	
 	public void addPoints(int val) {
-		if (getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
-			setNevitBlessingPoints(getNevitBlessingPoints() + val);
-		}
+		setNevitBlessingPoints(getNevitBlessingPoints() + val);
 		
 		if (getNevitBlessingPoints() > hunting().getNevitBlessingMaxPoints()) {
 			setNevitBlessingPoints(0);
@@ -143,7 +141,7 @@ public class HuntingSystem {
 			value = getNevitBlessingTime();
 		}
 		
-		if ((getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) && (value > 0)) {
+		if (value > 0) {
 			final int percent = calcPercent(getNevitBlessingPoints());
 			if (percent < 25) {
 				_message25 = false;

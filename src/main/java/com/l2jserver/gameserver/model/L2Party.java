@@ -679,7 +679,9 @@ public class L2Party extends AbstractPlayerGroup {
 					if (!member.isInsideZone(ZoneId.PEACE) && ((member.getLevel() - target.getLevel()) <= 9)) {
 						if (hunting().getNevitEnable()) {
 							member.getHuntingSystem().startHuntingSystemTask();
-							member.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
+							if (member.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
+								member.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
+							}
 						}
 						
 						member.getRecSystem().startBonusTask(true);

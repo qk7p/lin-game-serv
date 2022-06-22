@@ -442,7 +442,9 @@ public class L2Attackable extends L2Npc {
 									if (!attacker.isInsideZone(ZoneId.PEACE) && ((attacker.getLevel() - getLevel()) <= 9)) {
 										if (hunting().getNevitEnable()) {
 											attacker.getHuntingSystem().startHuntingSystemTask();
-											attacker.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
+											if (attacker.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
+												attacker.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
+											}
 										}
 										
 										attacker.getRecSystem().startBonusTask(true);

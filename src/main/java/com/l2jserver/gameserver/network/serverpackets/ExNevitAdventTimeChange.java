@@ -36,7 +36,11 @@ public class ExNevitAdventTimeChange extends L2GameServerPacket {
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0xE1);
-		writeC(_paused ? 0x00 : 0x01); // state 0 - pause 1 - started
-		writeD(_time); // left time in ms max is 16000 its 4m and state is automatically changed to quit
+		if (_paused && _time == hunting().getHuntingBonusMaxTime()) {
+			writeD(0x02); // Quit
+		} else {
+			writeC(_paused ? 0x00 : 0x01); // 0=Paused - 1=Started
+		}
+		writeD(_time); // if state get max time is automatically changed to quit
 	}
 }
