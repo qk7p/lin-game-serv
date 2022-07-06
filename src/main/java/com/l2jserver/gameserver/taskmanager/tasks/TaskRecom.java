@@ -42,7 +42,7 @@ public class TaskRecom extends Task {
 	
 	private static final String NAME = "recommendations";
 	
-	private static final int RESET_REC_LEFT = 0;
+	private static final int RESET_REC_LEFT = 20;
 	private static final int RESET_REC_BONUS_TIME = 3600;
 	private static final String UPDATE_CHARACTERS_RECO = "UPDATE character_reco_bonus SET rec_have=rec_have-LEAST(rec_have,20), rec_left=?, time_left=?";
 	
