@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -516,6 +516,15 @@ public interface CharacterConfiguration extends Reloadable {
 	
 	@Key("PartyRange2")
 	Integer getPartyRange2();
+
+	@Key("PartyEvenlyDistributeAllStackableItems")
+	Boolean getPartyEvenlyDistributeAllStackableItems();
+
+	@Key("PartyEvenlyDistributeAllOtherItems")
+	Boolean getPartyEvenlyDistributeAllOtherItems();
+	
+	@Key("PartyEvenlyDistributeItems")
+	List<Integer> getPartyEvenlyDistributeItems();
 	
 	@Key("LeavePartyLeader")
 	Boolean leavePartyLeader();

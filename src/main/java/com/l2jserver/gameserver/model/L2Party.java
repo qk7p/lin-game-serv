@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -24,16 +24,13 @@ import static com.l2jserver.gameserver.config.Configuration.rates;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,9 +48,8 @@ import com.l2jserver.gameserver.model.actor.instance.L2ServitorInstance;
 import com.l2jserver.gameserver.model.entity.DimensionalRift;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.itemcontainer.Inventory;
+import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
-import com.l2jserver.gameserver.model.skills.AbnormalType;
-import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ExAskModifyPartyLooting;
@@ -508,14 +504,26 @@ public class L2Party extends AbstractPlayerGroup {
 		return null;
 	}
 	
+	private boolean isItemToEvenlyDistribute(int itemId) {
+		L2Item item = ItemTable.getInstance().getTemplate(itemId);
+		if (item != null) {
+			if ((character().getPartyEvenlyDistributeAllStackableItems() && item.isStackable()) ||
+				(character().getPartyEvenlyDistributeAllOtherItems() && !item.isStackable())) {
+				return true;
+			}
+		}
+
+		return character().getPartyEvenlyDistributeItems().contains(itemId);
+	}
+	
 	/**
 	 * distribute item(s) to party members
 	 * @param player
 	 * @param item
 	 */
 	public void distributeItem(L2PcInstance player, L2ItemInstance item) {
-		if (item.getId() == Inventory.ADENA_ID) {
-			distributeAdena(player, item.getCount(), player);
+		if (isItemToEvenlyDistribute(item.getId())) {
+			distributeItemEvenly(player, item.getId(), item.getCount(), player);
 			ItemTable.getInstance().destroyItem("Party", item, player, null);
 			return;
 		}
@@ -549,8 +557,8 @@ public class L2Party extends AbstractPlayerGroup {
 	 * @param target the NPC target
 	 */
 	public void distributeItem(L2PcInstance player, int itemId, long itemCount, boolean spoil, L2Attackable target) {
-		if (itemId == Inventory.ADENA_ID) {
-			distributeAdena(player, itemCount, target);
+		if (isItemToEvenlyDistribute(itemId)) {
+			distributeItemEvenly(player, itemId, itemCount, target);
 			return;
 		}
 		
@@ -587,42 +595,49 @@ public class L2Party extends AbstractPlayerGroup {
 	}
 	
 	/**
-	 * Distribute adena to party members. <BR>
-	 * Check the number of party members that must be rewarded <BR>
-	 * (The party member must be in range to receive its reward)<BR>
+	 * Distribute an item evenly to party members in range.<BR>
+	 * Check the number of party members that must be rewarded<BR>
 	 * @param player owner (picker)
-	 * @param adena the amount of adena to split
+	 * @param itemId the id of the item to split
+	 * @param itemAmount the amount of the item to split
 	 * @param target the target who drop / pick the adena
 	 */
-	public void distributeAdena(L2PcInstance player, long adena, L2Character target) {
-		final Map<L2PcInstance, AtomicLong> toReward = new HashMap<>(9);
+	public void distributeItemEvenly(L2PcInstance player, int itemId, long itemAmount, L2Character target) {
+		var toReward = new HashMap<L2PcInstance, Long>(9);
 		
-		for (final L2PcInstance member : getMembers()) {
+		for (var member : getMembers()) {
 			if (Util.checkIfInRange(character().getPartyRange2(), target, member, true)) {
-				toReward.put(member, new AtomicLong());
+				toReward.put(member, 0L);
 			}
 		}
+
 		if (!toReward.isEmpty()) {
-			long leftOver = adena % toReward.size();
-			final long count = adena / toReward.size();
+			long leftOver = itemAmount % toReward.size();
+			final long count = itemAmount / toReward.size();
 			
 			if (count > 0) {
-				for (AtomicLong member : toReward.values()) {
-					member.addAndGet(count);
+				for (var member : toReward.keySet()) {
+					toReward.put(member, count);
 				}
 			}
 			
 			if (leftOver > 0) {
-				List<L2PcInstance> keys = new ArrayList<>(toReward.keySet());
+				var keys = new ArrayList<L2PcInstance>(toReward.keySet());
 				
 				while (leftOver-- > 0) {
-					Collections.shuffle(keys);
-					toReward.get(keys.get(0)).incrementAndGet();
+					int rndIndex = Rnd.get(0, toReward.size() - 1);
+					var rndMember = keys.get(rndIndex);
+					toReward.compute(rndMember, (m, n) -> n + 1);
 				}
 			}
-			for (Entry<L2PcInstance, AtomicLong> member : toReward.entrySet()) {
-				if (member.getValue().get() > 0) {
-					member.getKey().addAdena("Party", member.getValue().get(), player, true);
+
+			for (var member : toReward.entrySet()) {
+				if (member.getValue() > 0) {
+					if (itemId == Inventory.ADENA_ID) {
+						member.getKey().addAdena("Party", member.getValue(), player, true);
+					} else {
+						member.getKey().addItem("Party", itemId, member.getValue(), target, true);
+					}
 				}
 			}
 		}
