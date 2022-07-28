@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -102,6 +102,7 @@ public final class L2GameClient extends MMOClient<MMOConnection<L2GameClient>> i
 	private boolean _isAuthedGG;
 	private final long _connectionStartTime;
 	private List<CharSelectInfoPackage> _charSlotMapping = null;
+	private int _charSlot = -1;
 	
 	// flood protectors
 	private final FloodProtectors _floodProtectors = new FloodProtectors(this);
@@ -522,6 +523,14 @@ public final class L2GameClient extends MMOClient<MMOConnection<L2GameClient>> i
 	
 	public void setCharSelection(List<CharSelectInfoPackage> list) {
 		_charSlotMapping = list;
+	}
+	
+	public void setCharSelectionSlot(int charSlot) {
+		_charSlot = charSlot;
+	}
+	
+	public CharSelectInfoPackage getCharSelection() {
+		return getCharSelection(_charSlot);
 	}
 	
 	public CharSelectInfoPackage getCharSelection(int charslot) {

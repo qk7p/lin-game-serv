@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -221,6 +221,8 @@ public class CharSelectionInfo extends L2GameServerPacket {
 		CharSelectInfoPackage charInfopackage = new CharSelectInfoPackage(objectId, name);
 		charInfopackage.setAccessLevel(chardata.getInt("accesslevel"));
 		charInfopackage.setLevel(chardata.getInt("level"));
+		charInfopackage.setMaxCp(chardata.getInt("maxCp"));
+		charInfopackage.setCurrentCp(chardata.getInt("curCp"));
 		charInfopackage.setMaxHp(chardata.getInt("maxhp"));
 		charInfopackage.setCurrentHp(chardata.getDouble("curhp"));
 		charInfopackage.setMaxMp(chardata.getInt("maxmp"));

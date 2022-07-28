@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -830,6 +830,12 @@ public final class L2PcInstance extends L2Playable {
 			LOG.error("Failed loading character.", e);
 		}
 		return null;
+	}
+	
+	public void restoreStatusFromLoadedValues() {
+		setCurrentCp(getClient().getCharSelection().getCurrentCp());
+		setCurrentHp(getClient().getCharSelection().getCurrentHp());
+		setCurrentMp(getClient().getCharSelection().getCurrentMp());
 	}
 	
 	public boolean isSpawnProtected() {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2022 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -42,6 +42,8 @@ public class CharSelectInfoPackage {
 	private int _hairColor = 0;
 	private int _sex = 0;
 	private int _level = 1;
+	private int _maxCp = 0;
+	private double _currentCp = 0;
 	private int _maxHp = 0;
 	private double _currentHp = 0;
 	private int _maxMp = 0;
@@ -116,6 +118,14 @@ public class CharSelectInfoPackage {
 	
 	public void setBaseClassId(int baseClassId) {
 		_baseClassId = baseClassId;
+	}
+	
+	public double getCurrentCp() {
+		return _currentCp;
+	}
+	
+	public void setCurrentCp(double currentCp) {
+		_currentCp = currentCp;
 	}
 	
 	public double getCurrentHp() {
@@ -196,6 +206,14 @@ public class CharSelectInfoPackage {
 	
 	public void setLevel(int level) {
 		_level = level;
+	}
+	
+	public int getMaxCp() {
+		return _maxCp;
+	}
+	
+	public void setMaxCp(int maxCp) {
+		_maxCp = maxCp;
 	}
 	
 	public int getMaxHp() {
