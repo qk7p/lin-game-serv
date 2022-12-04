@@ -42,6 +42,6 @@ public class ExVoteSystemInfo extends L2GameServerPacket {
 		writeD(_player.getRecSystem().getHave());
 		writeD(_player.getRecSystem().getBonusTime());
 		writeD(_player.getRecSystem().getBonus());
-		writeD((!_player.getRecSystem().isBonusTaskActive() && _player.getRecSystem().getBonusTime() > 0) ? 0x01 : 0x00);
+		writeD(_player.getRecSystem().isBonusPaused() ? 0x01 : 0x00);
 	}
 }

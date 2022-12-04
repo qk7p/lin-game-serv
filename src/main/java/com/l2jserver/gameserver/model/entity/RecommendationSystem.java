@@ -137,6 +137,7 @@ public class RecommendationSystem {
 		
 		if (!isBonusTaskActive()) {
 			_player.debugFeature("RecBonus", "Not stopping task because it is not started.");
+			_player.sendPacket(new ExVoteSystemInfo(_player));
 			return;
 		}
 
@@ -234,6 +235,11 @@ public class RecommendationSystem {
 	/** @return recommendations the player can give to other players */
 	public int getLeft() {
 		return _recomLeft;
+	}
+	
+	/** @return Whether the recommendation bonus timer is paused */
+	public boolean isBonusPaused() {
+		return _recoBonusPeacePause || _recoBonusOtherPause.get() > 0;
 	}
 	
 	/** @return Whether the recommendation bonus end timer was scheduled */
