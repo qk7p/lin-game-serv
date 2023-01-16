@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2022 L2J Server
+ * Copyright © 2004-2023 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -28,7 +28,7 @@ import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.Reloadable;
 
 /**
- * huntingsystem Configuration.
+ * Hunting System Configuration.
  * @author Maneco2
  * @version 2.6.3.0
  */

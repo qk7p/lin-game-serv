@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2022 L2J Server
+ * Copyright © 2004-2023 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -31,6 +31,7 @@ import com.l2jserver.gameserver.model.actor.tasks.player.RecoGiveTask;
 import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 
 /**
+ * Recommendation System.
  * @author HorridoJoho
  * @since 2.6.3.0
  */

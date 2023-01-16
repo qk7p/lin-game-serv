@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2023 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Quest Droplist.
  * @author Noé Caratini aka Kita
  */
 public class QuestDroplist {
@@ -352,7 +353,8 @@ public class QuestDroplist {
             return super.build();
         }
 
-        public QuestDropListBuilder build() {
+        @Override
+		public QuestDropListBuilder build() {
             return super.build();
         }
     }

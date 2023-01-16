@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2022 L2J Server
+ * Copyright © 2004-2023 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -72,7 +72,10 @@ import com.l2jserver.gameserver.util.Util;
  * @author nuocnam
  */
 public class L2Party extends AbstractPlayerGroup {
+	
 	private static final Logger _log = Logger.getLogger(L2Party.class.getName());
+	
+	private static final int MAXIMUM_LEVEL_DIFFERENCE = 9;
 	
 	// @formatter:off
 	private static final double[] BONUS_EXP_SP =
@@ -622,7 +625,7 @@ public class L2Party extends AbstractPlayerGroup {
 			}
 			
 			if (leftOver > 0) {
-				var keys = new ArrayList<L2PcInstance>(toReward.keySet());
+				var keys = new ArrayList<>(toReward.keySet());
 				
 				while (leftOver-- > 0) {
 					int rndIndex = Rnd.get(0, toReward.size() - 1);
@@ -691,7 +694,7 @@ public class L2Party extends AbstractPlayerGroup {
 				addexp = calculateExpSpPartyCutoff(member.getActingPlayer(), topLvl, addexp, addsp, useVitalityRate);
 				if (addexp > 0) {
 					member.updateVitalityPoints(vitalityPoints, true, false);
-					if (!member.isInsideZone(ZoneId.PEACE) && ((member.getLevel() - target.getLevel()) <= 9)) {
+					if (!member.isInsideZone(ZoneId.PEACE) && ((member.getLevel() - target.getLevel()) <= MAXIMUM_LEVEL_DIFFERENCE)) {
 						if (hunting().getNevitEnable()) {
 							member.getHuntingSystem().startHuntingSystemTask();
 							if (member.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {

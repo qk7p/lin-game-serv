@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2023 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -69,7 +69,6 @@ import com.l2jserver.gameserver.model.items.type.WeaponType;
 import com.l2jserver.gameserver.model.skills.AttributeType;
 import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.model.skills.Skill;
-import com.l2jserver.gameserver.model.stats.functions.AbstractFunction;
 import com.l2jserver.gameserver.model.stats.functions.formulas.FuncArmorSet;
 import com.l2jserver.gameserver.model.stats.functions.formulas.FuncAtkAccuracy;
 import com.l2jserver.gameserver.model.stats.functions.formulas.FuncAtkCritical;

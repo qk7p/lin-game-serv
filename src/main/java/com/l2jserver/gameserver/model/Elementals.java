@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2023 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -19,7 +19,6 @@
 package com.l2jserver.gameserver.model;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;

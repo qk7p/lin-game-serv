@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2023 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -198,9 +198,8 @@ public final class DayNightSpawnManager {
 			_bosses.put(bossSpawn, raidboss);
 			
 			return raidboss;
-		} else {
-			_bosses.put(bossSpawn, null);
 		}
+		_bosses.put(bossSpawn, null);
 		return null;
 	}
 	

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2022 L2J Server
+ * Copyright © 2004-2023 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -10459,12 +10459,16 @@ public final class L2PcInstance extends L2Playable {
 		_handysBlockCheckerEventArena = arena;
 	}
 	
-	/** @return the hunting system controller for this player */
+	/**
+	 * @return the hunting system controller for this player
+	 */
 	public HuntingSystem getHuntingSystem() {
 		return _huntingSystem;
 	}
 	
-	/** @return the recommendation system controller for this player */
+	/**
+	 * @return the recommendation system controller for this player
+	 */
 	public RecommendationSystem getRecSystem() {
 		return _recSystem;
 	}

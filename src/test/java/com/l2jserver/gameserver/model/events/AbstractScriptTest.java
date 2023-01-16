@@ -64,7 +64,6 @@ public class AbstractScriptTest {
     }
 
     @Test
-    @SuppressWarnings("ConstantConditions")
     public void shouldReturnFalseIfDropItemIsNull() {
         boolean result = AbstractScript.giveItemRandomly(player, npc, player, null, 0L, true);
 
@@ -178,7 +177,6 @@ public class AbstractScriptTest {
     }
 
     @Test
-    @SuppressWarnings("ConstantConditions")
     public void shouldReturnFalseIfDropInfoIsNull() {
         QuestDropInfo dropInfo = null;
 

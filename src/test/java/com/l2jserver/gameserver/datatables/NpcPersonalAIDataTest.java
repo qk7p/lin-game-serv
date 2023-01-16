@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004-2021 L2J Server
+ * Copyright © 2004-2023 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
+ * Npc Personal AI Data test.
  * @author Noé Caratini aka Kita
  */
 @ExtendWith(MockitoExtension.class)
