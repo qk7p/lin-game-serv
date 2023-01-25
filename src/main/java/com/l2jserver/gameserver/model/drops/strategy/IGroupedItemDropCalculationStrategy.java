@@ -18,14 +18,7 @@
  */
 package com.l2jserver.gameserver.model.drops.strategy;
 
-import com.l2jserver.commons.util.Rnd;
-import com.l2jserver.gameserver.model.actor.L2Character;
-import com.l2jserver.gameserver.model.drops.GeneralDropItem;
-import com.l2jserver.gameserver.model.drops.GroupedGeneralDropItem;
-import com.l2jserver.gameserver.model.drops.IDropItem;
-import com.l2jserver.gameserver.model.holders.ItemHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.l2jserver.gameserver.config.Configuration.general;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.l2jserver.gameserver.config.Configuration.general;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.l2jserver.commons.util.Rnd;
+import com.l2jserver.gameserver.model.actor.L2Character;
+import com.l2jserver.gameserver.model.drops.GeneralDropItem;
+import com.l2jserver.gameserver.model.drops.GroupedGeneralDropItem;
+import com.l2jserver.gameserver.model.drops.IDropItem;
+import com.l2jserver.gameserver.model.holders.ItemHolder;
 
 /**
  * @author Battlecruiser

@@ -18,15 +18,15 @@
  */
 package com.l2jserver.gameserver.config;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.aeonbits.owner.Config.HotReloadType.ASYNC;
+import static org.aeonbits.owner.Config.LoadType.MERGE;
+
 import org.aeonbits.owner.Config.HotReload;
 import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.Mutable;
 import org.aeonbits.owner.Reloadable;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.aeonbits.owner.Config.HotReloadType.ASYNC;
-import static org.aeonbits.owner.Config.LoadType.MERGE;
 
 /**
  * Discord Configuration.

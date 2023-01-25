@@ -18,16 +18,6 @@
  */
 package com.l2jserver.gameserver.model.quest;
 
-import com.l2jserver.gameserver.model.actor.L2Npc;
-import com.l2jserver.gameserver.model.drops.DropListScope;
-import com.l2jserver.gameserver.model.drops.GeneralDropItem;
-import com.l2jserver.gameserver.model.drops.GroupedGeneralDropItem;
-import com.l2jserver.gameserver.model.drops.IDropItem;
-import com.l2jserver.gameserver.model.holders.ItemChanceHolder;
-import com.l2jserver.gameserver.model.holders.ItemHolder;
-import com.l2jserver.gameserver.model.holders.QuestItemChanceHolder;
-import com.l2jserver.gameserver.model.quest.QuestDroplist.QuestDropListBuilder.GroupedDropBuilder;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +28,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.l2jserver.gameserver.model.actor.L2Npc;
+import com.l2jserver.gameserver.model.drops.DropListScope;
+import com.l2jserver.gameserver.model.drops.GeneralDropItem;
+import com.l2jserver.gameserver.model.drops.GroupedGeneralDropItem;
+import com.l2jserver.gameserver.model.drops.IDropItem;
+import com.l2jserver.gameserver.model.holders.ItemChanceHolder;
+import com.l2jserver.gameserver.model.holders.ItemHolder;
+import com.l2jserver.gameserver.model.holders.QuestItemChanceHolder;
+import com.l2jserver.gameserver.model.quest.QuestDroplist.QuestDropListBuilder.GroupedDropBuilder;
 
 /**
  * Quest Droplist.

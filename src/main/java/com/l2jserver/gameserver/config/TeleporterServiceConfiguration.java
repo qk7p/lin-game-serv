@@ -25,10 +25,9 @@ import static org.aeonbits.owner.Config.LoadType.MERGE;
 import org.aeonbits.owner.Config.HotReload;
 import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
+import org.aeonbits.owner.Reloadable;
 
 import com.l2jserver.gameserver.model.zone.ZoneId;
-
-import org.aeonbits.owner.Reloadable;
 
 /**
  * Teleporter Service Configuration.
