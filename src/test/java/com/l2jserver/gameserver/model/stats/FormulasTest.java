@@ -60,7 +60,7 @@ public class FormulasTest {
 	private Skill skill;
 	
 	@BeforeAll
-	private static void init() {
+	static void init() {
 		server().setProperty("DatapackRoot", "src/test/resources");
 	}
 	
