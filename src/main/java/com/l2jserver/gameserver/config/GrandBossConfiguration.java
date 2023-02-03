@@ -95,4 +95,25 @@ public interface GrandBossConfiguration extends Reloadable {
 	
 	@Key("BelethMinPlayers")
 	Integer getBelethMinPlayers();
+
+	@Key("AllowZakenWithoutParty")
+	Boolean getAllowZakenWithoutParty();
+
+	@Key("Zaken60MinPlayers")
+	Integer getZaken60MinPlayers();
+
+	@Key("Zaken60MaxPlayers")
+	Integer getZaken60MaxPlayers();
+
+	@Key("Zaken83MinPlayers")
+	Integer getZaken83MinPlayers();
+
+	@Key("Zaken83MaxPlayers")
+	Integer getZaken83MaxPlayers();
+
+	@Key("Zaken60MinPlayerLevel")
+	Integer getZaken60MinPlayerLevel();
+
+	@Key("Zaken83MinPlayerLevel")
+	Integer getZaken83MinPlayerLevel();
 }
