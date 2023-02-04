@@ -22,6 +22,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.aeonbits.owner.Config.HotReloadType.ASYNC;
 import static org.aeonbits.owner.Config.LoadType.MERGE;
 
+import java.util.List;
+
 import org.aeonbits.owner.Config.HotReload;
 import org.aeonbits.owner.Config.LoadPolicy;
 import org.aeonbits.owner.Config.Sources;
@@ -95,25 +97,19 @@ public interface GrandBossConfiguration extends Reloadable {
 	
 	@Key("BelethMinPlayers")
 	Integer getBelethMinPlayers();
-
+	
 	@Key("AllowZakenWithoutParty")
 	Boolean getAllowZakenWithoutParty();
-
-	@Key("Zaken60MinPlayers")
-	Integer getZaken60MinPlayers();
-
-	@Key("Zaken60MaxPlayers")
-	Integer getZaken60MaxPlayers();
-
-	@Key("Zaken83MinPlayers")
-	Integer getZaken83MinPlayers();
-
-	@Key("Zaken83MaxPlayers")
-	Integer getZaken83MaxPlayers();
-
-	@Key("Zaken60MinPlayerLevel")
-	Integer getZaken60MinPlayerLevel();
-
-	@Key("Zaken83MinPlayerLevel")
-	Integer getZaken83MinPlayerLevel();
+	
+	@Key("ZakenMinPlayers")
+	List<Integer> getZakenMinPlayers();
+	
+	@Key("ZakenMaxPlayers")
+	List<Integer> getZakenMaxPlayers();
+	
+	@Key("ZakenMinPlayerLevel")
+	List<Integer> getZakenMinPlayerLevel();
+	
+	@Key("ZakenCanBeRevealedByAOESpells")
+	Boolean getZakenCanBeRevealedByAoeSPells();
 }
