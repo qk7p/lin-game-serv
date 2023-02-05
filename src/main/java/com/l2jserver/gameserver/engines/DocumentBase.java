@@ -823,7 +823,7 @@ public abstract class DocumentBase {
 						}
 						
 						if (old == mask) {
-							_log.info("[parseUsingCondition=\"kind\"] Unknown item type name: " + item);
+							_log.info("[parseUsingCondition=\"kind\"] Unknown item type name: '" + item + "' in string '" + a.getNodeValue() + "'");
 						}
 					}
 					cond = joinAnd(cond, new ConditionUsingItemType(mask));
