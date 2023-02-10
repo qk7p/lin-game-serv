@@ -97,6 +97,7 @@ public class RecommendationSystem {
 		
 		if (getBonusTime() <= 0) {
 			_player.debugFeature("RecBonus", "Not scheduling task because bonus time is {}.", getBonusTime());
+			_player.sendPacket(new ExVoteSystemInfo(_player));
 			return;
 		}
 		
@@ -240,7 +241,7 @@ public class RecommendationSystem {
 	
 	/** @return Whether the recommendation bonus timer is paused */
 	public boolean isBonusPaused() {
-		return _recoBonusPeacePause || _recoBonusOtherPause.get() > 0;
+		return (getBonusTime() > 0 && _recoBonusPeacePause) || _recoBonusOtherPause.get() > 0;
 	}
 	
 	/** @return Whether the recommendation bonus end timer was scheduled */
