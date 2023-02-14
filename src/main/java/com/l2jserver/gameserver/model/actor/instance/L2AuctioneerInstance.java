@@ -335,9 +335,7 @@ public final class L2AuctioneerInstance extends L2Npc {
 				final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
 				html.setFile(player.getHtmlPrefix(), filename);
 				html.replace("%AGIT_LIST%", biders.toString());
-				html.replace("%AGIT_LINK_BACK%", "bypass -h npc_" + getObjectId() + "_selectedItems");
-				html.replace("%x%", val);
-				html.replace("%objectId%", String.valueOf(getObjectId()));
+				html.replace("%AGIT_LINK_BACK%", "bypass -h npc_" + getObjectId() + "_bidding " + auctionId);
 				player.sendPacket(html);
 				return;
 			} else if (actualCommand.equalsIgnoreCase("selectedItems")) {
