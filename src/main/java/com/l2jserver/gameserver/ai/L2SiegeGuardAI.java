@@ -203,7 +203,7 @@ public class L2SiegeGuardAI extends L2CharacterAI implements Runnable {
 		super.changeIntention(intention, arg0, arg1);
 		
 		// If not idle - create an AI task (schedule onEvtThink repeatedly)
-		if (_aiTask == null) {
+		if ((_aiTask == null) && (_actor.isInActiveRegion())) {
 			_aiTask = ThreadPoolManager.getInstance().scheduleAiAtFixedRate(this, 1000, 1000);
 		}
 	}

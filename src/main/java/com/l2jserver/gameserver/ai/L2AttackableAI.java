@@ -286,7 +286,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 	
 	public void startAITask() {
 		// If not idle - create an AI task (schedule onEvtThink repeatedly)
-		if (_aiTask == null) {
+		if ((_aiTask == null) && (_actor.isInActiveRegion())) {
 			_aiTask = ThreadPoolManager.getInstance().scheduleAiAtFixedRate(this, 1000, 1000);
 		}
 	}
