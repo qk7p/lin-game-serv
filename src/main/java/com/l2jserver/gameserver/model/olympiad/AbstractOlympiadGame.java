@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.l2jserver.gameserver.ai.CtrlIntention;
+import com.l2jserver.gameserver.enums.Team;
 import com.l2jserver.gameserver.instancemanager.AntiFeedManager;
 import com.l2jserver.gameserver.instancemanager.CastleManager;
 import com.l2jserver.gameserver.instancemanager.FortManager;
@@ -351,6 +352,7 @@ public abstract class AbstractOlympiadGame {
 		if ((loc.getX() == 0) && (loc.getY() == 0)) {
 			return;
 		}
+		player.setTeam(Team.NONE);
 		player.setIsPendingRevive(false);
 		player.setInstanceId(0);
 		player.teleToLocation(loc);

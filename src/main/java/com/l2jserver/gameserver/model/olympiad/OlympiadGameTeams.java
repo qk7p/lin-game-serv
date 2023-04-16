@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import com.l2jserver.commons.util.Rnd;
+import com.l2jserver.gameserver.enums.Team;
 import com.l2jserver.gameserver.idfactory.IdFactory;
 import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.Location;
@@ -276,10 +277,12 @@ public class OlympiadGameTeams extends AbstractOlympiadGame {
 	protected final void removals() {
 		for (int i = _teamOneSize; --i >= 0;) {
 			removals(_teamOne[i].getPlayer(), false);
+			_teamOne[i].getPlayer().setTeam(Team.BLUE);
 		}
 		
 		for (int i = _teamTwoSize; --i >= 0;) {
 			removals(_teamTwo[i].getPlayer(), false);
+			_teamTwo[i].getPlayer().setTeam(Team.RED);
 		}
 	}
 	
