@@ -40,7 +40,7 @@ import com.l2jserver.gameserver.network.serverpackets.ExNevitAdventTimeChange;
 public class HuntingSystem {
 	
 	private static final int ADDITIONAL_NEVIT_POINTS = 2;
-	private static final int HUNTING_BONUS_REFRESH_RATE = 1;
+	private static final int HUNTING_BONUS_REFRESH_RATE = 10;
 	
 	private final L2PcInstance _activeChar;
 	private ScheduledFuture<?> _huntingBonusTask;
@@ -93,7 +93,7 @@ public class HuntingSystem {
 	
 	public void startHuntingSystemTask() {
 		if ((_huntingBonusTask == null) && ((getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()))) {
-			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), 1000, 1000);
+			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), 1000, 10000);
 			if (hunting().getHuntingBonusLimit()) {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getHuntingBonusTime(), false));
 			}
