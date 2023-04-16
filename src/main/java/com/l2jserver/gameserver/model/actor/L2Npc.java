@@ -1085,11 +1085,8 @@ public class L2Npc extends L2Character {
 		if (isTeleporting()) {
 			EventDispatcher.getInstance().notifyEventAsync(new OnNpcTeleport(this), this);
 		} else {
-			EventDispatcher.getInstance().notifyEventAsync(new OnNpcSpawn(this), this);
-		}
-		
-		if (!isTeleporting()) {
 			WalkingManager.getInstance().onSpawn(this);
+			EventDispatcher.getInstance().notifyEventAsync(new OnNpcSpawn(this), this);
 		}
 	}
 	
