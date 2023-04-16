@@ -104,7 +104,7 @@ public abstract class L2Vehicle extends L2Character {
 				getStat().setRotationSpeed(point.getRotationSpeed());
 			}
 			
-			getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new Location(point.getX(), point.getY(), point.getZ(), 0));
+			getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, point);
 			return;
 		}
 		getAI().setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
