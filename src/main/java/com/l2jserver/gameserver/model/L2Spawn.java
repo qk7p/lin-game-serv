@@ -563,8 +563,6 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable {
 		mob.setIsDead(false);
 		// Reset decay info
 		mob.setDecayed(false);
-		// Set the HP and MP of the L2NpcInstance to the max
-		mob.setCurrentHpMp(mob.getMaxHp(), mob.getMaxMp());
 		// Clear script variables
 		if (mob.hasVariables()) {
 			mob.getVariables().getSet().clear();
@@ -596,6 +594,8 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable {
 			}
 		}
 		
+		// Set the HP and MP of the L2NpcInstance to the max
+		mob.setCurrentHpMp(mob.getMaxHp(), mob.getMaxMp());
 		// Reset summoner
 		mob.setSummoner(null);
 		// Reset summoned list

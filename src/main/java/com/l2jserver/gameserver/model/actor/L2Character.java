@@ -5137,7 +5137,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	}
 	
 	public int getMaxHp() {
-		return getStat().getMaxHp();
+		return (customs().championEnable() && isChampion()) ? getStat().getMaxHp() * customs().getChampionHp() : getStat().getMaxHp();
 	}
 	
 	public int getMaxRecoverableHp() {
