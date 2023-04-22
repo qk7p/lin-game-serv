@@ -5229,24 +5229,20 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		getStatus().addStatusListener(object);
 	}
 	
-	public void reduceCurrentHp(double i, L2Character attacker, Skill skill) {
-		reduceCurrentHp(i, attacker, true, false, skill);
+	public void reduceCurrentHp(double damage, L2Character attacker, Skill skill) {
+		reduceCurrentHp(damage, attacker, true, false, skill);
 	}
 	
-	public void reduceCurrentHpByDOT(double i, L2Character attacker, Skill skill) {
-		reduceCurrentHp(i, attacker, !skill.isToggle(), true, skill);
+	public void reduceCurrentHpByDOT(double damage, L2Character attacker, Skill skill) {
+		reduceCurrentHp(damage, attacker, !skill.isToggle(), true, skill);
 	}
 	
-	public void reduceCurrentHp(double i, L2Character attacker, boolean awake, boolean isDOT, Skill skill) {
-		if (customs().championEnable() && isChampion() && (customs().getChampionHp() != 0)) {
-			getStatus().reduceHp(i / customs().getChampionHp(), attacker, awake, isDOT, false);
-		} else {
-			getStatus().reduceHp(i, attacker, awake, isDOT, false);
-		}
+	public void reduceCurrentHp(double damage, L2Character attacker, boolean awake, boolean isDOT, Skill skill) {
+		getStatus().reduceHp(damage, attacker, awake, isDOT, false);
 	}
 	
-	public void reduceCurrentMp(double i) {
-		getStatus().reduceMp(i);
+	public void reduceCurrentMp(double damage) {
+		getStatus().reduceMp(damage);
 	}
 	
 	@Override
