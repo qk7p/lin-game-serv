@@ -8968,38 +8968,14 @@ public final class L2PcInstance extends L2Playable {
 			// TODO (Adry_85): Unhardcode
 			skilllvl = 0;
 			switch (info.getSkill().getLevel()) {
-				case 1: {
-					skilllvl = 2;
-					break;
-				}
-				case 2: {
-					skilllvl = 5;
-					break;
-				}
-				case 3: {
-					skilllvl = 8;
-					break;
-				}
-				case 4: {
-					skilllvl = 11;
-					break;
-				}
-				case 5: {
-					skilllvl = 14;
-					break;
-				}
-				case 6: {
-					skilllvl = 17;
-					break;
-				}
-				case 7: {
-					skilllvl = 20;
-					break;
-				}
-				case 8: {
-					skilllvl = 23;
-					break;
-				}
+				case 1 -> skilllvl = 2;
+				case 2 -> skilllvl = 5;
+				case 3 -> skilllvl = 8;
+				case 4 -> skilllvl = 11;
+				case 5 -> skilllvl = 14;
+				case 6 -> skilllvl = 17;
+				case 7 -> skilllvl = 20;
+				case 8 -> skilllvl = 23;
 			}
 		}
 		if (skilllvl <= 0) {
