@@ -51,6 +51,8 @@ public final class L2AuctioneerInstance extends L2Npc {
 	private static final int COND_BUSY_BECAUSE_OF_SIEGE = 1;
 	private static final int COND_REGULAR = 3;
 	
+	private int _currentPage = 1;
+	
 	private final Map<Integer, Auction> _pendingAuctions = new ConcurrentHashMap<>();
 	
 	public L2AuctioneerInstance(L2NpcTemplate template) {
@@ -235,16 +237,18 @@ public final class L2AuctioneerInstance extends L2Npc {
 				List<Auction> auctions = AuctionManager.getInstance().getAuctions();
 				SimpleDateFormat format = new SimpleDateFormat("yy/MM/dd");
 				// Limit for make new page, prevent client crash.
-				int limit = 15;
+				
+				int limit = 10;
 				int start;
 				int i = 1;
-				double npage = Math.ceil((float) auctions.size() / limit);
 				
 				if (val.isEmpty()) {
 					start = 1;
+					_currentPage = 1;
 				} else {
 					start = (limit * (Integer.parseInt(val) - 1)) + 1;
 					limit *= Integer.parseInt(val);
+					_currentPage = Integer.parseInt(val);
 				}
 				
 				if (general().debug()) {
@@ -252,18 +256,6 @@ public final class L2AuctioneerInstance extends L2Npc {
 				}
 				
 				StringBuilder items = new StringBuilder();
-				items.append("<table width=280 border=0><tr>");
-				for (int j = 1; j <= npage; j++) {
-					items.append("<td><center><a action=\"bypass -h npc_");
-					items.append(getObjectId());
-					items.append("_list ");
-					items.append(j);
-					items.append("\"> Page ");
-					items.append(j);
-					items.append(" </a></center></td>");
-				}
-				
-				items.append("</tr></table>");
 				items.append("<table width=280 border=0>");
 				
 				for (Auction a : auctions) {
@@ -281,26 +273,53 @@ public final class L2AuctioneerInstance extends L2Npc {
 					}
 					
 					items.append("<tr>");
-					items.append("<td>");
+					items.append("<td width=70 align=left><font color=\"99B3FF\">");
 					items.append(ClanHallManager.getInstance().getAuctionableHallById(a.getItemId()).getLocation());
-					items.append("</td>");
-					items.append("<td><a action=\"bypass -h npc_");
+					items.append("</font></td>");
+					items.append("<td width=70 align=left><font color=\"FFFF99\"><a action=\"bypass -h npc_");
 					items.append(getObjectId());
 					items.append("_bidding ");
 					items.append(a.getId());
 					items.append("\">");
 					items.append(a.getItemName());
-					items.append("</a></td>");
-					items.append("<td>");
+					items.append("[");
+					items.append(AuctionManager.getInstance().getAuction(a.getId()).getBidders().size());
+					items.append("]</a></font></td>");
+					items.append("<td width=70 align=left>");
 					items.append(format.format(a.getEndDate()));
 					items.append("</td>");
-					items.append("<td>");
+					items.append("<td width=70 align=left><font color=\"99FFFF\">");
 					items.append(a.getStartingBid());
-					items.append("</td>");
+					items.append("</font></td>");
 					items.append("</tr>");
+					items.append("<tr><td height=5></td></tr>");
 				}
-				
 				items.append("</table>");
+				
+				items.append("<table width=280 border=0>");
+				items.append("<tr>");
+				if (_currentPage > 1) {
+					items.append("<td width=80 align=left>");
+					items.append("<button action=\"bypass -h npc_");
+					items.append(getObjectId());
+					items.append("_list ");
+					items.append(_currentPage - 1);
+					items.append("\"");
+					items.append(" value=\"Previous\" width=80 height=27 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\">");
+					items.append("</td>");
+				}
+				items.append("<td width=80 align=left>");
+				items.append("<button action=\"bypass -h npc_");
+				items.append(getObjectId());
+				items.append("_list ");
+				items.append(_currentPage + 1);
+				items.append("\"");
+				items.append(" value=\"Next\" width=80 height=27 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\">");
+				items.append("</td>");
+				items.append("<td width=120></td>");
+				items.append("</tr>");
+				items.append("</table>");
+				
 				String filename = "data/html/auction/AgitAuctionList.htm";
 				
 				final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
