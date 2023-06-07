@@ -64,8 +64,6 @@ public class L2SignsPriestInstance extends L2Npc {
 			int cabal = SevenSigns.CABAL_NULL;
 			int stoneType;
 			
-			final long ancientAdenaAmount = player.getAncientAdena();
-			
 			int val = Integer.parseInt(command.substring(11, 12).trim());
 			
 			if (command.length() > 12) {
@@ -456,30 +454,6 @@ public class L2SignsPriestInstance extends L2Npc {
 							LOG.warn("Problem with HTML text {}", path);
 						}
 					}
-					break;
-				case 7: // Exchange Ancient Adena for Adena - SevenSigns 7 xxxxxxx
-					long ancientAdenaConvert;
-					
-					try {
-						ancientAdenaConvert = Long.parseLong(command.substring(13).trim());
-					} catch (Exception e) {
-						showChatWindow(player, SevenSigns.SEVEN_SIGNS_HTML_PATH + "blkmrkt_3.htm");
-						break;
-					}
-					
-					if (ancientAdenaConvert < 1) {
-						showChatWindow(player, SevenSigns.SEVEN_SIGNS_HTML_PATH + "blkmrkt_3.htm");
-						break;
-					}
-					if (ancientAdenaAmount < ancientAdenaConvert) {
-						showChatWindow(player, SevenSigns.SEVEN_SIGNS_HTML_PATH + "blkmrkt_4.htm");
-						break;
-					}
-					
-					player.reduceAncientAdena("SevenSigns", ancientAdenaConvert, this, true);
-					player.addAdena("SevenSigns", ancientAdenaConvert, this, true);
-					
-					showChatWindow(player, SevenSigns.SEVEN_SIGNS_HTML_PATH + "blkmrkt_5.htm");
 					break;
 				case 9: // Receive Contribution Rewards
 					int playerCabal = SevenSigns.getInstance().getPlayerCabal(player.getObjectId());

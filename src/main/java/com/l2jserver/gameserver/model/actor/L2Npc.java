@@ -870,9 +870,6 @@ public class L2Npc extends L2Character {
 			case 31141: //
 				filename += "festival/dusk_guide.htm";
 				break;
-			case 31092: // Black Marketeer of Mammon
-				filename += "blkmrkt_1.htm";
-				break;
 			case 31126: // Blacksmith of Mammon
 				if (sevenSigns().strictSevenSigns()) {
 					switch (compWinner) {
