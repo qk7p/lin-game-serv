@@ -24,7 +24,6 @@ import static com.l2jserver.gameserver.config.Configuration.general;
 import static com.l2jserver.gameserver.config.Configuration.npc;
 import static com.l2jserver.gameserver.config.Configuration.olympiad;
 import static com.l2jserver.gameserver.config.Configuration.rates;
-import static com.l2jserver.gameserver.config.Configuration.sevenSigns;
 import static com.l2jserver.gameserver.enums.InstanceType.L2Npc;
 
 import java.util.Collection;
@@ -851,9 +850,6 @@ public class L2Npc extends L2Character {
 		
 		/* For use with Seven Signs implementation */
 		String filename = SevenSigns.SEVEN_SIGNS_HTML_PATH;
-		int sealGnosisOwner = SevenSigns.getInstance().getSealOwner(SevenSigns.SEAL_GNOSIS);
-		int playerCabal = SevenSigns.getInstance().getPlayerCabal(player.getObjectId());
-		int compWinner = SevenSigns.getInstance().getCabalHighestScore();
 		
 		switch (npcId) {
 			case 31127: //
@@ -869,30 +865,6 @@ public class L2Npc extends L2Character {
 			case 31140: //
 			case 31141: //
 				filename += "festival/dusk_guide.htm";
-				break;
-			case 31126: // Blacksmith of Mammon
-				if (sevenSigns().strictSevenSigns()) {
-					switch (compWinner) {
-						case SevenSigns.CABAL_DAWN:
-							if ((playerCabal != compWinner) || (playerCabal != sealGnosisOwner)) {
-								player.sendPacket(SystemMessageId.CAN_BE_USED_BY_DAWN);
-								player.sendPacket(ActionFailed.STATIC_PACKET);
-								return;
-							}
-							break;
-						case SevenSigns.CABAL_DUSK:
-							if ((playerCabal != compWinner) || (playerCabal != sealGnosisOwner)) {
-								player.sendPacket(SystemMessageId.CAN_BE_USED_BY_DUSK);
-								player.sendPacket(ActionFailed.STATIC_PACKET);
-								return;
-							}
-							break;
-						default:
-							player.sendPacket(SystemMessageId.SSQ_COMPETITION_UNDERWAY);
-							return;
-					}
-				}
-				filename += "mammblack_1.htm";
 				break;
 			case 31132:
 			case 31133:
