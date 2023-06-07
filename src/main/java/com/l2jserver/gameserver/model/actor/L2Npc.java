@@ -851,7 +851,6 @@ public class L2Npc extends L2Character {
 		
 		/* For use with Seven Signs implementation */
 		String filename = SevenSigns.SEVEN_SIGNS_HTML_PATH;
-		int sealAvariceOwner = SevenSigns.getInstance().getSealOwner(SevenSigns.SEAL_AVARICE);
 		int sealGnosisOwner = SevenSigns.getInstance().getSealOwner(SevenSigns.SEAL_GNOSIS);
 		int playerCabal = SevenSigns.getInstance().getPlayerCabal(player.getObjectId());
 		int compWinner = SevenSigns.getInstance().getCabalHighestScore();
@@ -873,30 +872,6 @@ public class L2Npc extends L2Character {
 				break;
 			case 31092: // Black Marketeer of Mammon
 				filename += "blkmrkt_1.htm";
-				break;
-			case 31113: // Merchant of Mammon
-				if (sevenSigns().strictSevenSigns()) {
-					switch (compWinner) {
-						case SevenSigns.CABAL_DAWN:
-							if ((playerCabal != compWinner) || (playerCabal != sealAvariceOwner)) {
-								player.sendPacket(SystemMessageId.CAN_BE_USED_BY_DAWN);
-								player.sendPacket(ActionFailed.STATIC_PACKET);
-								return;
-							}
-							break;
-						case SevenSigns.CABAL_DUSK:
-							if ((playerCabal != compWinner) || (playerCabal != sealAvariceOwner)) {
-								player.sendPacket(SystemMessageId.CAN_BE_USED_BY_DUSK);
-								player.sendPacket(ActionFailed.STATIC_PACKET);
-								return;
-							}
-							break;
-						default:
-							player.sendPacket(SystemMessageId.SSQ_COMPETITION_UNDERWAY);
-							return;
-					}
-				}
-				filename += "mammmerch_1.htm";
 				break;
 			case 31126: // Blacksmith of Mammon
 				if (sevenSigns().strictSevenSigns()) {
