@@ -109,6 +109,7 @@ public class SevenSigns {
 	public static final int ANAKIM_NPC_ID = 25286;
 	public static final int CREST_OF_DAWN_ID = 31170;
 	public static final int CREST_OF_DUSK_ID = 31171;
+	
 	// Seal Stone Related Constants
 	public static final int SEAL_STONE_BLUE_ID = 6360;
 	public static final int SEAL_STONE_GREEN_ID = 6361;
@@ -145,13 +146,13 @@ public class SevenSigns {
 	private final Map<Integer, Integer> _signsDuskSealTotals = new LinkedHashMap<>();
 	private final Map<Integer, Integer> _signsDawnSealTotals = new LinkedHashMap<>();
 	
-	private static final String LOAD_DATA = "SELECT charId, cabal, seal, red_stones, green_stones, blue_stones, " + "ancient_adena_amount, contribution_score FROM seven_signs";
+	private static final String LOAD_DATA = "SELECT charId, cabal, seal, position, paid_type, red_stones, green_stones, blue_stones, ancient_adena_amount, contribution_score FROM seven_signs";
 	
 	private static final String LOAD_STATUS = "SELECT * FROM seven_signs_status WHERE id=0";
 	
-	private static final String INSERT_PLAYER = "INSERT INTO seven_signs (charId, cabal, seal) VALUES (?,?,?)";
+	private static final String INSERT_PLAYER = "INSERT INTO seven_signs (charId, cabal, seal, position, paid_type) VALUES (?,?,?,?,?)";
 	
-	private static final String UPDATE_PLAYER = "UPDATE seven_signs SET cabal=?, seal=?, red_stones=?, green_stones=?, blue_stones=?, " + "ancient_adena_amount=?, contribution_score=? WHERE charId=?";
+	private static final String UPDATE_PLAYER = "UPDATE seven_signs SET cabal=?, seal=?, position=?, paid_type=?, red_stones=?, green_stones=?, blue_stones=?, ancient_adena_amount=?, contribution_score=? WHERE charId=?";
 	
 	private static final String UPDATE_STATUS = "UPDATE seven_signs_status SET current_cycle=?, active_period=?, previous_winner=?, " + "dawn_stone_score=?, dawn_festival_score=?, dusk_stone_score=?, dusk_festival_score=?, "
 		+ "avarice_owner=?, gnosis_owner=?, strife_owner=?, avarice_dawn_score=?, gnosis_dawn_score=?, " + "strife_dawn_score=?, avarice_dusk_score=?, gnosis_dusk_score=?, strife_dusk_score=?, " + "festival_cycle=?, accumulated_bonus0=?, accumulated_bonus1=?, accumulated_bonus2=?,"
@@ -351,22 +352,6 @@ public class SevenSigns {
 		}
 	}
 	
-	public static long calcContributionScore(long blueCount, long greenCount, long redCount) {
-		long contrib = blueCount * BLUE_CONTRIB_POINTS;
-		contrib += greenCount * GREEN_CONTRIB_POINTS;
-		contrib += redCount * RED_CONTRIB_POINTS;
-		
-		return contrib;
-	}
-	
-	public static long calcAncientAdenaReward(long blueCount, long greenCount, long redCount) {
-		long reward = blueCount * SEAL_STONE_BLUE_VALUE;
-		reward += greenCount * SEAL_STONE_GREEN_VALUE;
-		reward += redCount * SEAL_STONE_RED_VALUE;
-		
-		return reward;
-	}
-	
 	public static String getCabalShortName(int cabal) {
 		return switch (cabal) {
 			case CABAL_DAWN -> "dawn";
@@ -463,6 +448,14 @@ public class SevenSigns {
 	
 	public final boolean isCompResultsPeriod() {
 		return (_activePeriod == PERIOD_COMP_RESULTS);
+	}
+	
+	public final boolean isInitializationPeriod() {
+		return (_activePeriod == PERIOD_COMP_RECRUITING);
+	}
+	
+	public boolean isJoinableToDawn(L2PcInstance player) {
+		return (player.getClan() != null) && (player.getClan().getCastleId() > 0);
 	}
 	
 	/**
@@ -583,6 +576,45 @@ public class SevenSigns {
 		return stoneCount;
 	}
 	
+	public int getDepositedSSQItemCount(L2PcInstance player, int stoneId) {
+		final StatsSet currPlayer = _signsPlayerData.get(player.getObjectId());
+		if (currPlayer == null) {
+			return 0;
+		}
+		
+		return switch (stoneId) {
+			case SEAL_STONE_BLUE_ID -> currPlayer.getInt("blue_stones");
+			case SEAL_STONE_GREEN_ID -> currPlayer.getInt("green_stones");
+			case SEAL_STONE_RED_ID -> currPlayer.getInt("red_stones");
+			default -> 0;
+		};
+	}
+	
+	public int deleteDepositedSSQItemAndGiveRewards(L2PcInstance player, int stoneId, int amount) {
+		StatsSet currPlayer = _signsPlayerData.get(player.getObjectId());
+		
+		int rewardAmount = amount * switch (stoneId) {
+			case SEAL_STONE_BLUE_ID -> SEAL_STONE_BLUE_VALUE;
+			case SEAL_STONE_GREEN_ID -> SEAL_STONE_GREEN_VALUE;
+			case SEAL_STONE_RED_ID -> SEAL_STONE_RED_VALUE;
+			default -> 0;
+		};
+		
+		player.addAncientAdena("SevenSigns", rewardAmount, player, true);
+		
+		currPlayer.set("red_stones", 0);
+		currPlayer.set("green_stones", 0);
+		currPlayer.set("blue_stones", 0);
+		
+		_signsPlayerData.put(player.getObjectId(), currPlayer);
+		if (!sevenSigns().sevenSignsLazyUpdate()) {
+			saveSevenSignsData(player.getObjectId());
+			saveSevenSignsStatus();
+		}
+		
+		return rewardAmount;
+	}
+	
 	public int getPlayerContribScore(int objectId) {
 		final StatsSet currPlayer = _signsPlayerData.get(objectId);
 		if (currPlayer == null) {
@@ -626,6 +658,10 @@ public class SevenSigns {
 		}
 	}
 	
+	public int getSSQPrevWinner() {
+		return _previousWinner;
+	}
+	
 	/**
 	 * Restores all Seven Signs data and settings, usually called at server startup.
 	 */
@@ -639,6 +675,8 @@ public class SevenSigns {
 					sevenDat.set("charId", charObjId);
 					sevenDat.set("cabal", rs.getString("cabal"));
 					sevenDat.set("seal", rs.getInt("seal"));
+					sevenDat.set("position", rs.getInt("position"));
+					sevenDat.set("paid_type", rs.getInt("paid_type"));
 					sevenDat.set("red_stones", rs.getInt("red_stones"));
 					sevenDat.set("green_stones", rs.getInt("green_stones"));
 					sevenDat.set("blue_stones", rs.getInt("blue_stones"));
@@ -690,12 +728,15 @@ public class SevenSigns {
 			for (StatsSet sevenDat : _signsPlayerData.values()) {
 				ps.setString(1, sevenDat.getString("cabal"));
 				ps.setInt(2, sevenDat.getInt("seal"));
-				ps.setInt(3, sevenDat.getInt("red_stones"));
-				ps.setInt(4, sevenDat.getInt("green_stones"));
-				ps.setInt(5, sevenDat.getInt("blue_stones"));
-				ps.setDouble(6, sevenDat.getDouble("ancient_adena_amount"));
-				ps.setDouble(7, sevenDat.getDouble("contribution_score"));
-				ps.setInt(8, sevenDat.getInt("charId"));
+				ps.setInt(3, sevenDat.getInt("position"));
+				ps.setInt(4, sevenDat.getInt("paid_type"));
+				
+				ps.setInt(5, sevenDat.getInt("red_stones"));
+				ps.setInt(6, sevenDat.getInt("green_stones"));
+				ps.setInt(7, sevenDat.getInt("blue_stones"));
+				ps.setDouble(8, sevenDat.getDouble("ancient_adena_amount"));
+				ps.setDouble(9, sevenDat.getDouble("contribution_score"));
+				ps.setInt(10, sevenDat.getInt("charId"));
 				ps.addBatch();
 			}
 			ps.executeBatch();
@@ -714,12 +755,15 @@ public class SevenSigns {
 			var ps = con.prepareStatement(UPDATE_PLAYER)) {
 			ps.setString(1, sevenDat.getString("cabal"));
 			ps.setInt(2, sevenDat.getInt("seal"));
-			ps.setInt(3, sevenDat.getInt("red_stones"));
-			ps.setInt(4, sevenDat.getInt("green_stones"));
-			ps.setInt(5, sevenDat.getInt("blue_stones"));
-			ps.setDouble(6, sevenDat.getDouble("ancient_adena_amount"));
-			ps.setDouble(7, sevenDat.getDouble("contribution_score"));
-			ps.setInt(8, sevenDat.getInt("charId"));
+			ps.setInt(3, sevenDat.getInt("position"));
+			ps.setInt(4, sevenDat.getInt("paid_type"));
+			
+			ps.setInt(5, sevenDat.getInt("red_stones"));
+			ps.setInt(6, sevenDat.getInt("green_stones"));
+			ps.setInt(7, sevenDat.getInt("blue_stones"));
+			ps.setDouble(8, sevenDat.getDouble("ancient_adena_amount"));
+			ps.setDouble(9, sevenDat.getDouble("contribution_score"));
+			ps.setInt(10, sevenDat.getInt("charId"));
 			ps.execute();
 		} catch (SQLException ex) {
 			LOG.error("Unable to save data to database!", ex);
@@ -768,6 +812,8 @@ public class SevenSigns {
 			// Reset the player's cabal and seal information
 			sevenDat.set("cabal", "");
 			sevenDat.set("seal", SEAL_NULL);
+			sevenDat.set("position", 0);
+			sevenDat.set("paid_type", 0);
 			sevenDat.set("contribution_score", 0);
 		}
 	}
@@ -775,40 +821,50 @@ public class SevenSigns {
 	/**
 	 * Used to specify cabal-related details for the specified player.<br>
 	 * This method checks to see if the player has registered before and will update the database if necessary.
-	 * @param objectId
+	 * @param player
 	 * @param chosenCabal
 	 * @param chosenSeal
+	 * @param position
+	 * @param score
+	 * @param paidType
 	 * @return the cabal ID the player has joined.
 	 */
-	public int setPlayerInfo(int objectId, int chosenCabal, int chosenSeal) {
-		StatsSet currPlayerData = _signsPlayerData.get(objectId);
+	public int addSSQMember(L2PcInstance player, int chosenCabal, int chosenSeal, int position, int score, int paidType) {
+		StatsSet currPlayerData = _signsPlayerData.get(player.getObjectId());
 		
 		if (currPlayerData != null) {
 			// If the seal validation period has passed,
 			// cabal information was removed and so "re-register" player
 			currPlayerData.set("cabal", getCabalShortName(chosenCabal));
 			currPlayerData.set("seal", chosenSeal);
+			currPlayerData.set("position", position);
+			currPlayerData.set("paid_type", paidType);
+			currPlayerData.set("contribution_score", score);
 			
-			_signsPlayerData.put(objectId, currPlayerData);
+			_signsPlayerData.put(player.getObjectId(), currPlayerData);
 		} else {
 			currPlayerData = new StatsSet();
-			currPlayerData.set("charId", objectId);
+			currPlayerData.set("charId", player.getObjectId());
 			currPlayerData.set("cabal", getCabalShortName(chosenCabal));
 			currPlayerData.set("seal", chosenSeal);
+			currPlayerData.set("position", position);
+			currPlayerData.set("paid_type", paidType);
 			currPlayerData.set("red_stones", 0);
 			currPlayerData.set("green_stones", 0);
 			currPlayerData.set("blue_stones", 0);
 			currPlayerData.set("ancient_adena_amount", 0);
 			currPlayerData.set("contribution_score", 0);
 			
-			_signsPlayerData.put(objectId, currPlayerData);
+			_signsPlayerData.put(player.getObjectId(), currPlayerData);
 			
 			// Update data in database, as we have a new player signing up.
 			try (var con = ConnectionFactory.getInstance().getConnection();
 				var ps = con.prepareStatement(INSERT_PLAYER)) {
-				ps.setInt(1, objectId);
+				ps.setInt(1, player.getObjectId());
 				ps.setString(2, getCabalShortName(chosenCabal));
 				ps.setInt(3, chosenSeal);
+				ps.setInt(4, position);
+				ps.setInt(5, paidType);
 				ps.execute();
 			} catch (SQLException ex) {
 				LOG.warn("Failed to save data!", ex);
@@ -866,8 +922,8 @@ public class SevenSigns {
 	 * @param redCount
 	 * @return
 	 */
-	public long addPlayerStoneContrib(int objectId, long blueCount, long greenCount, long redCount) {
-		StatsSet currPlayer = _signsPlayerData.get(objectId);
+	public long depositSSQItem(L2PcInstance player, long blueCount, long greenCount, long redCount) {
+		StatsSet currPlayer = _signsPlayerData.get(player.getObjectId());
 		
 		long contribScore = calcContributionScore(blueCount, greenCount, redCount);
 		long totalAncientAdena = currPlayer.getLong("ancient_adena_amount") + calcAncientAdenaReward(blueCount, greenCount, redCount);
@@ -882,19 +938,35 @@ public class SevenSigns {
 		currPlayer.set("blue_stones", currPlayer.getInt("blue_stones") + blueCount);
 		currPlayer.set("ancient_adena_amount", totalAncientAdena);
 		currPlayer.set("contribution_score", totalContribScore);
-		_signsPlayerData.put(objectId, currPlayer);
+		_signsPlayerData.put(player.getObjectId(), currPlayer);
 		
-		switch (getPlayerCabal(objectId)) {
+		switch (getPlayerCabal(player.getObjectId())) {
 			case CABAL_DAWN -> _dawnStoneScore += contribScore;
 			case CABAL_DUSK -> _duskStoneScore += contribScore;
 		}
 		
 		if (!sevenSigns().sevenSignsLazyUpdate()) {
-			saveSevenSignsData(objectId);
+			saveSevenSignsData(player.getObjectId());
 			saveSevenSignsStatus();
 		}
 		
 		return contribScore;
+	}
+	
+	public static long calcContributionScore(long blueCount, long greenCount, long redCount) {
+		long contrib = blueCount * BLUE_CONTRIB_POINTS;
+		contrib += greenCount * GREEN_CONTRIB_POINTS;
+		contrib += redCount * RED_CONTRIB_POINTS;
+		
+		return contrib;
+	}
+	
+	public static long calcAncientAdenaReward(long blueCount, long greenCount, long redCount) {
+		long reward = blueCount * SEAL_STONE_BLUE_VALUE;
+		reward += greenCount * SEAL_STONE_GREEN_VALUE;
+		reward += redCount * SEAL_STONE_RED_VALUE;
+		
+		return reward;
 	}
 	
 	/**
@@ -1116,13 +1188,11 @@ public class SevenSigns {
 				if (!player.isGM() && player.isIn7sDungeon() && ((currPlayer == null) || !currPlayer.getString("cabal").equals(compWinner))) {
 					player.teleToLocation(TeleportWhereType.TOWN);
 					player.setIsIn7sDungeon(false);
-					player.sendMessage("You have been teleported to the nearest town due to the beginning of the Seal Validation period.");
 				}
 			} else {
 				if (!player.isGM() && player.isIn7sDungeon() && ((currPlayer == null) || !currPlayer.getString("cabal").isEmpty())) {
 					player.teleToLocation(TeleportWhereType.TOWN);
 					player.setIsIn7sDungeon(false);
-					player.sendMessage("You have been teleported to the nearest town because you have not signed for any cabal.");
 				}
 			}
 		}
