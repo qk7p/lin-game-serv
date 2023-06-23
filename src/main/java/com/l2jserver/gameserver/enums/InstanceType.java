@@ -80,8 +80,6 @@ public enum InstanceType {
 	// Fort NPCs
 	L2FortLogisticsInstance(L2MerchantInstance),
 	L2FortManagerInstance(L2MerchantInstance),
-	// Seven Signs
-	L2DungeonGatekeeperInstance(L2Npc),
 	// City NPCs
 	L2AdventurerInstance(L2NpcInstance),
 	L2AuctioneerInstance(L2Npc),
