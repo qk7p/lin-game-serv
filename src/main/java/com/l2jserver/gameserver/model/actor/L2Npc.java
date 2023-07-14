@@ -911,14 +911,6 @@ public class L2Npc extends L2Character {
 				}
 				break;
 			default:
-				if ((npcId >= 31865) && (npcId <= 31918)) {
-					if (val == 0) {
-						filename += "rift/GuardianOfBorder.htm";
-					} else {
-						filename += "rift/GuardianOfBorder-" + val + ".htm";
-					}
-					break;
-				}
 				if (((npcId >= 31093) && (npcId <= 31094)) || ((npcId >= 31172) && (npcId <= 31201)) || ((npcId >= 31239) && (npcId <= 31254))) {
 					return;
 				}

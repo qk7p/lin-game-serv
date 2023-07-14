@@ -37,7 +37,9 @@ import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.quest.Quest;
 import com.l2jserver.gameserver.model.quest.QuestState;
+import com.l2jserver.gameserver.model.quest.State;
 import com.l2jserver.gameserver.network.serverpackets.Earthquake;
+import com.l2jserver.gameserver.util.Util;
 
 /**
  * Thanks to L2Fortress and balancer.ru - kombat
@@ -47,8 +49,9 @@ public class DimensionalRift {
 	protected L2Party _party;
 	protected List<Byte> _completedRooms = new ArrayList<>();
 	private static final long seconds_5 = 5000L;
-	// private static final int MILLISECONDS_IN_MINUTE = 60000;
+	
 	protected byte jumps_current = 0;
+	private final int MAX_DISTANCE = 1500;
 	
 	private Timer teleporterTimer;
 	private TimerTask teleporterTimerTask;
@@ -58,31 +61,39 @@ public class DimensionalRift {
 	private Future<?> earthQuakeTask;
 	
 	protected byte _chosenRoom;
-	private boolean _hasJumped = false;
+	protected List<L2PcInstance> _playerInside = new CopyOnWriteArrayList<>();
 	protected List<L2PcInstance> _deadPlayers = new CopyOnWriteArrayList<>();
 	protected List<L2PcInstance> _revivedInWaitingRoom = new CopyOnWriteArrayList<>();
 	private boolean isBossRoom = false;
 	
-	public DimensionalRift(L2Party party, byte type, byte room) {
-		DimensionalRiftManager.getInstance().getRoom(type, room).setPartyInside(true);
+	private final int Q00635_IntoTheDimensionalRift = 635;
+	
+	public DimensionalRift(L2Npc npc, L2Party party, byte type, byte room) {
+		DimensionalRiftManager.getInstance().getRoom(type, room).setParty(party);
+		
 		_type = type;
 		_party = party;
 		_chosenRoom = room;
-		Location coords = getRoomCoord(room);
 		party.setDimensionalRift(this);
-		for (L2PcInstance p : party.getMembers()) {
-			final Quest riftQuest = QuestManager.getInstance().getQuest(635);
-			if (riftQuest != null) {
-				QuestState qs = p.getQuestState(riftQuest.getName());
+		for (L2PcInstance pc : party.getMembers()) {
+			final Quest q635 = QuestManager.getInstance().getQuest(Q00635_IntoTheDimensionalRift);
+			if (q635 != null) {
+				QuestState qs = pc.getQuestState(q635.getName());
 				if (qs == null) {
-					qs = riftQuest.newQuestState(p);
+					qs = q635.newQuestState(pc);
 				}
 				if (!qs.isStarted()) {
-					qs.startQuest();
+					qs.setState(State.STARTED, true);
 				}
 			}
-			p.teleToLocation(coords);
+			
+			final double distance = Util.calculateDistance(npc, pc, true, false);
+			if (distance <= MAX_DISTANCE) {
+				teleportToRoom(pc, room);
+				_playerInside.add(pc);
+			}
 		}
+		
 		createSpawnTimer(_chosenRoom);
 		createTeleporterTimer(true);
 	}
@@ -120,7 +131,7 @@ public class DimensionalRift {
 			@Override
 			public void run() {
 				if (_chosenRoom > -1) {
-					DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).unspawn().setPartyInside(false);
+					DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).unspawn().setParty(null);
 				}
 				
 				if (reasonTP && (jumps_current < getMaxJumps()) && (_party.getMemberCount() > _deadPlayers.size())) {
@@ -130,18 +141,20 @@ public class DimensionalRift {
 					_chosenRoom = -1;
 					
 					for (L2PcInstance p : _party.getMembers()) {
-						if (!_revivedInWaitingRoom.contains(p)) {
+						if (!_revivedInWaitingRoom.contains(p) && _playerInside.contains(p)) {
 							teleportToNextRoom(p);
 						}
 					}
+					
 					createTeleporterTimer(true);
 					createSpawnTimer(_chosenRoom);
 				} else {
 					for (L2PcInstance p : _party.getMembers()) {
-						if (!_revivedInWaitingRoom.contains(p)) {
+						if (!_revivedInWaitingRoom.contains(p) && _playerInside.contains(p)) {
 							teleportToWaitingRoom(p);
 						}
 					}
+					
 					killRift();
 					cancel();
 				}
@@ -154,7 +167,7 @@ public class DimensionalRift {
 			
 			earthQuakeTask = ThreadPoolManager.getInstance().scheduleGeneral(() -> {
 				for (L2PcInstance p : _party.getMembers()) {
-					if (!_revivedInWaitingRoom.contains(p)) {
+					if (!_revivedInWaitingRoom.contains(p) && _playerInside.contains(p)) {
 						p.sendPacket(new Earthquake(p.getX(), p.getY(), p.getZ(), 65, 9));
 					}
 				}
@@ -192,60 +205,43 @@ public class DimensionalRift {
 	
 	public void partyMemberExited(L2PcInstance player) {
 		_deadPlayers.remove(player);
-		
 		_revivedInWaitingRoom.remove(player);
 		
-		if ((_party.getMemberCount() < general().getRiftMinPartySize()) || (_party.getMemberCount() == 1)) {
-			for (L2PcInstance p : _party.getMembers()) {
-				teleportToWaitingRoom(p);
-			}
-			killRift();
-		}
+		killRift();
 	}
 	
-	public void manualTeleport(L2PcInstance player, L2Npc npc) {
+	public void manualTeleport(L2PcInstance player) {
 		if (!player.isInParty() || !player.getParty().isInDimensionalRift()) {
 			return;
 		}
 		
-		if (player.getObjectId() != player.getParty().getLeaderObjectId()) {
-			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/NotPartyLeader.htm", npc);
-			return;
-		}
-		
-		if (_hasJumped) {
-			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/AlreadyTeleported.htm", npc);
-			return;
-		}
-		
-		_hasJumped = true;
-		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).unspawn().setPartyInside(false);
+		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).unspawn().setParty(null);
 		_completedRooms.add(_chosenRoom);
 		_chosenRoom = -1;
 		
 		for (L2PcInstance p : _party.getMembers()) {
-			teleportToNextRoom(p);
+			if (_playerInside.contains(p)) {
+				teleportToNextRoom(p);
+			}
 		}
 		
-		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).setPartyInside(true);
+		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).setParty(player.getParty());
 		
 		createSpawnTimer(_chosenRoom);
 		createTeleporterTimer(true);
 	}
 	
-	public void manualExitRift(L2PcInstance player, L2Npc npc) {
+	public void manualExitRift(L2PcInstance player) {
 		if (!player.isInParty() || !player.getParty().isInDimensionalRift()) {
 			return;
 		}
 		
-		if (player.getObjectId() != player.getParty().getLeaderObjectId()) {
-			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/NotPartyLeader.htm", npc);
-			return;
+		for (L2PcInstance p : player.getParty().getMembers()) {
+			if (_playerInside.contains(p)) {
+				teleportToWaitingRoom(p);
+			}
 		}
 		
-		for (L2PcInstance p : player.getParty().getMembers()) {
-			teleportToWaitingRoom(p);
-		}
 		killRift();
 	}
 	
@@ -262,23 +258,17 @@ public class DimensionalRift {
 				}
 				_chosenRoom = emptyRooms.get(Rnd.get(1, emptyRooms.size()) - 1);
 			}
-			while (DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).isPartyInside());
+			while (DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).getParty() != null);
 		}
 		
-		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).setPartyInside(true);
+		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).setParty(player.getParty());
 		checkBossRoom(_chosenRoom);
-		player.teleToLocation(getRoomCoord(_chosenRoom));
+		
+		teleportToRoom(player, _chosenRoom);
 	}
 	
 	protected void teleportToWaitingRoom(L2PcInstance player) {
 		DimensionalRiftManager.getInstance().teleportToWaitingRoom(player);
-		final Quest riftQuest = QuestManager.getInstance().getQuest(635);
-		if (riftQuest != null) {
-			final QuestState qs = player.getQuestState(riftQuest.getName());
-			if ((qs != null) && qs.isCond(1)) {
-				qs.exitQuest(true, true);
-			}
-		}
 	}
 	
 	public void killRift() {
@@ -289,6 +279,7 @@ public class DimensionalRift {
 		}
 		
 		_party = null;
+		_playerInside = null;
 		_revivedInWaitingRoom = null;
 		_deadPlayers = null;
 		
@@ -297,7 +288,7 @@ public class DimensionalRift {
 			earthQuakeTask = null;
 		}
 		
-		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).unspawn().setPartyInside(false);
+		DimensionalRiftManager.getInstance().getRoom(_type, _chosenRoom).unspawn().setParty(null);
 		DimensionalRiftManager.getInstance().killRift(this);
 	}
 	
@@ -338,6 +329,7 @@ public class DimensionalRift {
 		if (isBossRoom) {
 			return (long) (time * general().getBossRoomTimeMultiply());
 		}
+		
 		return time;
 	}
 	
@@ -349,29 +341,6 @@ public class DimensionalRift {
 	
 	public void memberResurrected(L2PcInstance player) {
 		_deadPlayers.remove(player);
-	}
-	
-	public void usedTeleport(L2PcInstance player) {
-		if (!_revivedInWaitingRoom.contains(player)) {
-			_revivedInWaitingRoom.add(player);
-		}
-		
-		if (!_deadPlayers.contains(player)) {
-			_deadPlayers.add(player);
-		}
-		
-		if ((_party.getMemberCount() - _revivedInWaitingRoom.size()) < general().getRiftMinPartySize()) {
-			// int pcm = _party.getMemberCount();
-			// int rev = revivedInWaitingRoom.size();
-			// int min = Config.RIFT_MIN_PARTY_SIZE;
-			
-			for (L2PcInstance p : _party.getMembers()) {
-				if ((p != null) && !_revivedInWaitingRoom.contains(p)) {
-					teleportToWaitingRoom(p);
-				}
-			}
-			killRift();
-		}
 	}
 	
 	public List<L2PcInstance> getDeadMemberList() {
@@ -394,6 +363,12 @@ public class DimensionalRift {
 		if ((general().getMaxRiftJumps() <= 8) && (general().getMaxRiftJumps() >= 1)) {
 			return general().getMaxRiftJumps();
 		}
+		
 		return 4;
+	}
+	
+	private void teleportToRoom(L2PcInstance player, byte room) {
+		Location coords = getRoomCoord(room);
+		player.teleToLocation(coords.getX() + Rnd.get(-150, 150), coords.getY() + Rnd.get(-150, 150), coords.getZ());
 	}
 }

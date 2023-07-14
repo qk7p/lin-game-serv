@@ -42,7 +42,7 @@ public final class DimensionalRiftRoom {
 	private final Shape _s;
 	private final boolean _isBossRoom;
 	private final List<L2Spawn> _roomSpawns = new ArrayList<>();
-	private boolean _partyInside = false;
+	private L2Party _party = null;
 	
 	public DimensionalRiftRoom(byte type, byte room, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax, int xT, int yT, int zT, boolean isBossRoom) {
 		_type = type;
@@ -118,18 +118,14 @@ public final class DimensionalRiftRoom {
 	}
 	
 	/**
-	 * Returns if party is inside the room.
-	 * @return {@code true} if there is a party inside, {@code false} otherwise
+	 * Sets the party inside.
+	 * @param party
 	 */
-	public boolean isPartyInside() {
-		return _partyInside;
+	public void setParty(L2Party party) {
+		_party = party;
 	}
 	
-	/**
-	 * Sets the party inside.
-	 * @param partyInside
-	 */
-	public void setPartyInside(boolean partyInside) {
-		_partyInside = partyInside;
+	public L2Party getParty() {
+		return _party;
 	}
 }

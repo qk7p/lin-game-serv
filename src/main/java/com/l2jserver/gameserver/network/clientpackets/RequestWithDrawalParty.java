@@ -48,24 +48,20 @@ public final class RequestWithDrawalParty extends L2GameClientPacket {
 		L2Party party = player.getParty();
 		
 		if (party != null) {
-			if (party.isInDimensionalRift() && !party.getDimensionalRift().getRevivedAtWaitingRoom().contains(player)) {
-				player.sendMessage("You can't exit party when you are in Dimensional Rift.");
-			} else {
-				party.removePartyMember(player, messageType.Left);
-				
-				if (player.isInPartyMatchRoom()) {
-					PartyMatchRoom _room = PartyMatchRoomList.getInstance().getPlayerRoom(player);
-					if (_room != null) {
-						player.sendPacket(new PartyMatchDetail(player, _room));
-						player.sendPacket(new ExPartyRoomMember(player, _room, 0));
-						player.sendPacket(new ExClosePartyRoom());
-						
-						_room.deleteMember(player);
-					}
-					player.setPartyRoom(0);
-					// player.setPartyMatching(0);
-					player.broadcastUserInfo();
+			party.removePartyMember(player, messageType.Left);
+			
+			if (player.isInPartyMatchRoom()) {
+				PartyMatchRoom _room = PartyMatchRoomList.getInstance().getPlayerRoom(player);
+				if (_room != null) {
+					player.sendPacket(new PartyMatchDetail(player, _room));
+					player.sendPacket(new ExPartyRoomMember(player, _room, 0));
+					player.sendPacket(new ExClosePartyRoom());
+					
+					_room.deleteMember(player);
 				}
+				
+				player.setPartyRoom(0);
+				player.broadcastUserInfo();
 			}
 		}
 	}
