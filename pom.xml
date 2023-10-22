@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.l2jserver</groupId>
 	<artifactId>l2j-server-game</artifactId>
@@ -9,37 +11,34 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<slf4j.version>2.0.6</slf4j.version>
-		<log4j.version>2.19.0</log4j.version>
+		<slf4j.version>2.0.9</slf4j.version>
+		<log4j.version>2.21.0</log4j.version>
 		<InMemoryJavaCompiler.version>1.3.0</InMemoryJavaCompiler.version>
 		<gson.version>2.10.1</gson.version>
 		<owner.version>1.0.12</owner.version>
-		<jda.version>4.3.0_330</jda.version>
+		<jda.version>v4.4.0</jda.version>
 		<!-- L2J -->
-		<l2j-server-commons.version>2.6.6.1</l2j-server-commons.version>
+		<l2j-server-commons.version>2.6.6.4</l2j-server-commons.version>
 		<l2j-server-geo-driver.version>2.6.4.1</l2j-server-geo-driver.version>
 		<!-- Test -->
-		<junit-jupiter.version>5.9.2</junit-jupiter.version>
-		<mockito.version>5.0.0</mockito.version>
+		<junit-jupiter.version>5.10.0</junit-jupiter.version>
+		<mockito.version>5.6.0</mockito.version>
+		<mockito-inline.version>5.2.0</mockito-inline.version>
 		<assertj-core.version>3.24.2</assertj-core.version>
 		<!-- Plugins -->
-		<maven-surefire-plugin.version>3.0.0-M8</maven-surefire-plugin.version>
+		<dependency-check-maven.version>8.4.1</dependency-check-maven.version>
+		<maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
 		<maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-		<maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
+		<maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
 	</properties>
 	<repositories>
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
-		<!-- JDA -->
-		<repository>
-			<id>m2-dv8tion</id>
-			<name>m2-dv8tion</name>
-			<url>https://m2.dv8tion.net/releases</url>
-		</repository>
 	</repositories>
 	<build>
+		<finalName>l2jserver</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -51,7 +50,6 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>${maven-jar-plugin.version}</version>
 				<configuration>
-					<finalName>l2jserver</finalName>
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
@@ -64,7 +62,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>${maven-assembly-plugin.version}</version><!-- $NO-MVN-MAN-VER$ -->
+				<version>${maven-assembly-plugin.version}</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -78,6 +76,22 @@
 								<descriptor>src/main/assembly/zip.xml</descriptor>
 							</descriptors>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>${dependency-check-maven.version}</version>
+				<configuration>
+					<failBuildOnCVSS>8</failBuildOnCVSS>
+					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -121,7 +135,7 @@
 			<version>${owner.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.dv8tion</groupId>
+			<groupId>com.github.discord-jda</groupId>
 			<artifactId>JDA</artifactId>
 			<version>${jda.version}</version>
 		</dependency>
@@ -164,7 +178,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-inline</artifactId>
-			<version>${mockito.version}</version>
+			<version>${mockito-inline.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
