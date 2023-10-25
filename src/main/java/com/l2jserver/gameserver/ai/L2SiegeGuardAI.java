@@ -138,17 +138,17 @@ public class L2SiegeGuardAI extends L2CharacterAI implements Runnable {
 		}
 		
 		// Get the owner if the target is a summon
-		if (target instanceof L2Summon) {
-			L2PcInstance owner = ((L2Summon) target).getOwner();
+		if (target instanceof L2Summon summon) {
+			L2PcInstance owner = summon.getOwner();
 			if (_actor.isInsideRadius(owner, 1000, true, false)) {
 				target = owner;
 			}
 		}
 		
 		// Check if the target is a L2PcInstance
-		if (target instanceof L2Playable) {
+		if (target instanceof L2Playable playable) {
 			// Check if the target isn't in silent move mode AND too far (>100)
-			if (((L2Playable) target).isSilentMovingAffected() && !_actor.isInsideRadius(target, 250, false, false)) {
+			if (playable.isSilentMovingAffected() && !_actor.isInsideRadius(target, 250, false, false)) {
 				return false;
 			}
 		}
@@ -345,8 +345,9 @@ public class L2SiegeGuardAI extends L2CharacterAI implements Runnable {
 	
 	private void factionNotifyAndSupport() {
 		L2Character target = getAttackTarget();
+		final var siegeGuard = (L2Npc) _actor;
 		// Call all L2Object of its Faction inside the Faction Range
-		if ((((L2Npc) _actor).getTemplate().getClans() == null) || (target == null)) {
+		if ((siegeGuard.getTemplate().getClans() == null) || (target == null)) {
 			return;
 		}
 		
@@ -355,14 +356,13 @@ public class L2SiegeGuardAI extends L2CharacterAI implements Runnable {
 		}
 		
 		// Go through all L2Character that belong to its faction
-		// for (L2Character cha : _actor.getKnownList().getKnownCharactersInRadius(((L2NpcInstance) _actor).getFactionRange()+_actor.getTemplate().collisionRadius))
-		for (L2Character cha : _actor.getKnownList().getKnownCharactersInRadius(1000)) {
+		for (var cha : _actor.getKnownList().getKnownCharactersInRadius(1000)) {
 			if (cha == null) {
 				continue;
 			}
 			
-			if (!(cha instanceof L2Npc)) {
-				if (_selfAnalysis.hasHealOrResurrect && (cha instanceof L2PcInstance) && (((L2Npc) _actor).getCastle().getSiege().checkIsDefender(cha.getClan()))) {
+			if (!(cha instanceof L2Npc npc)) {
+				if (_selfAnalysis.hasHealOrResurrect && (cha instanceof L2PcInstance) && (siegeGuard.getCastle().getSiege().checkIsDefender(cha.getClan()))) {
 					// heal friends
 					if (!_actor.isAttackingDisabled() && (cha.getCurrentHp() < (cha.getMaxHp() * 0.6)) && (_actor.getCurrentHp() > (_actor.getMaxHp() / 2.0)) && (_actor.getCurrentMp() > (_actor.getMaxMp() / 2.0)) && cha.isInCombat()) {
 						for (Skill sk : _selfAnalysis.healSkills) {
@@ -396,9 +396,7 @@ public class L2SiegeGuardAI extends L2CharacterAI implements Runnable {
 				continue;
 			}
 			
-			L2Npc npc = (L2Npc) cha;
-			
-			if (!npc.isInMyClan((L2Npc) _actor)) {
+			if (!npc.isInMyClan(siegeGuard)) {
 				continue;
 			}
 			

@@ -145,17 +145,17 @@ public class L2PetData {
 		final int currentStep = (int) Math.floor((pet.getLevel() / 5.) - 11);
 		
 		return IntStream.rangeClosed(0, currentStep)
-				.map(i -> currentStep - i)
-				.mapToObj(step -> IntStream.iterate(1, i -> i + 1)
-						.mapToObj(skillNum -> parameters.getObject("step" + step + "_skill0" + skillNum, SkillHolder.class))
-						.takeWhile(Objects::nonNull)
-						.filter(skill -> skill.getSkillId() == skillId)
-						.findFirst())
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.mapToInt(SkillHolder::getSkillLvl)
-				.findFirst()
-				.orElse(0);
+			.map(i -> currentStep - i)
+			.mapToObj(step -> IntStream.iterate(1, i -> i + 1)
+				.mapToObj(skillNum -> parameters.getObject("step" + step + "_skill0" + skillNum, SkillHolder.class))
+				.takeWhile(Objects::nonNull)
+				.filter(skill -> skill.getSkillId() == skillId)
+				.findFirst())
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.mapToInt(SkillHolder::getSkillLvl)
+			.findFirst()
+			.orElse(0);
 	}
 	
 	/**

@@ -112,7 +112,7 @@ public interface RatesConfiguration extends Reloadable {
 	
 	@Key("QuestDropChanceMultiplier")
 	Float getQuestDropChanceMultiplier();
-
+	
 	@Key("QuestDropAmountMultiplier")
 	Float getQuestDropAmountMultiplier();
 	

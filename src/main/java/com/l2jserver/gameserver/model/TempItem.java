@@ -33,7 +33,6 @@ public final class TempItem {
 	private final String _itemName;
 	
 	public TempItem(L2ItemInstance item, int quantity) {
-		super();
 		_itemId = item.getId();
 		_quantity = quantity;
 		_itemName = item.getItem().getName();

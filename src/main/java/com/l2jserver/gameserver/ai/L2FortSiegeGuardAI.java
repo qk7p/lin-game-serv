@@ -153,9 +153,9 @@ public class L2FortSiegeGuardAI extends L2CharacterAI implements Runnable {
 		}
 		
 		// Check if the target is a L2PcInstance
-		if (target instanceof L2Playable) {
+		if (target instanceof L2Playable playable) {
 			// Check if the target isn't in silent move mode AND too far (>100)
-			if (((L2Playable) target).isSilentMovingAffected() && !_actor.isInsideRadius(target, 250, false, false)) {
+			if (playable.isSilentMovingAffected() && !_actor.isInsideRadius(target, 250, false, false)) {
 				return false;
 			}
 		}
@@ -298,8 +298,8 @@ public class L2FortSiegeGuardAI extends L2CharacterAI implements Runnable {
 		}
 		// Order to the L2SiegeGuardInstance to return to its home location because there's no target to attack
 		if (_actor.getWalkSpeed() >= 0) {
-			if (_actor instanceof L2DefenderInstance) {
-				((L2DefenderInstance) _actor).returnHome();
+			if (_actor instanceof L2DefenderInstance defender) {
+				defender.returnHome();
 			} else {
 				((L2FortCommanderInstance) _actor).returnHome();
 			}
@@ -373,7 +373,7 @@ public class L2FortSiegeGuardAI extends L2CharacterAI implements Runnable {
 				continue;
 			}
 			
-			if (!(cha instanceof L2Npc)) {
+			if (!(cha instanceof L2Npc npc)) {
 				if (_selfAnalysis.hasHealOrResurrect && (cha instanceof L2PcInstance) && ((L2Npc) _actor).getFort().getSiege().checkIsDefender(cha.getClan())) {
 					// heal friends
 					if (!_actor.isAttackingDisabled() && (cha.getCurrentHp() < (cha.getMaxHp() * 0.6)) && (_actor.getCurrentHp() > (_actor.getMaxHp() / 2.0)) && (_actor.getCurrentMp() > (_actor.getMaxMp() / 2.0)) && cha.isInCombat()) {
@@ -396,19 +396,17 @@ public class L2FortSiegeGuardAI extends L2CharacterAI implements Runnable {
 								break;
 							}
 							
-							L2Object OldTarget = _actor.getTarget();
+							L2Object oldTarget = _actor.getTarget();
 							_actor.setTarget(cha);
 							clientStopMoving(null);
 							_actor.doCast(sk);
-							_actor.setTarget(OldTarget);
+							_actor.setTarget(oldTarget);
 							return;
 						}
 					}
 				}
 				continue;
 			}
-			
-			L2Npc npc = (L2Npc) cha;
 			
 			if (!npc.isInMyClan((L2Npc) _actor)) {
 				continue;

@@ -33,7 +33,7 @@ public class ItemHolderConverterTest {
 	private static final ItemHolderConverter CONVERTER = new ItemHolderConverter();
 	
 	@ParameterizedTest
-    @MethodSource("provideItems")
+	@MethodSource("provideItems")
 	public void convertTest(String input, int id, long count) {
 		final var result = CONVERTER.convert(null, input);
 		assertEquals(result.getId(), id);

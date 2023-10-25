@@ -101,10 +101,9 @@ public final class L2Radar {
 			if (this == obj) {
 				return true;
 			}
-			if (!(obj instanceof RadarMarker)) {
+			if (!(obj instanceof RadarMarker other)) {
 				return false;
 			}
-			final RadarMarker other = (RadarMarker) obj;
 			return (_type == other._type) && (_x == other._x) && (_y == other._y) && (_z == other._z);
 		}
 	}

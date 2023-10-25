@@ -63,7 +63,7 @@ public abstract class ExCleftState extends AbstractExCleftPacket {
 			super.writeImpl();
 			
 			writeRemainingAndTeamPoints(_match);
-
+			
 			writeD(_match.getBlueTeam().getCombatAerialTarget().getId());
 			writeD(_match.getRedTeam().getCombatAerialTarget().getId());
 			writeS(_match.getBlueTeam().getCombatAerialTarget().getName());
@@ -185,7 +185,7 @@ public abstract class ExCleftState extends AbstractExCleftPacket {
 	
 	private ExCleftState(CleftStateUpdate state) {
 		Objects.requireNonNull(state);
-
+		
 		_state = state;
 	}
 	
@@ -205,7 +205,7 @@ public abstract class ExCleftState extends AbstractExCleftPacket {
 	
 	protected void writeParticipantPerformance(CleftParticipant participant) {
 		Objects.requireNonNull(participant);
-
+		
 		writeD(participant.getPlayer().getObjectId());
 		writeD(participant.getKills());
 		writeD(participant.getDeaths());

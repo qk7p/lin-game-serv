@@ -267,10 +267,9 @@ public final class RequestBypassToServer extends L2GameClientPacket {
 		if (obj == null) {
 			return;
 		}
-		if (obj instanceof L2Npc) {
-			L2Npc temp = (L2Npc) obj;
-			temp.setTarget(activeChar);
-			temp.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, activeChar.getLocation());
+		if (obj instanceof L2Npc npc) {
+			npc.setTarget(activeChar);
+			npc.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, activeChar.getLocation());
 		}
 	}
 	

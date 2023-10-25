@@ -39,7 +39,7 @@ public class MapIntegerFloatConverter implements Converter<Map<Integer, Float>> 
 			return map;
 		}
 		
-		final var tokens = input.replaceAll(" ", "").split(";");
+		final var tokens = input.replace(" ", "").split(";");
 		for (var token : tokens) {
 			final var splitToken = token.split(",");
 			map.put(Integer.valueOf(splitToken[0]), Float.valueOf(splitToken[1]));

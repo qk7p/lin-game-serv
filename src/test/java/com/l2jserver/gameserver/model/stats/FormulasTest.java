@@ -77,9 +77,9 @@ public class FormulasTest {
 		
 		assertEquals(HP_REGENERATE_PERIOD_DOOR, Formulas.getRegeneratePeriod(character));
 	}
-
+	
 	@ParameterizedTest
-    @MethodSource("provide")
+	@MethodSource("provide")
 	public void test_calculate_cast_time(int hitTime, boolean isChanneling, int channelingSkillId, boolean isStatic, boolean isMagic, //
 		int mAtkSpeed, double pAtkSpeed, boolean isChargedSpiritshots, boolean isChargedBlessedSpiritShots, double expected) {
 		lenient().when(character.getMAtkSpd()).thenReturn(mAtkSpeed);

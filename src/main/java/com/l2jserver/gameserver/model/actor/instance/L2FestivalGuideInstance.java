@@ -147,13 +147,14 @@ public final class L2FestivalGuideInstance extends L2Npc {
 	}
 	
 	public void showChatWindow(L2PcInstance player, int val, String suffix, boolean isDescription) {
-		String filename = SevenSigns.SEVEN_SIGNS_HTML_PATH + "festival/";
-		filename += (isDescription) ? "desc_" : "festival_";
-		filename += (suffix != null) ? val + suffix + ".htm" : val + ".htm";
+		final var filename = new StringBuilder(SevenSigns.SEVEN_SIGNS_HTML_PATH)
+			.append("festival/")
+			.append((isDescription) ? "desc_" : "festival_")
+			.append((suffix != null) ? val + suffix + ".htm" : val + ".htm");
 		
 		// Send a Server->Client NpcHtmlMessage containing the text of the L2NpcInstance to the L2PcInstance
 		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		html.setFile(player.getHtmlPrefix(), filename);
+		html.setFile(player.getHtmlPrefix(), filename.toString());
 		html.replace("%objectId%", String.valueOf(getObjectId()));
 		html.replace("%festivalType%", SevenSignsFestival.getFestivalName(_festivalType));
 		html.replace("%cycleMins%", String.valueOf(SevenSignsFestival.getInstance().getMinsToNextCycle()));

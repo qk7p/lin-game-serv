@@ -76,13 +76,11 @@ public class L2FestivalMonsterInstance extends L2MonsterInstance {
 	 */
 	@Override
 	public void doItemDrop(L2Character lastAttacker) {
-		if (!(lastAttacker instanceof L2PcInstance)) {
+		if (!(lastAttacker instanceof L2PcInstance killingChar)) {
 			return;
 		}
 		
-		final var killingChar = (L2PcInstance) lastAttacker;
 		L2Party associatedParty = killingChar.getParty();
-		
 		if (associatedParty == null) {
 			return;
 		}

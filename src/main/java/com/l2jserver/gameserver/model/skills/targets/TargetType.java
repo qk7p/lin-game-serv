@@ -162,8 +162,8 @@ public enum TargetType {
 				final var duel = DuelManager.getInstance().getDuel(player.getDuelId());
 				final var teamA = duel.getTeamA();
 				final var teamB = duel.getTeamB();
-				if (teamA.contains(player) && teamB.contains(targetPlayer) || //
-				teamB.contains(player) && teamA.contains(targetPlayer)) {
+				if ((teamA.contains(player) && teamB.contains(targetPlayer)) || //
+					(teamB.contains(player) && teamA.contains(targetPlayer))) {
 					return target;
 				}
 				player.sendPacket(INCORRECT_TARGET);
@@ -213,7 +213,7 @@ public enum TargetType {
 			}
 			
 			// Cannot PvP.
-			if (!player.checkIfPvP(targetCreature) && (target.isPlayable() && target.getActingPlayer().getKarma() == 0)) {
+			if (!player.checkIfPvP(targetCreature) && (target.isPlayable() && (target.getActingPlayer().getKarma() == 0))) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
@@ -305,7 +305,7 @@ public enum TargetType {
 	OTHERS {
 		@Override
 		public L2Object getTarget(Skill skill, L2Character caster, L2Object target) {
-			if ((target == null) || target == caster) {
+			if ((target == null) || (target == caster)) {
 				caster.sendPacket(CANNOT_USE_ON_YOURSELF);
 				return null;
 			}
@@ -337,7 +337,7 @@ public enum TargetType {
 			if (!caster.hasServitor()) {
 				return null;
 			}
-
+			
 			return caster.getSummon();
 		}
 	},
@@ -401,7 +401,7 @@ public enum TargetType {
 		}
 		return skill.getAffectScope().affectTargets(caster, actualTarget, skill);
 	}
-
+	
 	private static final SkillUseHolder getCurrentPlayableSkill(L2Character caster) {
 		if (caster.isSummon()) {
 			return caster.getActingPlayer().getCurrentPetSkill();

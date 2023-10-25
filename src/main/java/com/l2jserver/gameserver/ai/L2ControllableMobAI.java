@@ -245,11 +245,9 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 			if (((L2Npc) _actor).getTemplate().getClans() != null) {
 				Collection<L2Object> objs = _actor.getKnownList().getKnownObjects().values();
 				for (L2Object obj : objs) {
-					if (!(obj instanceof L2Npc)) {
+					if (!(obj instanceof L2Npc npc)) {
 						continue;
 					}
-					
-					L2Npc npc = (L2Npc) obj;
 					
 					if (!npc.isInMyClan((L2Npc) _actor)) {
 						continue;

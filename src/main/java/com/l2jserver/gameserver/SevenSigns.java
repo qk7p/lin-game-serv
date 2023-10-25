@@ -916,7 +916,6 @@ public class SevenSigns {
 	 * Used to add the specified player's seal stone contribution points to the current total for their cabal.<br>
 	 * Returns the point score the contribution was worth.<br>
 	 * Each stone count <B>must be</B> broken down and specified by the stone's color.
-	 * @param objectId
 	 * @param blueCount
 	 * @param greenCount
 	 * @param redCount

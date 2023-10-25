@@ -37,7 +37,7 @@ public class FileConverter implements Converter<File> {
 	@Override
 	public File convert(Method method, String input) {
 		try {
-			return new File(input.replaceAll("\\\\", "/")).getCanonicalFile();
+			return new File(input.replace('\\', '/')).getCanonicalFile();
 		} catch (Exception ex) {
 			LOG.warn("Error setting script root!", ex);
 			return new File(".");

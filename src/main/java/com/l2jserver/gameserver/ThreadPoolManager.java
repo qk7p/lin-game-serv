@@ -517,8 +517,7 @@ public class ThreadPoolManager {
 	public String getPacketStats() {
 		final StringBuilder sb = new StringBuilder(1000);
 		ThreadFactory tf = _generalPacketsThreadPool.getThreadFactory();
-		if (tf instanceof PriorityThreadFactory) {
-			PriorityThreadFactory ptf = (PriorityThreadFactory) tf;
+		if (tf instanceof PriorityThreadFactory ptf) {
 			int count = ptf.getGroup().activeCount();
 			Thread[] threads = new Thread[count + 2];
 			ptf.getGroup().enumerate(threads);
@@ -545,8 +544,7 @@ public class ThreadPoolManager {
 		final StringBuilder sb = new StringBuilder(1000);
 		ThreadFactory tf = _ioPacketsThreadPool.getThreadFactory();
 		
-		if (tf instanceof PriorityThreadFactory) {
-			PriorityThreadFactory ptf = (PriorityThreadFactory) tf;
+		if (tf instanceof PriorityThreadFactory ptf) {
 			int count = ptf.getGroup().activeCount();
 			Thread[] threads = new Thread[count + 2];
 			ptf.getGroup().enumerate(threads);
@@ -575,8 +573,7 @@ public class ThreadPoolManager {
 		final StringBuilder sb = new StringBuilder(1000);
 		ThreadFactory tf = _generalThreadPool.getThreadFactory();
 		
-		if (tf instanceof PriorityThreadFactory) {
-			PriorityThreadFactory ptf = (PriorityThreadFactory) tf;
+		if (tf instanceof PriorityThreadFactory ptf) {
 			int count = ptf.getGroup().activeCount();
 			Thread[] threads = new Thread[count + 2];
 			ptf.getGroup().enumerate(threads);

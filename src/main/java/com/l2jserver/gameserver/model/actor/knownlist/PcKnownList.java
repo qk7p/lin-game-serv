@@ -78,9 +78,8 @@ public class PcKnownList extends PlayableKnownList {
 			if (object.isVisibleFor(getActiveChar())) {
 				object.sendInfo(getActiveChar());
 				
-				if (object instanceof L2Character) {
+				if (object instanceof L2Character obj) {
 					// Update the state of the L2Character object client side by sending Server->Client packet MoveToPawn/CharMoveToLocation and AutoAttackStart to the L2PcInstance
-					final L2Character obj = (L2Character) object;
 					if (obj.hasAI()) {
 						obj.getAI().describeStateToPlayer(getActiveChar());
 					}
@@ -102,12 +101,12 @@ public class PcKnownList extends PlayableKnownList {
 			return false;
 		}
 		
-		if (object instanceof L2AirShipInstance) {
-			if ((((L2AirShipInstance) object).getCaptainId() != 0) && (((L2AirShipInstance) object).getCaptainId() != getActiveChar().getObjectId())) {
-				getActiveChar().sendPacket(new DeleteObject(((L2AirShipInstance) object).getCaptainId()));
+		if (object instanceof L2AirShipInstance airShip) {
+			if ((airShip.getCaptainId() != 0) && (airShip.getCaptainId() != getActiveChar().getObjectId())) {
+				getActiveChar().sendPacket(new DeleteObject(airShip.getCaptainId()));
 			}
-			if (((L2AirShipInstance) object).getHelmObjectId() != 0) {
-				getActiveChar().sendPacket(new DeleteObject(((L2AirShipInstance) object).getHelmObjectId()));
+			if (airShip.getHelmObjectId() != 0) {
+				getActiveChar().sendPacket(new DeleteObject(airShip.getHelmObjectId()));
 			}
 		}
 		

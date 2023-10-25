@@ -142,7 +142,7 @@ public final class L2CubicInstance implements IIdentifiable {
 				_skills.add(SkillData.getInstance().getSkill(5115, 4));
 			}
 		}
-		_disappearTask = ThreadPoolManager.getInstance().scheduleGeneral(new CubicDisappear(this), cubicDuration * 1000); // disappear
+		_disappearTask = ThreadPoolManager.getInstance().scheduleGeneral(new CubicDisappear(this), cubicDuration * 1000);
 	}
 	
 	public synchronized void doAction() {
@@ -152,7 +152,10 @@ public final class L2CubicInstance implements IIdentifiable {
 		_active = true;
 		
 		switch (_cubicId) {
-			case AQUA_CUBIC, BINDING_CUBIC, SPARK_CUBIC, STORM_CUBIC, POLTERGEIST_CUBIC, VAMPIRIC_CUBIC, VIPER_CUBIC, ATTRACT_CUBIC, SMART_CUBIC_ARCANALORD, SMART_CUBIC_ELEMENTALMASTER, SMART_CUBIC_SPECTRALMASTER, SMART_CUBIC_EVATEMPLAR, SMART_CUBIC_SHILLIENTEMPLAR -> _actionTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new CubicAction(this, _cubicSkillChance), 0, _cubicDelay);
+			case AQUA_CUBIC, BINDING_CUBIC, SPARK_CUBIC, STORM_CUBIC, POLTERGEIST_CUBIC, VAMPIRIC_CUBIC, VIPER_CUBIC, //
+				ATTRACT_CUBIC, SMART_CUBIC_ARCANALORD, SMART_CUBIC_ELEMENTALMASTER, SMART_CUBIC_SPECTRALMASTER, SMART_CUBIC_EVATEMPLAR, //
+				SMART_CUBIC_SHILLIENTEMPLAR -> _actionTask = ThreadPoolManager.getInstance()
+					.scheduleEffectAtFixedRate(new CubicAction(this, _cubicSkillChance), 0, _cubicDelay);
 			case LIFE_CUBIC -> _actionTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new CubicHeal(this), 0, _cubicDelay);
 		}
 	}
@@ -364,7 +367,7 @@ public final class L2CubicInstance implements IIdentifiable {
 			if ((object == null) || !object.isCharacter()) {
 				continue;
 			}
-
+			
 			final var target = (L2Character) object;
 			if (target.isDead()) {
 				continue;

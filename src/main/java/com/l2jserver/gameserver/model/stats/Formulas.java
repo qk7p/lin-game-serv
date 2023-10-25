@@ -205,54 +205,52 @@ public final class Formulas {
 	 * @param player the player
 	 */
 	public static void addFuncsToNewPlayer(L2PcInstance player) {
-		player.addStatFuncs(List.of(
-				FuncMaxHpMul.getInstance(),
-				FuncMaxCpMul.getInstance(),
-				FuncMaxMpMul.getInstance(),
-				FuncPAtkMod.getInstance(),
-				FuncMAtkMod.getInstance(),
-				FuncPDefMod.getInstance(),
-				FuncMDefMod.getInstance(),
-				FuncAtkCritical.getInstance(),
-				FuncMAtkCritical.getInstance(),
-				FuncAtkAccuracy.getInstance(),
-				FuncAtkEvasion.getInstance(),
-				FuncPAtkSpeed.getInstance(),
-				FuncMAtkSpeed.getInstance(),
-				FuncMoveSpeed.getInstance(),
-
-				FuncHenna.getInstance(STAT_STR),
-				FuncHenna.getInstance(STAT_DEX),
-				FuncHenna.getInstance(STAT_INT),
-				FuncHenna.getInstance(STAT_MEN),
-				FuncHenna.getInstance(STAT_CON),
-				FuncHenna.getInstance(STAT_WIT),
-
-				FuncArmorSet.getInstance(STAT_STR),
-				FuncArmorSet.getInstance(STAT_DEX),
-				FuncArmorSet.getInstance(STAT_INT),
-				FuncArmorSet.getInstance(STAT_MEN),
-				FuncArmorSet.getInstance(STAT_CON),
-				FuncArmorSet.getInstance(STAT_WIT)
-		));
+		player.addStatFuncs(List.of( //
+			FuncMaxHpMul.getInstance(), //
+			FuncMaxCpMul.getInstance(), //
+			FuncMaxMpMul.getInstance(), //
+			FuncPAtkMod.getInstance(), //
+			FuncMAtkMod.getInstance(), //
+			FuncPDefMod.getInstance(), //
+			FuncMDefMod.getInstance(), //
+			FuncAtkCritical.getInstance(), //
+			FuncMAtkCritical.getInstance(), //
+			FuncAtkAccuracy.getInstance(), //
+			FuncAtkEvasion.getInstance(), //
+			FuncPAtkSpeed.getInstance(), //
+			FuncMAtkSpeed.getInstance(), //
+			FuncMoveSpeed.getInstance(), //
+			
+			FuncHenna.getInstance(STAT_STR), //
+			FuncHenna.getInstance(STAT_DEX), //
+			FuncHenna.getInstance(STAT_INT), //
+			FuncHenna.getInstance(STAT_MEN), //
+			FuncHenna.getInstance(STAT_CON), //
+			FuncHenna.getInstance(STAT_WIT), //
+			
+			FuncArmorSet.getInstance(STAT_STR), //
+			FuncArmorSet.getInstance(STAT_DEX), //
+			FuncArmorSet.getInstance(STAT_INT), //
+			FuncArmorSet.getInstance(STAT_MEN), //
+			FuncArmorSet.getInstance(STAT_CON), //
+			FuncArmorSet.getInstance(STAT_WIT)));
 	}
 	
 	public static void addFuncsToNewSummon(L2Summon summon) {
-		summon.addStatFuncs(List.of(
-				FuncMaxHpMul.getInstance(),
-				FuncMaxMpMul.getInstance(),
-				FuncPAtkMod.getInstance(),
-				FuncMAtkMod.getInstance(),
-				FuncPDefMod.getInstance(),
-				FuncMDefMod.getInstance(),
-				FuncAtkCritical.getInstance(),
-				FuncMAtkCritical.getInstance(),
-				FuncAtkAccuracy.getInstance(),
-				FuncAtkEvasion.getInstance(),
-				FuncMoveSpeed.getInstance(),
-				FuncPAtkSpeed.getInstance(),
-				FuncMAtkSpeed.getInstance()
-		));
+		summon.addStatFuncs(List.of( //
+			FuncMaxHpMul.getInstance(), //
+			FuncMaxMpMul.getInstance(), //
+			FuncPAtkMod.getInstance(), //
+			FuncMAtkMod.getInstance(), //
+			FuncPDefMod.getInstance(), //
+			FuncMDefMod.getInstance(), //
+			FuncAtkCritical.getInstance(), //
+			FuncMAtkCritical.getInstance(), //
+			FuncAtkAccuracy.getInstance(), //
+			FuncAtkEvasion.getInstance(), //
+			FuncMoveSpeed.getInstance(), //
+			FuncPAtkSpeed.getInstance(), //
+			FuncMAtkSpeed.getInstance()));
 	}
 	
 	/**
@@ -819,7 +817,7 @@ public final class Formulas {
 				if (shieldDefensePercentage <= 0) {
 					mDef += target.getShldDef();
 				} else {
-					mDef += target.getShldDef() * shieldDefensePercentage / 100.0;
+					mDef += (target.getShldDef() * shieldDefensePercentage) / 100.0;
 				}
 			}
 			case SHIELD_DEFENSE_PERFECT_BLOCK -> {

@@ -53,8 +53,6 @@ public class BitSetIDFactory extends IdFactory {
 	}
 	
 	protected BitSetIDFactory() {
-		super();
-		
 		synchronized (BitSetIDFactory.class) {
 			ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new BitSetCapacityCheck(), 30000, 30000);
 			initialize();

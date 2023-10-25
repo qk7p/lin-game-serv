@@ -50,50 +50,50 @@ import com.l2jserver.gameserver.model.quest.QuestDroplist.QuestDropInfo;
  */
 @ExtendWith(MockitoExtension.class)
 public class AbstractScriptTest {
-
-    @Mock
-    private L2PcInstance player;
-    @Mock
-    private PcInventory inventory;
-    @Mock
-    private L2ItemInstance item;
-    @Mock
-    private L2Npc npc;
-    @Mock
-    private IDropItem dropItem;
-
-    @Test
-    public void shouldReturnTrueIfQuestItemsAtLimit() {
-        QuestItemChanceHolder questItem = new QuestItemChanceHolder(1, 10L);
-
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(1), anyInt())).thenReturn(10L);
-
-        boolean result = AbstractScript.hasItemsAtLimit(player, questItem);
-
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseIfQuestItemsNotAtLimit() {
-        QuestItemChanceHolder questItem = new QuestItemChanceHolder(1, 10L);
-
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(1), anyInt())).thenReturn(5L);
-
-        boolean result = AbstractScript.hasItemsAtLimit(player, questItem);
-
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    public void shouldReturnFalseIfDropItemIsNull() {
-        boolean result = AbstractScript.giveItemRandomly(player, npc, player, null, 0L, true);
-
-        assertThat(result).isFalse();
-    }
-
-    @Test
+	
+	@Mock
+	private L2PcInstance player;
+	@Mock
+	private PcInventory inventory;
+	@Mock
+	private L2ItemInstance item;
+	@Mock
+	private L2Npc npc;
+	@Mock
+	private IDropItem dropItem;
+	
+	@Test
+	public void shouldReturnTrueIfQuestItemsAtLimit() {
+		QuestItemChanceHolder questItem = new QuestItemChanceHolder(1, 10L);
+		
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(1), anyInt())).thenReturn(10L);
+		
+		boolean result = AbstractScript.hasItemsAtLimit(player, questItem);
+		
+		assertThat(result).isTrue();
+	}
+	
+	@Test
+	public void shouldReturnFalseIfQuestItemsNotAtLimit() {
+		QuestItemChanceHolder questItem = new QuestItemChanceHolder(1, 10L);
+		
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(1), anyInt())).thenReturn(5L);
+		
+		boolean result = AbstractScript.hasItemsAtLimit(player, questItem);
+		
+		assertThat(result).isFalse();
+	}
+	
+	@Test
+	public void shouldReturnFalseIfDropItemIsNull() {
+		boolean result = AbstractScript.giveItemRandomly(player, npc, player, null, 0L, true);
+		
+		assertThat(result).isFalse();
+	}
+	
+	@Test
     public void shouldReturnFalseIfCalculateDropsResultIsNull() {
         when(dropItem.calculateDrops(any(), any())).thenReturn(null);
 
@@ -101,8 +101,8 @@ public class AbstractScriptTest {
 
         assertThat(result).isFalse();
     }
-
-    @Test
+	
+	@Test
     public void shouldReturnFalseIfCalculateDropsResultIsEmpty() {
         when(dropItem.calculateDrops(any(), any())).thenReturn(Collections.emptyList());
 
@@ -110,101 +110,101 @@ public class AbstractScriptTest {
 
         assertThat(result).isFalse();
     }
-
-    @Test
-    public void shouldReturnFalseIfPlayerHasNoInventoryCapacity() {
-        int itemId = 1;
-
-        when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
-        when(inventory.validateCapacityByItemId(itemId)).thenReturn(false);
-
-        boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 10L, true);
-
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    public void shouldAddItemsToPlayer() {
-        int itemId = 1;
-        long amount = 10L;
-
-        when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, amount)));
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(0L);
-        when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
-
-        AbstractScript.giveItemRandomly(player, npc, player, dropItem, 0L, true);
-
-        verify(player).addItem(any(), eq(itemId), eq(amount), any(), anyBoolean());
-    }
-
-    @Test
-    public void shouldCapItemsAmountAtLimit() {
-        int itemId = 1;
-
-        when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
-        when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
-
-        AbstractScript.giveItemRandomly(player, npc, player, dropItem, 10L, true);
-
-        verify(player).addItem(any(), eq(itemId), eq(5L), any(), anyBoolean());
-    }
-
-    @Test
-    public void shouldReturnTrueIfItemsGivenAndLimitReached() {
-        int itemId = 1;
-
-        when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
-        when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
-        when(player.addItem(any(), anyInt(), anyLong(), any(), anyBoolean())).thenReturn(item);
-
-        boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 10L, true);
-
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseIfItemsGivenAndLimitNotReached() {
-        int itemId = 1;
-
-        when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
-        when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
-        when(player.addItem(any(), anyInt(), anyLong(), any(), anyBoolean())).thenReturn(item);
-
-        boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 100L, true);
-
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    public void shouldReturnTrueIfItemsGivenAndNoLimit() {
-        int itemId = 1;
-
-        when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
-        when(player.getInventory()).thenReturn(inventory);
-        when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
-        when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
-        when(player.addItem(any(), anyInt(), anyLong(), any(), anyBoolean())).thenReturn(item);
-
-        boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 0L, true);
-
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseIfDropInfoIsNull() {
-        QuestDropInfo dropInfo = null;
-
-        boolean result = AbstractScript.giveItemRandomly(player, npc, dropInfo, true);
-
-        assertThat(result).isFalse();
-    }
+	
+	@Test
+	public void shouldReturnFalseIfPlayerHasNoInventoryCapacity() {
+		int itemId = 1;
+		
+		when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
+		when(inventory.validateCapacityByItemId(itemId)).thenReturn(false);
+		
+		boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 10L, true);
+		
+		assertThat(result).isFalse();
+	}
+	
+	@Test
+	public void shouldAddItemsToPlayer() {
+		int itemId = 1;
+		long amount = 10L;
+		
+		when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, amount)));
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(0L);
+		when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
+		
+		AbstractScript.giveItemRandomly(player, npc, player, dropItem, 0L, true);
+		
+		verify(player).addItem(any(), eq(itemId), eq(amount), any(), anyBoolean());
+	}
+	
+	@Test
+	public void shouldCapItemsAmountAtLimit() {
+		int itemId = 1;
+		
+		when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
+		when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
+		
+		AbstractScript.giveItemRandomly(player, npc, player, dropItem, 10L, true);
+		
+		verify(player).addItem(any(), eq(itemId), eq(5L), any(), anyBoolean());
+	}
+	
+	@Test
+	public void shouldReturnTrueIfItemsGivenAndLimitReached() {
+		int itemId = 1;
+		
+		when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
+		when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
+		when(player.addItem(any(), anyInt(), anyLong(), any(), anyBoolean())).thenReturn(item);
+		
+		boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 10L, true);
+		
+		assertThat(result).isTrue();
+	}
+	
+	@Test
+	public void shouldReturnFalseIfItemsGivenAndLimitNotReached() {
+		int itemId = 1;
+		
+		when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
+		when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
+		when(player.addItem(any(), anyInt(), anyLong(), any(), anyBoolean())).thenReturn(item);
+		
+		boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 100L, true);
+		
+		assertThat(result).isFalse();
+	}
+	
+	@Test
+	public void shouldReturnTrueIfItemsGivenAndNoLimit() {
+		int itemId = 1;
+		
+		when(dropItem.calculateDrops(any(), any())).thenReturn(List.of(new ItemHolder(itemId, 10L)));
+		when(player.getInventory()).thenReturn(inventory);
+		when(inventory.getInventoryItemCount(eq(itemId), anyInt())).thenReturn(5L);
+		when(inventory.validateCapacityByItemId(itemId)).thenReturn(true);
+		when(player.addItem(any(), anyInt(), anyLong(), any(), anyBoolean())).thenReturn(item);
+		
+		boolean result = AbstractScript.giveItemRandomly(player, npc, player, dropItem, 0L, true);
+		
+		assertThat(result).isTrue();
+	}
+	
+	@Test
+	public void shouldReturnFalseIfDropInfoIsNull() {
+		QuestDropInfo dropInfo = null;
+		
+		boolean result = AbstractScript.giveItemRandomly(player, npc, dropInfo, true);
+		
+		assertThat(result).isFalse();
+	}
 }

@@ -114,11 +114,11 @@ public final class DimensionalRiftManager {
 			LOG.warn("There was an error on loading Dimensional Rift rooms!", ex);
 		}
 		
-		int typeSize = _rooms.keySet().size();
+		int typeSize = _rooms.size();
 		int roomSize = 0;
 		
 		for (byte b : _rooms.keySet()) {
-			roomSize += _rooms.get(b).keySet().size();
+			roomSize += _rooms.get(b).size();
 		}
 		
 		LOG.info("Loaded {} room types with {} rooms.", typeSize, roomSize);

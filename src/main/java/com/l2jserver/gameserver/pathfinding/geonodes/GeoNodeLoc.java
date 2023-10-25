@@ -83,10 +83,9 @@ public class GeoNodeLoc extends AbstractNodeLoc {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof GeoNodeLoc)) {
+		if (!(obj instanceof GeoNodeLoc other)) {
 			return false;
 		}
-		final GeoNodeLoc other = (GeoNodeLoc) obj;
 		if (_x != other._x) {
 			return false;
 		}

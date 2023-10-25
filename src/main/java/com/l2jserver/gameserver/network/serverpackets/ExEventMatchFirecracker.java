@@ -30,7 +30,7 @@ public class ExEventMatchFirecracker extends L2GameServerPacket {
 	public ExEventMatchFirecracker(int objectId) {
 		_objectId = objectId;
 	}
-
+	
 	public ExEventMatchFirecracker(L2Object object) {
 		this(object.getObjectId());
 	}
@@ -39,7 +39,7 @@ public class ExEventMatchFirecracker extends L2GameServerPacket {
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0x05);
-
+		
 		writeD(_objectId);
 	}
 }

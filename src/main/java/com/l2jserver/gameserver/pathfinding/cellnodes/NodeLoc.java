@@ -137,10 +137,9 @@ public class NodeLoc extends AbstractNodeLoc {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof NodeLoc)) {
+		if (!(obj instanceof NodeLoc other)) {
 			return false;
 		}
-		final NodeLoc other = (NodeLoc) obj;
 		if (_x != other._x) {
 			return false;
 		}

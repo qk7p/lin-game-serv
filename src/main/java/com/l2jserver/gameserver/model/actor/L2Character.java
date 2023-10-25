@@ -1515,8 +1515,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		} else {
 			setIsCastingNow(true);
 			_castInterruptTime = (-200 / GameTimeController.MILLIS_IN_TICK) // 200ms converted to ticks
-					+ GameTimeController.getInstance().getGameTicks()
-					+ ((int) skillAnimTime / GameTimeController.MILLIS_IN_TICK);
+				+ GameTimeController.getInstance().getGameTicks() + ((int) skillAnimTime / GameTimeController.MILLIS_IN_TICK);
 			setLastSkillCast(skill);
 		}
 		
@@ -2945,7 +2944,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			broadcastModifiedStats(modifiedStats);
 		}
 	}
-
+	
 	public final void addStatFuncs(AbstractFunction function) {
 		addStatFuncs(List.of(function));
 	}
@@ -4526,7 +4525,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			int skipPeaceZone = 0;
 			final List<L2Object> targetList = new ArrayList<>();
 			for (L2Object target : targets) {
-				if (target instanceof L2Character) {
+				if (target instanceof L2Character creature) {
 					if (!isInsideRadius(target.getX(), target.getY(), target.getZ(), escapeRange + getTemplate().getCollisionRadius(), true, false)) {
 						skipRange++;
 						continue;
@@ -4541,12 +4540,12 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					
 					if (skill.isBad()) {
 						if (isPlayer()) {
-							if (((L2Character) target).isInsidePeaceZone(getActingPlayer())) {
+							if (creature.isInsidePeaceZone(getActingPlayer())) {
 								skipPeaceZone++;
 								continue;
 							}
 						} else {
-							if (((L2Character) target).isInsidePeaceZone(this, target)) {
+							if (creature.isInsidePeaceZone(this, target)) {
 								skipPeaceZone++;
 								continue;
 							}
@@ -4831,7 +4830,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			if (player != null) {
 				for (L2Object target : targets) {
 					// EVT_ATTACKED and PvPStatus
-					if (target instanceof L2Character) {
+					if (target instanceof L2Character creature) {
 						if (skill.getEffectPoint() <= 0) {
 							if (target.isPlayable() || target.isTrap()) {
 								// Casted on target_self but don't harm self
@@ -4839,7 +4838,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 									// Combat-mode check
 									if (target.isPlayer()) {
 										target.getActingPlayer().getAI().clientStartAutoAttack();
-									} else if (target.isSummon() && ((L2Character) target).hasAI()) {
+									} else if (target.isSummon() && creature.hasAI()) {
 										L2PcInstance owner = ((L2Summon) target).getOwner();
 										if (owner != null) {
 											owner.getAI().clientStartAutoAttack();
@@ -4849,7 +4848,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 									// attack of the own pet does not flag player
 									// triggering trap not flag trap owner
 									if ((player.getSummon() != target) && !isTrap() && skill.isBad()) {
-										player.updatePvPStatus((L2Character) target);
+										player.updatePvPStatus(creature);
 									}
 								}
 							} else if (target.isAttackable()) {
@@ -4859,12 +4858,12 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 										break;
 									default:
 										// add attacker into list
-										((L2Character) target).addAttackerToAttackByList(this);
+										creature.addAttackerToAttackByList(this);
 								}
 							}
 							// notify target AI about the attack
-							if (((L2Character) target).hasAI() && !skill.hasEffectType(L2EffectType.HATE)) {
-								((L2Character) target).getAI().notifyEvent(CtrlEvent.EVT_ATTACKED, this);
+							if (creature.hasAI() && !skill.hasEffectType(L2EffectType.HATE)) {
+								creature.getAI().notifyEvent(CtrlEvent.EVT_ATTACKED, this);
 							}
 						} else {
 							if (target.isPlayer()) {
@@ -4939,15 +4938,9 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	 */
 	public boolean isBehind(L2Object target) {
 		double angleChar, angleTarget, angleDiff, maxAngleDiff = 60;
-		
-		if (target == null) {
-			return false;
-		}
-		
-		if (target instanceof L2Character) {
-			L2Character target1 = (L2Character) target;
-			angleChar = Util.calculateAngleFrom(this, target1);
-			angleTarget = Util.convertHeadingToDegree(target1.getHeading());
+		if (target instanceof L2Character creature) {
+			angleChar = Util.calculateAngleFrom(this, creature);
+			angleTarget = Util.convertHeadingToDegree(creature.getHeading());
 			angleDiff = angleChar - angleTarget;
 			if (angleDiff <= (-360 + maxAngleDiff)) {
 				angleDiff += 360;
@@ -5011,8 +5004,8 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	
 	public boolean isInFrontOfTarget() {
 		L2Object target = getTarget();
-		if (target instanceof L2Character) {
-			return isInFrontOf((L2Character) target);
+		if (target instanceof L2Character creature) {
+			return isInFrontOf(creature);
 		}
 		return false;
 	}

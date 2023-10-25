@@ -39,7 +39,7 @@ public class MapIntegerIntegerConverter implements Converter<Map<Integer, Intege
 			return map;
 		}
 		
-		final var tokens = input.replaceAll(" ", "").split(";");
+		final var tokens = input.replace(" ", "").split(";");
 		for (var token : tokens) {
 			final var splitToken = token.split(",");
 			map.put(Integer.valueOf(splitToken[0]), Integer.valueOf(splitToken[1]));

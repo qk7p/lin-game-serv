@@ -38,7 +38,7 @@ public class ItemChanceHolderConverter implements Converter<ItemChanceHolder> {
 			return null;
 		}
 		
-		final var tokens = input.replaceAll(" ", "").split(",");
+		final var tokens = input.replace(" ", "").split(",");
 		return new ItemChanceHolder(Integer.parseInt(tokens[0]), Float.parseFloat(tokens[1]));
 	}
 }

@@ -36,32 +36,32 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
  */
 @ExtendWith(MockitoExtension.class)
 public class SummonStatTest {
-
-    @Mock
-    private L2Summon summon;
-    @Mock
-    private L2PcInstance player;
-    @Mock
-    private PcStat pcStat;
-
-    private SummonStat summonStat;
-
-    @BeforeEach
-    public void setUp() {
-        summonStat = new SummonStat(summon);
-
-        when(summon.getOwner()).thenReturn(player);
-        when(player.getStat()).thenReturn(pcStat);
-    }
-
-    @Test
-    public void shouldReturnOwnersMaxBuffCount() {
-        int maxBuffs = 24;
-
-        when(pcStat.getMaxBuffCount()).thenReturn(maxBuffs);
-
-        int result = summonStat.getMaxBuffCount();
-
-        assertThat(result).isEqualTo(maxBuffs);
-    }
+	
+	@Mock
+	private L2Summon summon;
+	@Mock
+	private L2PcInstance player;
+	@Mock
+	private PcStat pcStat;
+	
+	private SummonStat summonStat;
+	
+	@BeforeEach
+	public void setUp() {
+		summonStat = new SummonStat(summon);
+		
+		when(summon.getOwner()).thenReturn(player);
+		when(player.getStat()).thenReturn(pcStat);
+	}
+	
+	@Test
+	public void shouldReturnOwnersMaxBuffCount() {
+		int maxBuffs = 24;
+		
+		when(pcStat.getMaxBuffCount()).thenReturn(maxBuffs);
+		
+		int result = summonStat.getMaxBuffCount();
+		
+		assertThat(result).isEqualTo(maxBuffs);
+	}
 }

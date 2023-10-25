@@ -20,10 +20,8 @@ package com.l2jserver.gameserver.network.clientpackets;
 
 import static com.l2jserver.gameserver.config.Configuration.general;
 
-import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
-import com.l2jserver.gameserver.network.L2GameClient;
 import com.l2jserver.gameserver.network.serverpackets.ExRpItemLink;
 
 /**
@@ -40,19 +38,20 @@ public class RequestExRqItemLink extends L2GameClientPacket {
 	
 	@Override
 	protected void runImpl() {
-		L2GameClient client = getClient();
-		if (client != null) {
-			L2Object object = L2World.getInstance().findObject(_objectId);
-			if (object instanceof L2ItemInstance) {
-				L2ItemInstance item = (L2ItemInstance) object;
-				if (item.isPublished()) {
-					client.sendPacket(new ExRpItemLink(item));
-				} else {
-					if (general().debug()) {
-						_log.info(getClient() + " requested item link for item which wasn't published! ID:" + _objectId);
-					}
-				}
-			}
+		final var client = getClient();
+		if (client == null) {
+			return;
+		}
+		
+		final var object = L2World.getInstance().findObject(_objectId);
+		if (!(object instanceof L2ItemInstance item)) {
+			return;
+		}
+		
+		if (item.isPublished()) {
+			client.sendPacket(new ExRpItemLink(item));
+		} else if (general().debug()) {
+			_log.info(getClient() + " requested item link for item which wasn't published! ID:" + _objectId);
 		}
 	}
 	

@@ -236,11 +236,8 @@ public class Configuration {
 	}
 	
 	/**
-	 * Returns either the custom or default path of the config file.
-	 * <br><br>
-	 * When the L2J_HOME variable is defined, the custom path to the config
-	 * file is returned. If not, the default path to the config file is
-	 * returned.
+	 * Returns either the custom or default path of the config file.<br>
+	 * When the L2J_HOME variable is defined, the custom path to the config file is returned. If not, the default path to the config file is returned.
 	 * @param filename the filename
 	 * @return either the custom or default path to the config file
 	 */
@@ -249,7 +246,7 @@ public class Configuration {
 		if (l2jHome == null) {
 			return Path.of(getDefaultPath(filename));
 		}
-
+		
 		return Path.of(l2jHome, getCustomSubpath(filename));
 	}
 }

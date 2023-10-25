@@ -38,7 +38,7 @@ public class LocationConverter implements Converter<Location> {
 			return null;
 		}
 		
-		final var tokens = input.replaceAll(" ", "").split(",");
+		final var tokens = input.replace(" ", "").split(",");
 		final var location = new Location(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
 		if (tokens.length >= 4) {
 			location.setHeading(Integer.parseInt(tokens[3]));

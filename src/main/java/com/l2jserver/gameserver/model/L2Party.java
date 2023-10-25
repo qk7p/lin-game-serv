@@ -510,12 +510,11 @@ public class L2Party extends AbstractPlayerGroup {
 	private boolean isItemToEvenlyDistribute(int itemId) {
 		L2Item item = ItemTable.getInstance().getTemplate(itemId);
 		if (item != null) {
-			if ((character().getPartyEvenlyDistributeAllStackableItems() && item.isStackable()) ||
-				(character().getPartyEvenlyDistributeAllOtherItems() && !item.isStackable())) {
+			if ((character().getPartyEvenlyDistributeAllStackableItems() && item.isStackable()) || (character().getPartyEvenlyDistributeAllOtherItems() && !item.isStackable())) {
 				return true;
 			}
 		}
-
+		
 		return character().getPartyEvenlyDistributeItems().contains(itemId);
 	}
 	
@@ -613,7 +612,7 @@ public class L2Party extends AbstractPlayerGroup {
 				toReward.put(member, 0L);
 			}
 		}
-
+		
 		if (!toReward.isEmpty()) {
 			long leftOver = itemAmount % toReward.size();
 			final long count = itemAmount / toReward.size();
@@ -633,7 +632,7 @@ public class L2Party extends AbstractPlayerGroup {
 					toReward.compute(rndMember, (m, n) -> n + 1);
 				}
 			}
-
+			
 			for (var member : toReward.entrySet()) {
 				if (member.getValue() > 0) {
 					if (itemId == Inventory.ADENA_ID) {
@@ -697,7 +696,7 @@ public class L2Party extends AbstractPlayerGroup {
 					if (!member.isInsideZone(ZoneId.PEACE) && ((member.getLevel() - target.getLevel()) <= MAXIMUM_LEVEL_DIFFERENCE)) {
 						if (hunting().getNevitEnable()) {
 							member.getHuntingSystem().startHuntingSystemTask();
-							if (member.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
+							if ((member.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime()) || !hunting().getHuntingBonusLimit()) {
 								member.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
 							}
 						}

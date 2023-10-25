@@ -48,10 +48,7 @@ public final class GroupedGeneralDropItem implements IDropItem {
 	 * @param chance the chance of this drop item.
 	 */
 	public GroupedGeneralDropItem(double chance) {
-		this(chance,
-				general().preciseDropMultipleGroupRolls() ? IGroupedItemDropCalculationStrategy.PRECISE_MULTIPLE_GROUP_ROLLS : IGroupedItemDropCalculationStrategy.DEFAULT_STRATEGY,
-				IKillerChanceModifierStrategy.DEFAULT_STRATEGY,
-				IPreciseDeterminationStrategy.DEFAULT);
+		this(chance, general().preciseDropMultipleGroupRolls() ? IGroupedItemDropCalculationStrategy.PRECISE_MULTIPLE_GROUP_ROLLS : IGroupedItemDropCalculationStrategy.DEFAULT_STRATEGY, IKillerChanceModifierStrategy.DEFAULT_STRATEGY, IPreciseDeterminationStrategy.DEFAULT);
 	}
 	
 	/**

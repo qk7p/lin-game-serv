@@ -44,15 +44,14 @@ public class ExEventMatchMessage extends L2GameServerPacket {
 	public static final ExEventMatchMessage STATIC_3_PACKET = new ExEventMatchMessage(MessageType.STATIC_3);
 	public static final ExEventMatchMessage STATIC_4_PACKET = new ExEventMatchMessage(MessageType.STATIC_4);
 	public static final ExEventMatchMessage STATIC_5_PACKET = new ExEventMatchMessage(MessageType.STATIC_5);
-
+	
 	private final MessageType _type;
 	private final String _message;
 	
 	/**
 	 * @param message Text to display.
 	 */
-	public ExEventMatchMessage(String message)
-	{
+	public ExEventMatchMessage(String message) {
 		_type = MessageType.STRING;
 		_message = message;
 	}
@@ -66,7 +65,7 @@ public class ExEventMatchMessage extends L2GameServerPacket {
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0x0F);
-
+		
 		writeC(_type.ordinal());
 		if (_type == MessageType.STRING) {
 			writeS(_message);

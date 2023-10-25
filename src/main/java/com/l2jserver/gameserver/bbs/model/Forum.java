@@ -42,7 +42,7 @@ public final class Forum {
 		this.name = name;
 		this.id = id;
 		this.type = type;
-		this.post = 0;
+		post = 0;
 		this.visibility = visibility;
 		this.parent = parent;
 		this.ownerId = ownerId;

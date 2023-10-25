@@ -559,8 +559,7 @@ public abstract class AbstractAI implements Ctrl {
 	}
 	
 	public void setAutoAttacking(boolean isAutoAttacking) {
-		if (_actor instanceof L2Summon) {
-			L2Summon summon = (L2Summon) _actor;
+		if (_actor instanceof L2Summon summon) {
 			if (summon.getOwner() != null) {
 				summon.getOwner().getAI().setAutoAttacking(isAutoAttacking);
 			}
@@ -574,8 +573,7 @@ public abstract class AbstractAI implements Ctrl {
 	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : Low level function, used by AI subclasses</B></FONT>
 	 */
 	public void clientStartAutoAttack() {
-		if (_actor instanceof L2Summon) {
-			L2Summon summon = (L2Summon) _actor;
+		if (_actor instanceof L2Summon summon) {
 			if (summon.getOwner() != null) {
 				summon.getOwner().getAI().clientStartAutoAttack();
 			}
@@ -597,8 +595,7 @@ public abstract class AbstractAI implements Ctrl {
 	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : Low level function, used by AI subclasses</B></FONT>
 	 */
 	public void clientStopAutoAttack() {
-		if (_actor instanceof L2Summon) {
-			L2Summon summon = (L2Summon) _actor;
+		if (_actor instanceof L2Summon summon) {
 			if (summon.getOwner() != null) {
 				summon.getOwner().getAI().clientStopAutoAttack();
 			}

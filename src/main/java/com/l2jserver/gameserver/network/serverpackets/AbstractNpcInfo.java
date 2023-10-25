@@ -103,12 +103,12 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket {
 			}
 			
 			if (npc().showNpcLevel() && (_npc instanceof L2MonsterInstance)) {
-				String t = "Lv " + cha.getLevel() + (cha.isAggressive() ? "*" : "");
+				StringBuilder t = new StringBuilder("Lv ").append(cha.getLevel()).append(cha.isAggressive() ? "*" : "");
 				if (_title != null) {
-					t += " " + _title;
+					t.append(" ").append(_title);
 				}
 				
-				_title = t;
+				_title = t.toString();
 			}
 			
 			// npc crest of owning clan/ally of castle

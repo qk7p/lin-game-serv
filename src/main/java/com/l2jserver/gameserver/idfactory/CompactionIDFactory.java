@@ -41,7 +41,6 @@ public class CompactionIDFactory extends IdFactory {
 	private final int _freeSize;
 	
 	protected CompactionIDFactory() {
-		super();
 		_curOID = FIRST_OID;
 		_freeSize = 0;
 		

@@ -79,11 +79,9 @@ public final class ConditionSiegeZone extends Condition {
 	 * @return true, if successful
 	 */
 	public static boolean checkIfOk(L2Character activeChar, Castle castle, int value) {
-		if (!(activeChar instanceof L2PcInstance)) {
+		if (!(activeChar instanceof L2PcInstance player)) {
 			return false;
 		}
-		
-		L2PcInstance player = (L2PcInstance) activeChar;
 		
 		if (((castle == null) || (castle.getResidenceId() <= 0))) {
 			return (value & COND_NOT_ZONE) != 0;
@@ -106,11 +104,9 @@ public final class ConditionSiegeZone extends Condition {
 	 * @return true, if successful
 	 */
 	public static boolean checkIfOk(L2Character activeChar, Fort fort, int value) {
-		if (!(activeChar instanceof L2PcInstance)) {
+		if (!(activeChar instanceof L2PcInstance player)) {
 			return false;
 		}
-		
-		L2PcInstance player = (L2PcInstance) activeChar;
 		
 		if (((fort == null) || (fort.getResidenceId() <= 0))) {
 			return (value & COND_NOT_ZONE) != 0;

@@ -384,7 +384,7 @@ public class L2Npc extends L2Character {
 		if (aiAggroRange >= 0) {
 			return aiAggroRange;
 		}
-
+		
 		final int maxAggroRange = npc().getMaxAggroRange();
 		if (maxAggroRange > 0) {
 			return Math.min(getTemplate().getAggroRange(), maxAggroRange);
@@ -404,9 +404,9 @@ public class L2Npc extends L2Character {
 		return getTemplate().getRace() == Race.UNDEAD;
 	}
 	
-    public boolean isSevenNpc() {
-    	return getTemplate().isClan("C_DUNGEON") && !getTemplate().isClan("ALL");
-    }
+	public boolean isSevenNpc() {
+		return getTemplate().isClan("C_DUNGEON") && !getTemplate().isClan("ALL");
+	}
 	
 	/**
 	 * Send a packet NpcInfo with state of abnormal effect to all L2PcInstance in the _KnownPlayers of the L2NpcInstance.
@@ -1352,7 +1352,7 @@ public class L2Npc extends L2Character {
 	 * @return given AI parameter value
 	 */
 	public int getAIValue(final String paramName) {
-		if (getSpawn() == null || getSpawn().getName() == null) {
+		if ((getSpawn() == null) || (getSpawn().getName() == null)) {
 			return -1;
 		}
 		return NpcPersonalAIData.getInstance().getAIValue(getSpawn().getName(), paramName);

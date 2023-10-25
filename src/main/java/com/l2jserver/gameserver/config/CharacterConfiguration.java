@@ -516,10 +516,10 @@ public interface CharacterConfiguration extends Reloadable {
 	
 	@Key("PartyRange2")
 	Integer getPartyRange2();
-
+	
 	@Key("PartyEvenlyDistributeAllStackableItems")
 	Boolean getPartyEvenlyDistributeAllStackableItems();
-
+	
 	@Key("PartyEvenlyDistributeAllOtherItems")
 	Boolean getPartyEvenlyDistributeAllOtherItems();
 	

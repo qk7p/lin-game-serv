@@ -338,13 +338,13 @@ public final class Skill implements IIdentifiable {
 	}
 	
 	public boolean isAOE() {
-		return affectScope == AffectScope.FAN || //
-			affectScope == AffectScope.POINT_BLANK || //
-			affectScope == AffectScope.RANGE || //
-			affectScope == AffectScope.RANGE_SORT_BY_HP || //
-			affectScope == AffectScope.RING_RANGE || //
-			affectScope == AffectScope.SQUARE || //
-			affectScope == AffectScope.SQUARE_PB;
+		return (affectScope == AffectScope.FAN) ||
+			(affectScope == AffectScope.POINT_BLANK) ||
+			(affectScope == AffectScope.RANGE) ||
+			(affectScope == AffectScope.RANGE_SORT_BY_HP) ||
+			(affectScope == AffectScope.RING_RANGE) ||
+			(affectScope == AffectScope.SQUARE) ||
+			(affectScope == AffectScope.SQUARE_PB);
 	}
 	
 	public boolean isDamage() {

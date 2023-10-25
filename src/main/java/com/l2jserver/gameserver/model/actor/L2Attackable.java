@@ -260,9 +260,7 @@ public class L2Attackable extends L2Npc {
 		}
 		
 		// If this L2Attackable is a L2MonsterInstance and it has spawned minions, call its minions to battle
-		if (this instanceof L2MonsterInstance) {
-			L2MonsterInstance master = (L2MonsterInstance) this;
-			
+		if (this instanceof L2MonsterInstance master) {
 			if (master.hasMinions()) {
 				master.getMinionList().onAssist(this, attacker);
 			}
@@ -442,7 +440,7 @@ public class L2Attackable extends L2Npc {
 									if (!attacker.isInsideZone(ZoneId.PEACE) && ((attacker.getLevel() - getLevel()) <= 9)) {
 										if (hunting().getNevitEnable()) {
 											attacker.getHuntingSystem().startHuntingSystemTask();
-											if (attacker.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()) {
+											if ((attacker.getHuntingSystem().getHuntingBonusTime() < hunting().getHuntingBonusMaxTime()) || !hunting().getHuntingBonusLimit()) {
 												attacker.getHuntingSystem().addPoints(hunting().getNevitNormalPoints());
 											}
 										}
@@ -589,7 +587,7 @@ public class L2Attackable extends L2Npc {
 	 * @param aggro The hate (=damage) given by the attacker L2Character
 	 */
 	public void addDamageHate(L2Character attacker, int damage, long aggro) {
-		if (attacker == null || attacker == this) {
+		if ((attacker == null) || (attacker == this)) {
 			return;
 		}
 		
@@ -782,8 +780,7 @@ public class L2Attackable extends L2Npc {
 			return 0;
 		}
 		
-		if (ai.getAttacker() instanceof L2PcInstance) {
-			L2PcInstance act = (L2PcInstance) ai.getAttacker();
+		if (ai.getAttacker() instanceof L2PcInstance act) {
 			if (act.isInvisible() || ai.getAttacker().isInvul() || act.isSpawnProtected()) {
 				// Remove Object Should Use This Method and Can be Blocked While Interacting
 				_aggroList.remove(target);

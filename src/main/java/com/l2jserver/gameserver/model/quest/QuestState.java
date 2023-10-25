@@ -657,17 +657,17 @@ public final class QuestState {
 	public void giveItems(int itemId, long count, byte attributeId, int attributeLevel) {
 		AbstractScript.giveItems(_player, itemId, count, attributeId, attributeLevel);
 	}
-
+	
 	@Deprecated
 	public boolean giveItemRandomly(int itemId, long amount, long limit, double dropChance, boolean playSound) {
 		return AbstractScript.giveItemRandomly(_player, null, itemId, amount, limit, dropChance, playSound);
 	}
-
+	
 	@Deprecated
 	public boolean giveItemRandomly(L2Npc npc, int itemId, long amount, long limit, double dropChance, boolean playSound) {
 		return AbstractScript.giveItemRandomly(_player, npc, itemId, amount, limit, dropChance, playSound);
 	}
-
+	
 	@Deprecated
 	public boolean giveItemRandomly(L2Npc npc, int itemId, long minAmount, long maxAmount, long limit, double dropChance, boolean playSound) {
 		return AbstractScript.giveItemRandomly(_player, npc, itemId, minAmount, maxAmount, limit, dropChance, playSound);

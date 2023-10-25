@@ -44,7 +44,6 @@ public class StackIDFactory extends IdFactory {
 	private final Stack<Integer> _freeOIDStack = new Stack<>();
 	
 	protected StackIDFactory() {
-		super();
 		_curOID = FIRST_OID;
 		_tempOID = FIRST_OID;
 		

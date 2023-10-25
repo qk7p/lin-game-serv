@@ -659,7 +659,7 @@ public class L2Clan implements IIdentifiable, INamable {
 	 * @return {code true} if the player belongs to the clan.
 	 */
 	public boolean isMember(int id) {
-		return (id != 0 && _members.containsKey(id));
+		return ((id != 0) && _members.containsKey(id));
 	}
 	
 	/**

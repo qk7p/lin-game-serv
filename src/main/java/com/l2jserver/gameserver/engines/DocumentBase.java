@@ -242,10 +242,10 @@ public abstract class DocumentBase {
 		
 		final Condition applyCond = parseCondition(n.getFirstChild(), template);
 		final FuncTemplate ft = new FuncTemplate(attachCond, applyCond, functionName, order, stat, value);
-		if (template instanceof L2Item) {
-			((L2Item) template).attach(ft);
-		} else if (template instanceof AbstractEffect) {
-			((AbstractEffect) template).attach(ft);
+		if (template instanceof L2Item item) {
+			item.attach(ft);
+		} else if (template instanceof AbstractEffect effect) {
+			effect.attach(ft);
 		} else {
 			throw new RuntimeException("Attaching stat to a non-effect template!!!");
 		}
@@ -266,16 +266,15 @@ public abstract class DocumentBase {
 		final StatsSet parameters = parseParameters(n.getFirstChild(), template);
 		final Condition applyCond = parseCondition(n.getFirstChild(), template);
 		
-		if (template instanceof IIdentifiable) {
-			set.set("id", ((IIdentifiable) template).getId());
+		if (template instanceof IIdentifiable id) {
+			set.set("id", id.getId());
 		}
 		
 		final AbstractEffect effect = AbstractEffect.createEffect(attachCond, applyCond, set, parameters);
 		parseTemplate(n, effect);
 		if (template instanceof L2Item) {
 			_log.severe("Item " + template + " with effects!!!");
-		} else if (template instanceof Skill) {
-			final Skill skill = (Skill) template;
+		} else if (template instanceof Skill skill) {
 			if (effectScope != null) {
 				skill.addEffect(effectScope, effect);
 			} else if (skill.isPassive()) {
@@ -929,8 +928,8 @@ public abstract class DocumentBase {
 		if (value.charAt(0) == '#') {
 			if (template instanceof Skill) {
 				return getTableValue(value);
-			} else if (template instanceof Integer) {
-				return getTableValue(value, (Integer) template);
+			} else if (template instanceof Integer integer) {
+				return getTableValue(value, integer);
 			} else {
 				throw new IllegalStateException();
 			}
@@ -942,8 +941,8 @@ public abstract class DocumentBase {
 		if (cond == null) {
 			return c;
 		}
-		if (cond instanceof ConditionLogicAnd) {
-			((ConditionLogicAnd) cond).add(c);
+		if (cond instanceof ConditionLogicAnd condAnd) {
+			condAnd.add(c);
 			return cond;
 		}
 		ConditionLogicAnd and = new ConditionLogicAnd();

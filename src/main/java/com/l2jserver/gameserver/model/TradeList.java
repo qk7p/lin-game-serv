@@ -183,12 +183,11 @@ public class TradeList {
 		}
 		
 		L2Object o = L2World.getInstance().findObject(objectId);
-		if (!(o instanceof L2ItemInstance)) {
+		if (!(o instanceof L2ItemInstance item)) {
 			_log.warning(_owner.getName() + ": Trying to add something other than an item!");
 			return null;
 		}
 		
-		L2ItemInstance item = (L2ItemInstance) o;
 		if (!(item.isTradeable() || (getOwner().isGM() && general().gmTradeRestrictedItems())) || item.isQuestItem()) {
 			_log.warning(_owner.getName() + ": Attempt to add a restricted item!");
 			return null;

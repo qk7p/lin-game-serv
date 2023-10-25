@@ -172,9 +172,13 @@ public class SecondaryPasswordAuth {
 				_activeClient.sendPacket(new Ex2ndPasswordVerify(Ex2ndPasswordVerify.PASSWORD_WRONG, _wrongAttempts));
 				insertWrongAttempt(_wrongAttempts);
 			} else {
-				LoginServerThread.getInstance().sendTempBan(_activeClient.getAccountName(), _activeClient.getConnectionAddress().getHostAddress(), SecondaryAuthData.getInstance().getBanTime());
-				LoginServerThread.getInstance().sendMail(_activeClient.getAccountName(), "SATempBan", _activeClient.getConnectionAddress().getHostAddress(), Integer.toString(SecondaryAuthData.getInstance().getMaxAttempts()), Long.toString(SecondaryAuthData.getInstance().getBanTime()), SecondaryAuthData.getInstance().getRecoveryLink());
-				_log.warning(_activeClient.getAccountName() + " - (" + _activeClient.getConnectionAddress().getHostAddress() + ") has inputted the wrong password " + _wrongAttempts + " times in row.");
+				final var accountName = _activeClient.getAccountName();
+				final var hostAddress = _activeClient.getConnectionAddress().getHostAddress();
+				final var banTime = SecondaryAuthData.getInstance().getBanTime();
+				LoginServerThread.getInstance().sendTempBan(accountName, hostAddress, banTime);
+				final var recoveryLink = SecondaryAuthData.getInstance().getRecoveryLink();
+				LoginServerThread.getInstance().sendMail(accountName, "SATempBan", hostAddress, Integer.toString(_wrongAttempts), Long.toString(banTime), recoveryLink);
+				_log.warning(_activeClient.getAccountName() + " - (" + hostAddress + ") has inputted the wrong password " + _wrongAttempts + " times in row.");
 				insertWrongAttempt(0);
 				_activeClient.close(new Ex2ndPasswordVerify(Ex2ndPasswordVerify.PASSWORD_BAN, SecondaryAuthData.getInstance().getMaxAttempts()));
 			}

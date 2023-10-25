@@ -30,9 +30,9 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 public final class CleftParticipant {
 	private volatile L2PcInstance _player;
 	private volatile CleftTeam _team;
-	private AtomicInteger _kills;
-	private AtomicInteger _deaths;
-	private AtomicInteger _towers;
+	private final AtomicInteger _kills;
+	private final AtomicInteger _deaths;
+	private final AtomicInteger _towers;
 	
 	public CleftParticipant(L2PcInstance player, CleftTeam team) {
 		Objects.requireNonNull(player);

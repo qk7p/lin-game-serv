@@ -24,7 +24,6 @@ import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_IDLE;
 import static com.l2jserver.gameserver.config.Configuration.customs;
 import static com.l2jserver.gameserver.config.Configuration.npc;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -234,8 +233,8 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 				return GeoData.getInstance().canSeeTarget(me, player); // Los Check
 			}
 			// Check if the L2MonsterInstance target is aggressive
-			if ((target instanceof L2MonsterInstance) && npc().guardAttackAggroMob()) {
-				return (((L2MonsterInstance) target).isAggressive() && GeoData.getInstance().canSeeTarget(me, target));
+			if ((target instanceof L2MonsterInstance monster) && npc().guardAttackAggroMob()) {
+				return (monster.isAggressive() && GeoData.getInstance().canSeeTarget(me, target));
 			}
 			
 			return false;
@@ -246,18 +245,18 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			}
 			
 			// Check if the L2PcInstance target has karma (=PK)
-			if ((target instanceof L2PcInstance) && (((L2PcInstance) target).getKarma() > 0)) {
+			if ((target instanceof L2PcInstance targetPlayer) && (targetPlayer.getKarma() > 0)) {
 				return GeoData.getInstance().canSeeTarget(me, target); // Los Check
 			}
 			return false;
 		} else {
-			if (target instanceof L2Attackable) {
+			if (target instanceof L2Attackable attackable) {
 				if (!target.isAutoAttackable(me)) {
 					return false;
 				}
 				
 				if (me.isChaos() && me.isInsideRadius(target, me.getAggroRange(), false, false)) {
-					if (((L2Attackable) target).isInMyClan(me)) {
+					if (attackable.isInMyClan(me)) {
 						return false;
 					}
 					// Los Check
@@ -360,7 +359,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		_attackTimeout = MAX_ATTACK_TIMEOUT + currentTick;
 		
 		// self and buffs
-		if ((_lastBuffTick + 3 * GameTimeController.TICKS_PER_SECOND) < currentTick) {
+		if ((_lastBuffTick + (3 * GameTimeController.TICKS_PER_SECOND)) < currentTick) {
 			for (Skill buff : getActiveChar().getTemplate().getAISkills(AISkillScope.BUFF)) {
 				if (checkSkillCastConditions(getActiveChar(), buff)) {
 					if (!_actor.isAffectedBySkill(buff.getId())) {
@@ -434,20 +433,14 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		// A L2Attackable isn't aggressive during 10s after its spawn because _globalAggro is set to -10
 		if (_globalAggro >= 0) {
 			// Get all visible objects inside its Aggro Range
-			Collection<L2Object> objs = npc.getKnownList().getKnownObjects().values();
-			
-			for (L2Object obj : objs) {
-				if (!(obj instanceof L2Character) || (obj instanceof L2StaticObjectInstance)) {
+			for (var obj : npc.getKnownList().getKnownObjects().values()) {
+				if (!(obj instanceof L2Character target) || (obj instanceof L2StaticObjectInstance)) {
 					continue;
 				}
-				L2Character target = (L2Character) obj;
 				
-				/*
-				 * Check to see if this is a festival mob spawn. If it is, then check to see if the aggro trigger is a festival participant...if so, move to attack it.
-				 */
-				if ((npc instanceof L2FestivalMonsterInstance) && (obj instanceof L2PcInstance)) {
-					L2PcInstance targetPlayer = (L2PcInstance) obj;
-					
+				// Check to see if this is a festival mob spawn.
+				// If it is, then check to see if the aggro trigger is a festival participant...if so, move to attack it.
+				if ((npc instanceof L2FestivalMonsterInstance) && (obj instanceof L2PcInstance targetPlayer)) {
 					if (!(targetPlayer.isFestivalParticipant())) {
 						continue;
 					}
@@ -503,9 +496,9 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		if ((npc.getCurrentHp() == npc.getMaxHp()) && (npc.getCurrentMp() == npc.getMaxMp()) && !npc.getAttackByList().isEmpty() && (Rnd.nextInt(500) == 0)) {
 			npc.clearAggroList();
 			npc.getAttackByList().clear();
-			if (npc instanceof L2MonsterInstance) {
-				if (((L2MonsterInstance) npc).hasMinions()) {
-					((L2MonsterInstance) npc).getMinionList().deleteReusedMinions();
+			if (npc instanceof L2MonsterInstance monster) {
+				if (monster.hasMinions()) {
+					monster.getMinionList().deleteReusedMinions();
 				}
 			}
 		}
@@ -714,9 +707,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			// Go through all L2Object that belong to its faction
 			try {
 				for (L2Object obj : npc.getKnownList().getKnownCharactersInRadius(factionRange)) {
-					if (obj instanceof L2Npc) {
-						L2Npc called = (L2Npc) obj;
-						
+					if (obj instanceof L2Npc called) {
 						if (!getActiveChar().getTemplate().isClan(called.getTemplate().getClans())) {
 							continue;
 						}
@@ -739,8 +730,8 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 									// Notify the AI with EVT_AGGRESSION
 									called.getAI().notifyEvent(CtrlEvent.EVT_AGGRESSION, originalAttackTarget, 1);
 									EventDispatcher.getInstance().notifyEventAsync(new OnAttackableFactionCall(called, getActiveChar(), originalAttackTarget.getActingPlayer(), originalAttackTarget.isSummon()), called);
-								} else if ((called instanceof L2Attackable) && (getAttackTarget() != null) && (called.getAI()._intention != CtrlIntention.AI_INTENTION_ATTACK)) {
-									((L2Attackable) called).addDamageHate(getAttackTarget(), 0, npc.getHating(getAttackTarget()));
+								} else if ((called instanceof L2Attackable attackable) && (getAttackTarget() != null) && (called.getAI()._intention != CtrlIntention.AI_INTENTION_ATTACK)) {
+									attackable.addDamageHate(getAttackTarget(), 0, npc.getHating(getAttackTarget()));
 									called.getAI().setIntention(CtrlIntention.AI_INTENTION_ATTACK, getAttackTarget());
 								}
 							}
@@ -926,11 +917,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					
 					if (sk.getTargetType() == TargetType.ONE) {
 						for (L2Character obj : npc.getKnownList().getKnownCharactersInRadius(sk.getCastRange() + collision)) {
-							if (!(obj instanceof L2Attackable) || obj.isDead()) {
+							if (!(obj instanceof L2Attackable targets) || obj.isDead()) {
 								continue;
 							}
 							
-							final L2Attackable targets = (L2Attackable) obj;
 							if (!targets.isInMyClan(npc)) {
 								continue;
 							}
@@ -997,11 +987,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					}
 					if (sk.getTargetType() == TargetType.ONE) {
 						for (L2Character obj : npc.getKnownList().getKnownCharactersInRadius(sk.getCastRange() + collision)) {
-							if (!(obj instanceof L2Attackable) || !obj.isDead()) {
+							if (!(obj instanceof L2Attackable targets) || !obj.isDead()) {
 								continue;
 							}
 							
-							L2Attackable targets = ((L2Attackable) obj);
 							if (!npc.isInMyClan(targets)) {
 								continue;
 							}
@@ -1079,28 +1068,28 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			range = npc.getTemplate().getBaseAttackRange(); // Base Bow Range NPC
 		}
 		
-         if (mostHate.isMoving()) {
-             range = range + 50;
-             if (npc.isMoving()) {
-                 range = range + 50;
-             }
-         }
-         
-         // Starts melee attack
-         if ((dist2 > range) || !GeoData.getInstance().canSeeTarget(npc, mostHate)) {
-             if (npc.isMovementDisabled()) {
-                 targetReconsider();
-             } else {
-                 final L2Character target = getAttackTarget();
-                 if (target != null) {
-                    if (target.isMoving()) {
-                        range -= 100;
-                    }
-                     moveToPawn(target, Math.max(range, 5));
-                 }
-             }
-             return;
-         }
+		if (mostHate.isMoving()) {
+			range = range + 50;
+			if (npc.isMoving()) {
+				range = range + 50;
+			}
+		}
+		
+		// Starts melee attack
+		if ((dist2 > range) || !GeoData.getInstance().canSeeTarget(npc, mostHate)) {
+			if (npc.isMovementDisabled()) {
+				targetReconsider();
+			} else {
+				final L2Character target = getAttackTarget();
+				if (target != null) {
+					if (target.isMoving()) {
+						range -= 100;
+					}
+					moveToPawn(target, Math.max(range, 5));
+				}
+			}
+			return;
+		}
 		
 		clientStopMoving(null);
 		// Attacks target
@@ -1234,11 +1223,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			
 			if (sk.getTargetType() == TargetType.ONE) {
 				for (L2Character obj : caster.getKnownList().getKnownCharactersInRadius(sk.getCastRange() + caster.getTemplate().getCollisionRadius())) {
-					if (!(obj instanceof L2Attackable) || obj.isDead()) {
+					if (!(obj instanceof L2Attackable targets) || obj.isDead()) {
 						continue;
 					}
 					
-					L2Attackable targets = ((L2Attackable) obj);
 					if (!caster.isInMyClan(targets)) {
 						continue;
 					}
@@ -1257,11 +1245,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			}
 			if (isParty(sk)) {
 				for (L2Character obj : caster.getKnownList().getKnownCharactersInRadius(sk.getAffectRange() + caster.getTemplate().getCollisionRadius())) {
-					if (!(obj instanceof L2Attackable)) {
+					if (!(obj instanceof L2Attackable targets)) {
 						continue;
 					}
 					
-					L2Npc targets = ((L2Npc) obj);
 					if (targets.isInMyClan(caster)) {
 						if ((obj.getCurrentHp() < obj.getMaxHp()) && (Rnd.get(100) <= 20)) {
 							clientStopMoving(null);
@@ -1380,11 +1367,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 				}
 				
 				for (L2Character obj : caster.getKnownList().getKnownCharactersInRadius(sk.getCastRange() + caster.getTemplate().getCollisionRadius())) {
-					if (!(obj instanceof L2Attackable) || !obj.isDead()) {
+					if (!(obj instanceof L2Attackable targets) || !obj.isDead()) {
 						continue;
 					}
 					
-					L2Attackable targets = ((L2Attackable) obj);
 					if (!caster.isInMyClan(targets)) {
 						continue;
 					}
@@ -1401,10 +1387,10 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 				}
 			} else if (isParty(sk)) {
 				for (L2Character obj : caster.getKnownList().getKnownCharactersInRadius(sk.getAffectRange() + caster.getTemplate().getCollisionRadius())) {
-					if (!(obj instanceof L2Attackable)) {
+					if (!(obj instanceof L2Attackable targets)) {
 						continue;
 					}
-					L2Npc targets = ((L2Npc) obj);
+					
 					if (caster.isInMyClan(targets)) {
 						if ((obj.getCurrentHp() < obj.getMaxHp()) && (Rnd.get(100) <= 20)) {
 							clientStopMoving(null);
@@ -1597,16 +1583,15 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 						}
 					}
 				}
-			} else if (positive) {
+			} else {
 				double dist;
 				double dist2;
 				int range = 0;
 				for (L2Character obj : actor.getKnownList().getKnownCharactersInRadius(range)) {
-					if (!(obj instanceof L2Attackable) || obj.isDead() || !GeoData.getInstance().canSeeTarget(actor, obj)) {
+					if (!(obj instanceof L2Attackable targets) || obj.isDead() || !GeoData.getInstance().canSeeTarget(actor, obj)) {
 						continue;
 					}
 					
-					L2Attackable targets = ((L2Attackable) obj);
 					if (targets.isInMyClan(actor)) {
 						continue;
 					}
@@ -1690,8 +1675,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		}
 		
 		if (!(actor instanceof L2GuardInstance)) {
-			Collection<L2Object> objs = actor.getKnownList().getKnownObjects().values();
-			for (L2Object target : objs) {
+			for (L2Object target : actor.getKnownList().getKnownObjects().values()) {
 				try {
 					actor.setTarget(getAttackTarget());
 					dist = actor.calculateDistance(target, false, false);
@@ -1702,26 +1686,28 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 				} catch (NullPointerException e) {
 					continue;
 				}
-				L2Character obj = null;
-				if (target instanceof L2Character) {
-					obj = (L2Character) target;
-				}
-				if ((obj == null) || !GeoData.getInstance().canSeeTarget(actor, obj) || (dist2 > range)) {
+				
+				if (!(target instanceof L2Character obj)) {
 					continue;
 				}
+				
+				if (!GeoData.getInstance().canSeeTarget(actor, obj) || (dist2 > range)) {
+					continue;
+				}
+				
 				if (obj instanceof L2PcInstance) {
 					return obj;
-					
 				}
-				if (obj instanceof L2Attackable) {
+				
+				if (obj instanceof L2Attackable attackable) {
 					if (actor.isChaos()) {
-						if (((L2Attackable) obj).isInMyClan(actor)) {
+						if (attackable.isInMyClan(actor)) {
 							continue;
 						}
-						
 						return obj;
 					}
 				}
+				
 				if (obj instanceof L2Summon) {
 					return obj;
 				}
@@ -1761,24 +1747,22 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			}
 		}
 		if (!(actor instanceof L2GuardInstance)) {
-			Collection<L2Object> objs = actor.getKnownList().getKnownObjects().values();
-			for (L2Object target : objs) {
-				L2Character obj = null;
-				if (target instanceof L2Character) {
-					obj = (L2Character) target;
-				}
-				
-				if ((obj == null) || !GeoData.getInstance().canSeeTarget(actor, obj) || obj.isDead() || (obj != MostHate) || (obj == actor) || (obj == getAttackTarget())) {
+			for (L2Object target : actor.getKnownList().getKnownObjects().values()) {
+				if (!(target instanceof L2Character obj)) {
 					continue;
 				}
+				
+				if (!GeoData.getInstance().canSeeTarget(actor, obj) || obj.isDead() || (obj != MostHate) || (obj == actor) || (obj == getAttackTarget())) {
+					continue;
+				}
+				
 				if (obj instanceof L2PcInstance) {
 					actor.addDamageHate(obj, 0, actor.getHating(MostHate));
 					actor.setTarget(obj);
 					setAttackTarget(obj);
-					
-				} else if (obj instanceof L2Attackable) {
+				} else if (obj instanceof L2Attackable attackable) {
 					if (actor.isChaos()) {
-						if (((L2Attackable) obj).isInMyClan(actor)) {
+						if (attackable.isInMyClan(actor)) {
 							continue;
 						}
 						
@@ -1829,25 +1813,22 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		}
 		
 		if (!(actor instanceof L2GuardInstance)) {
-			Collection<L2Object> objs = actor.getKnownList().getKnownObjects().values();
-			for (L2Object target : objs) {
-				L2Character obj;
-				if (target instanceof L2Character) {
-					obj = (L2Character) target;
-				} else {
+			for (L2Object target : actor.getKnownList().getKnownObjects().values()) {
+				if (!(target instanceof L2Character obj)) {
 					continue;
 				}
 				
 				if (!GeoData.getInstance().canSeeTarget(actor, obj) || obj.isDead() || (obj != MostHate) || (obj == actor)) {
 					continue;
 				}
+				
 				if (obj instanceof L2PcInstance) {
 					actor.addDamageHate(obj, 0, actor.getHating(MostHate));
 					actor.setTarget(obj);
 					setAttackTarget(obj);
-				} else if (obj instanceof L2Attackable) {
+				} else if (obj instanceof L2Attackable attackable) {
 					if (actor.isChaos()) {
-						if (((L2Attackable) obj).isInMyClan(actor)) {
+						if (attackable.isInMyClan(actor)) {
 							continue;
 						}
 						
@@ -1907,7 +1888,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		if (attacker == getActiveChar()) {
 			return;
 		}
-
+		
 		L2Attackable me = getActiveChar();
 		
 		// Calculate the attack timeout
@@ -1977,9 +1958,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 				setIntention(CtrlIntention.AI_INTENTION_ATTACK, target);
 			}
 			
-			if (me instanceof L2MonsterInstance) {
-				L2MonsterInstance master = (L2MonsterInstance) me;
-				
+			if (me instanceof L2MonsterInstance master) {
 				if (master.hasMinions()) {
 					master.getMinionList().onAssist(me, target);
 				}

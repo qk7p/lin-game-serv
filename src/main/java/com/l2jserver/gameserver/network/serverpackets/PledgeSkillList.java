@@ -36,7 +36,6 @@ public class PledgeSkillList extends L2GameServerPacket {
 		int _skillLvl;
 		
 		public SubPledgeSkill(int subType, int skillId, int skillLvl) {
-			super();
 			_subType = subType;
 			_skillId = skillId;
 			_skillLvl = skillLvl;

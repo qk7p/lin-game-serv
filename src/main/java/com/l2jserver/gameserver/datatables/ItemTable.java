@@ -27,7 +27,6 @@ import static com.l2jserver.gameserver.model.items.type.EtcItemType.SHOT;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ScheduledFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,10 +126,10 @@ public class ItemTable {
 			if (highest < item.getId()) {
 				highest = item.getId();
 			}
-			if (item instanceof L2EtcItem) {
-				_etcItems.put(item.getId(), (L2EtcItem) item);
-			} else if (item instanceof L2Armor) {
-				_armors.put(item.getId(), (L2Armor) item);
+			if (item instanceof L2EtcItem etc) {
+				_etcItems.put(item.getId(), etc);
+			} else if (item instanceof L2Armor armor) {
+				_armors.put(item.getId(), armor);
 			} else {
 				_weapons.put(item.getId(), (L2Weapon) item);
 			}
@@ -199,19 +198,17 @@ public class ItemTable {
 		L2ItemInstance item = new L2ItemInstance(IdFactory.getInstance().getNextId(), itemId);
 		
 		if (process.equalsIgnoreCase("loot")) {
-			ScheduledFuture<?> itemLootShedule;
-			if ((reference instanceof L2Attackable) && ((L2Attackable) reference).isRaid()) // loot privilege for raids
-			{
-				L2Attackable raid = (L2Attackable) reference;
+			// loot privilege for raids
+			if ((reference instanceof L2Attackable raid) && raid.isRaid()) {
 				// if in CommandChannel and was killing a World/RaidBoss
 				if ((raid.getFirstCommandChannelAttacked() != null) && !character().autoLootRaids()) {
 					item.setOwnerId(raid.getFirstCommandChannelAttacked().getLeaderObjectId());
-					itemLootShedule = ThreadPoolManager.getInstance().scheduleGeneral(new ResetOwner(item), character().getRaidLootRightsInterval());
+					final var itemLootShedule = ThreadPoolManager.getInstance().scheduleGeneral(new ResetOwner(item), character().getRaidLootRightsInterval());
 					item.setItemLootSchedule(itemLootShedule);
 				}
-			} else if (!character().autoLoot() || ((reference instanceof L2EventMonsterInstance) && ((L2EventMonsterInstance) reference).eventDropOnGround())) {
+			} else if (!character().autoLoot() || ((reference instanceof L2EventMonsterInstance eventMonster) && eventMonster.eventDropOnGround())) {
 				item.setOwnerId(actor.getObjectId());
-				itemLootShedule = ThreadPoolManager.getInstance().scheduleGeneral(new ResetOwner(item), 15000);
+				final var itemLootShedule = ThreadPoolManager.getInstance().scheduleGeneral(new ResetOwner(item), 15000);
 				item.setItemLootSchedule(itemLootShedule);
 			}
 		}
@@ -239,8 +236,8 @@ public class ItemTable {
 		if (actor != null) {
 			if (actor.isGM()) {
 				String referenceName = "no-reference";
-				if (reference instanceof L2Object) {
-					referenceName = (((L2Object) reference).getName() != null ? ((L2Object) reference).getName() : "no-name");
+				if (reference instanceof L2Object object) {
+					referenceName = (object.getName() != null ? object.getName() : "no-name");
 				} else if (reference instanceof String) {
 					referenceName = (String) reference;
 				}
@@ -295,8 +292,8 @@ public class ItemTable {
 			if (actor != null) {
 				if (actor.isGM()) {
 					String referenceName = "no-reference";
-					if (reference instanceof L2Object) {
-						referenceName = (((L2Object) reference).getName() != null ? ((L2Object) reference).getName() : "no-name");
+					if (reference instanceof L2Object object) {
+						referenceName = (object.getName() != null ? object.getName() : "no-name");
 					} else if (reference instanceof String) {
 						referenceName = (String) reference;
 					}

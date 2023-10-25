@@ -33,9 +33,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class MapIntegerIntegerConverterTest {
 	
 	private static final MapIntegerIntegerConverter CONVERTER = new MapIntegerIntegerConverter();
-
+	
 	@ParameterizedTest
-    @MethodSource("provideKeyValues")
+	@MethodSource("provideKeyValues")
 	public void convertTest(String keyValues, Map<Integer, Integer> expected) {
 		assertEquals(CONVERTER.convert(null, keyValues), expected);
 	}

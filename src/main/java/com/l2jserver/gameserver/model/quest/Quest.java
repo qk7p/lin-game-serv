@@ -2283,7 +2283,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			_questItemIds = items;
 		}
 	}
-
+	
 	public void registerQuestItems(Set<Integer> itemIds) {
 		registerQuestItems(itemIds.stream().mapToInt(i -> i).toArray());
 	}

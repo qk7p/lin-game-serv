@@ -152,7 +152,7 @@ public final class TerritoryWarManager implements Siegable {
 		}
 		
 		if (clan.getCastleId() > 0) {
-			return (castleId == -1 || (clan.getCastleId() == castleId));
+			return ((castleId == -1) || (clan.getCastleId() == castleId));
 		}
 		
 		if (castleId == -1) {
@@ -455,7 +455,7 @@ public final class TerritoryWarManager implements Siegable {
 				}
 				if (isKilled) {
 					SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.THE_CHAR_THAT_ACQUIRED_S1_WARD_HAS_BEEN_KILLED);
-					sm.addString(twWard.getNpc().getName().replaceAll(" Ward", ""));
+					sm.addString(twWard.getNpc().getName().replace(" Ward", ""));
 					announceToParticipants(sm, 0, 0);
 				}
 			}

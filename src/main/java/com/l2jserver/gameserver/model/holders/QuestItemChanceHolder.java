@@ -25,15 +25,15 @@ package com.l2jserver.gameserver.model.holders;
  */
 public class QuestItemChanceHolder extends ItemChanceHolder {
 	private final long limit;
-
+	
 	public QuestItemChanceHolder(int id) {
 		this(id, 100, 1, 0);
 	}
-
+	
 	public QuestItemChanceHolder(int id, long limit) {
 		this(id, 100, 1, limit);
 	}
-
+	
 	public QuestItemChanceHolder(int id, long count, long limit) {
 		this(id, 100, count, limit);
 	}
@@ -41,7 +41,7 @@ public class QuestItemChanceHolder extends ItemChanceHolder {
 	public QuestItemChanceHolder(int id, double chance) {
 		this(id, chance, 1, 0);
 	}
-
+	
 	public QuestItemChanceHolder(int id, double chance, long limit) {
 		this(id, chance, 1, limit);
 	}
@@ -50,11 +50,11 @@ public class QuestItemChanceHolder extends ItemChanceHolder {
 		super(id, chance, count);
 		this.limit = limit;
 	}
-
+	
 	public long getLimit() {
 		return limit;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "[" + getClass().getSimpleName() + "] ID: " + getId() + ", count: " + getCount() + ", chance: " + getChance() + ", limit: " + getLimit();

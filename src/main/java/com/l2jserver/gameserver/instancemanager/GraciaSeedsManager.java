@@ -117,7 +117,7 @@ public final class GraciaSeedsManager {
 	}
 	
 	public void updateSoDDefence(int state) {
-		if (state >= 3 && state <= 5) {
+		if ((state >= 3) && (state <= 5)) {
 			final Quest quest = QuestManager.getInstance().getQuest(SOD_DEFENCE);
 			if (quest == null) {
 				_log.warning(getClass().getSimpleName() + ": missing Defence Quest!");
@@ -170,7 +170,7 @@ public final class GraciaSeedsManager {
 	
 	public void spawnSoDRemnantManager() {
 		try {
-			if (edricSpawn == null || edricSpawn.isDecayed()) {
+			if ((edricSpawn == null) || edricSpawn.isDecayed()) {
 				final L2Spawn spawn = new L2Spawn(EDRIC);
 				spawn.setInstanceId(0);
 				spawn.setLocation(EDRIC_SPAWN_LOCATION);

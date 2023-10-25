@@ -91,7 +91,7 @@ public abstract class AbstractHtmlPacket extends L2GameServerPacket {
 	}
 	
 	public final void replace(String pattern, String value) {
-		_html = _html.replaceAll(pattern, value.replaceAll("\\$", "\\\\\\$"));
+		_html = _html.replaceAll(pattern, value.replace("$", "\\$"));
 	}
 	
 	public final void replace(String pattern, boolean val) {

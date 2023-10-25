@@ -29,7 +29,7 @@ public class SummonStat extends PlayableStat {
 	public L2Summon getActiveChar() {
 		return (L2Summon) super.getActiveChar();
 	}
-
+	
 	@Override
 	public int getMaxBuffCount() {
 		return getActiveChar().getOwner().getStat().getMaxBuffCount();

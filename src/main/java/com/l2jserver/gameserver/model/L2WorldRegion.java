@@ -190,9 +190,8 @@ public final class L2WorldRegion {
 		int c = 0;
 		if (!isOn) {
 			for (L2Object o : _visibleObjects.values()) {
-				if (o instanceof L2Attackable) {
+				if (o instanceof L2Attackable mob) {
 					c++;
-					L2Attackable mob = (L2Attackable) o;
 					
 					// Set target to null and cancel Attack or Cast
 					mob.setTarget(null);
@@ -212,28 +211,24 @@ public final class L2WorldRegion {
 						mob.getAI().setIntention(com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_IDLE);
 						mob.getAI().stopAITask();
 					}
-				} else if (o instanceof L2Vehicle) {
+				} else if (o instanceof L2Vehicle vehicle) {
 					c++;
-					((L2Vehicle) o).getKnownList().removeAllKnownObjects();
+					vehicle.getKnownList().removeAllKnownObjects();
 				}
 			}
-			
 			_log.fine(c + " mobs were turned off");
 		} else {
 			for (L2Object o : _visibleObjects.values()) {
-				if (o instanceof L2Attackable) {
+				if (o instanceof L2Attackable attackable) {
 					c++;
 					// Start HP/MP/CP Regeneration task
-					((L2Attackable) o).getStatus().startHpMpRegeneration();
-				} else if (o instanceof L2Npc) {
-					((L2Npc) o).startRandomAnimationTimer();
+					attackable.getStatus().startHpMpRegeneration();
+				} else if (o instanceof L2Npc npc) {
+					npc.startRandomAnimationTimer();
 				}
 			}
-			
 			_log.fine(c + " mobs were turned on");
-			
 		}
-		
 	}
 	
 	public boolean isActive() {
@@ -333,8 +328,8 @@ public final class L2WorldRegion {
 		
 		_visibleObjects.put(object.getObjectId(), object);
 		
-		if (object instanceof L2Playable) {
-			_allPlayable.put(object.getObjectId(), (L2Playable) object);
+		if (object instanceof L2Playable playable) {
+			_allPlayable.put(object.getObjectId(), playable);
 			
 			// if this is the first player to enter the region, activate self & neighbors
 			if ((_allPlayable.size() == 1) && !general().gridsAlwaysOn()) {
@@ -395,8 +390,7 @@ public final class L2WorldRegion {
 	public void deleteVisibleNpcSpawns() {
 		_log.fine("Deleting all visible NPC's in Region: " + getName());
 		for (L2Object obj : _visibleObjects.values()) {
-			if (obj instanceof L2Npc) {
-				L2Npc target = (L2Npc) obj;
+			if (obj instanceof L2Npc target) {
 				target.deleteMe();
 				L2Spawn spawn = target.getSpawn();
 				if (spawn != null) {

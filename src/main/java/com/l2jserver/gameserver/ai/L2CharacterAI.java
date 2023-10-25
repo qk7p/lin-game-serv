@@ -185,8 +185,8 @@ public class L2CharacterAI extends AbstractAI {
 			
 			// Also enable random animations for this L2Character if allowed
 			// This is only for mobs - town npcs are handled in their constructor
-			if (_actor instanceof L2Attackable) {
-				((L2Npc) _actor).startRandomAnimationTimer();
+			if (_actor instanceof L2Attackable attackable) {
+				attackable.startRandomAnimationTimer();
 			}
 			
 			// Launch the Think Event
@@ -239,7 +239,7 @@ public class L2CharacterAI extends AbstractAI {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			if (_actor.isPlayer()) {
-				((L2PlayerAI)this).saveNextIntention(AI_INTENTION_ATTACK, target, null);
+				((L2PlayerAI) this).saveNextIntention(AI_INTENTION_ATTACK, target, null);
 			}
 			return;
 		}
@@ -420,7 +420,7 @@ public class L2CharacterAI extends AbstractAI {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			if (_actor.isPlayer()) {
-				((L2PlayerAI)this).saveNextIntention(AI_INTENTION_PICK_UP, object, null);
+				((L2PlayerAI) this).saveNextIntention(AI_INTENTION_PICK_UP, object, null);
 			}
 			return;
 		}
@@ -469,7 +469,7 @@ public class L2CharacterAI extends AbstractAI {
 			// Cancel action client side by sending Server->Client packet ActionFailed to the L2PcInstance actor
 			clientActionFailed();
 			if (_actor.isPlayer()) {
-				((L2PlayerAI)this).saveNextIntention(AI_INTENTION_INTERACT, object, null);
+				((L2PlayerAI) this).saveNextIntention(AI_INTENTION_INTERACT, object, null);
 			}
 			return;
 		}
@@ -657,13 +657,12 @@ public class L2CharacterAI extends AbstractAI {
 			return;
 		}
 		
-		if (_actor instanceof L2Attackable) {
-			((L2Attackable) _actor).setisReturningToSpawnPoint(false);
+		if (_actor instanceof L2Attackable attackable) {
+			attackable.setisReturningToSpawnPoint(false);
 		}
 		clientStoppedMoving();
 		
-		if (_actor instanceof L2Npc) {
-			L2Npc npc = (L2Npc) _actor;
+		if (_actor instanceof L2Npc npc) {
 			WalkingManager.getInstance().onArrived(npc); // Walking Manager support
 			
 			// Notify to scripts
@@ -956,8 +955,8 @@ public class L2CharacterAI extends AbstractAI {
 		}
 		
 		offset += _actor.getTemplate().getCollisionRadius();
-		if (target instanceof L2Character) {
-			offset += ((L2Character) target).getTemplate().getCollisionRadius();
+		if (target instanceof L2Character creature) {
+			offset += creature.getTemplate().getCollisionRadius();
 		}
 		
 		final boolean needToMove;
@@ -1015,8 +1014,8 @@ public class L2CharacterAI extends AbstractAI {
 			}
 			
 			stopFollow();
-			if ((target instanceof L2Character) && !(target instanceof L2DoorInstance)) {
-				if (((L2Character) target).isMoving()) {
+			if ((target instanceof L2Character creature) && !(target instanceof L2DoorInstance)) {
+				if (creature.isMoving()) {
 					offset -= 100;
 				}
 				if (offset < 5) {
@@ -1087,11 +1086,9 @@ public class L2CharacterAI extends AbstractAI {
 	 */
 	protected boolean checkTargetLost(L2Object target) {
 		// check if player is fake death
-		if (target instanceof L2PcInstance) {
-			L2PcInstance target2 = (L2PcInstance) target; // convert object to chara
-			
-			if (target2.isFakeDeath()) {
-				target2.stopFakeDeath(true);
+		if (target instanceof L2PcInstance targetPlayer) {
+			if (targetPlayer.isFakeDeath()) {
+				targetPlayer.stopFakeDeath(true);
 				return false;
 			}
 		}
@@ -1290,12 +1287,11 @@ public class L2CharacterAI extends AbstractAI {
 		if (isParty(sk)) {
 			int count = 0;
 			int ccount = 0;
+			final var actors = ((L2Npc) _actor);
 			for (L2Character target : _actor.getKnownList().getKnownCharactersInRadius(sk.getAffectRange())) {
-				if (!(target instanceof L2Attackable) || !GeoData.getInstance().canSeeTarget(_actor, target)) {
+				if (!(target instanceof L2Attackable targets) || !GeoData.getInstance().canSeeTarget(_actor, target)) {
 					continue;
 				}
-				L2Npc targets = ((L2Npc) target);
-				L2Npc actors = ((L2Npc) _actor);
 				if (targets.isInMyClan(actors)) {
 					count++;
 					if (target.isAffectedBySkill(sk.getId())) {

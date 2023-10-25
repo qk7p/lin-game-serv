@@ -193,7 +193,7 @@ public enum AffectScope {
 					continue;
 				}
 				
-				if (Math.abs(Util.calculateAngleFrom(caster, creature) - (headingAngle + fanStartingAngle)) > fanAngle / 2) {
+				if (Math.abs(Util.calculateAngleFrom(caster, creature) - (headingAngle + fanStartingAngle)) > (fanAngle / 2)) {
 					continue;
 				}
 				
@@ -299,7 +299,7 @@ public enum AffectScope {
 								continue;
 							}
 							if (targetPlayer.isInParty() && clanMemberPlayer.isInParty() && //
-							(targetPlayer.getParty().getLeaderObjectId() != clanMemberPlayer.getParty().getLeaderObjectId())) {
+								(targetPlayer.getParty().getLeaderObjectId() != clanMemberPlayer.getParty().getLeaderObjectId())) {
 								continue;
 							}
 						}
@@ -384,10 +384,11 @@ public enum AffectScope {
 			final var affectLimit = skill.getAffectLimit();
 			final var affectObject = skill.getAffectObject();
 			final var creature = (L2Character) target;
-			return L2World.getInstance().getVisibleObjects(target, skill.getAffectRange()) //
-				.stream() //
-				.filter(c -> affectObject.affectObject(creature, c)) //
-				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE) //
+			return L2World.getInstance()
+				.getVisibleObjects(target, skill.getAffectRange())
+				.stream()
+				.filter(c -> affectObject.affectObject(creature, c))
+				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE)
 				.collect(Collectors.toList());
 		}
 	},
@@ -396,13 +397,14 @@ public enum AffectScope {
 		@Override
 		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
 			final var affectLimit = skill.getAffectLimit();
-			return L2World.getInstance().getVisibleObjects(caster, target, skill.getAffectRange()) //
-				.stream() //
-				.filter(L2Object::isCharacter) //
-				.map(o -> (L2Character) o) //
-				.filter(c -> !c.isDead()) //
-				.filter(c -> skill.getAffectObject().affectObject(caster, c)) //
-				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE) //
+			return L2World.getInstance()
+				.getVisibleObjects(caster, target, skill.getAffectRange())
+				.stream()
+				.filter(L2Object::isCharacter)
+				.map(o -> (L2Character) o)
+				.filter(c -> !c.isDead())
+				.filter(c -> skill.getAffectObject().affectObject(caster, c))
+				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE)
 				.collect(Collectors.toList());
 		}
 	},
@@ -411,13 +413,14 @@ public enum AffectScope {
 		@Override
 		public List<L2Object> affectTargets(L2Character caster, L2Object target, Skill skill) {
 			final var affectLimit = skill.getAffectLimit();
-			return L2World.getInstance().getVisibleObjects(caster, target, skill.getAffectRange()) //
-				.stream() //
-				.filter(L2Object::isCharacter) //
-				.map(o -> (L2Character) o) //
-				.filter(c -> !c.isDead()) //
-				.sorted(comparingDouble(c -> c.getCurrentHp() / c.getMaxHp())) //
-				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE) //
+			return L2World.getInstance()
+				.getVisibleObjects(caster, target, skill.getAffectRange())
+				.stream()
+				.filter(L2Object::isCharacter)
+				.map(o -> (L2Character) o)
+				.filter(c -> !c.isDead())
+				.sorted(comparingDouble(c -> c.getCurrentHp() / c.getMaxHp()))
+				.limit(affectLimit > 0 ? affectLimit : Integer.MAX_VALUE)
 				.collect(Collectors.toList());
 		}
 	},

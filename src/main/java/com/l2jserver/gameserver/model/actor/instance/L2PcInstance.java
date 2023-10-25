@@ -1126,14 +1126,14 @@ public final class L2PcInstance extends L2Playable {
 	 * @return a table containing all Common L2RecipeList of the L2PcInstance.
 	 */
 	public L2RecipeList[] getCommonRecipeBook() {
-		return _commonRecipeBook.values().toArray(new L2RecipeList[_commonRecipeBook.values().size()]);
+		return _commonRecipeBook.values().toArray(new L2RecipeList[_commonRecipeBook.size()]);
 	}
 	
 	/**
 	 * @return a table containing all Dwarf L2RecipeList of the L2PcInstance.
 	 */
 	public L2RecipeList[] getDwarvenRecipeBook() {
-		return _dwarvenRecipeBook.values().toArray(new L2RecipeList[_dwarvenRecipeBook.values().size()]);
+		return _dwarvenRecipeBook.values().toArray(new L2RecipeList[_dwarvenRecipeBook.size()]);
 	}
 	
 	/**
@@ -1559,7 +1559,7 @@ public final class L2PcInstance extends L2Playable {
 	public int getCommonCraft() {
 		return getSkillLevel(CommonSkill.CREATE_COMMON.getId());
 	}
-
+	
 	public boolean canCrystallize() {
 		return getSkillLevel(CommonSkill.CRYSTALLIZE.getId()) >= 1;
 	}
@@ -1839,7 +1839,7 @@ public final class L2PcInstance extends L2Playable {
 		
 		// If item is agathion with energy, then send info to client.
 		final var agathionInfo = AgathionRepository.getInstance().getByItemId(item.getId());
-		if ((agathionInfo != null) && agathionInfo.getMaxEnergy() > 0) {
+		if ((agathionInfo != null) && (agathionInfo.getMaxEnergy() > 0)) {
 			sendPacket(new ExBR_AgathionEnergyInfo(List.of(item)));
 		}
 		
@@ -3723,8 +3723,7 @@ public final class L2PcInstance extends L2Playable {
 	 * @param target The L2Character targeted
 	 */
 	public void doInteract(L2Character target) {
-		if (target instanceof L2PcInstance) {
-			L2PcInstance temp = (L2PcInstance) target;
+		if (target instanceof L2PcInstance temp) {
 			sendPacket(ActionFailed.STATIC_PACKET);
 			
 			if ((temp.getPrivateStoreType() == PrivateStoreType.SELL) || (temp.getPrivateStoreType() == PrivateStoreType.PACKAGE_SELL)) {
@@ -4109,9 +4108,7 @@ public final class L2PcInstance extends L2Playable {
 			oldTarget.removeStatusListener(this);
 		}
 		
-		if (newTarget instanceof L2Character) {
-			final L2Character target = (L2Character) newTarget;
-			
+		if (newTarget instanceof final L2Character target) {
 			// Validate location of the new target.
 			if (newTarget.getObjectId() != getObjectId()) {
 				sendPacket(new ValidateLocation(target));
@@ -5160,7 +5157,7 @@ public final class L2PcInstance extends L2Playable {
 		if (_manufactureItems == null) {
 			synchronized (this) {
 				if (_manufactureItems == null) {
-					_manufactureItems = Collections.synchronizedMap(new LinkedHashMap<Integer, L2ManufactureItem>());
+					_manufactureItems = Collections.synchronizedMap(new LinkedHashMap<>());
 				}
 			}
 		}
@@ -8794,20 +8791,20 @@ public final class L2PcInstance extends L2Playable {
 	}
 	
 	private int getRandomFishGrade() {
-		switch (_lure.getId()) {
+		return switch (_lure.getId()) {
 			case 7807: // green for beginners
 			case 7808: // purple for beginners
 			case 7809: // yellow for beginners
 			case 8486: // prize-winning for beginners
-				return 0;
+				yield 0;
 			case 8485: // prize-winning luminous
 			case 8506: // green luminous
 			case 8509: // purple luminous
 			case 8512: // yellow luminous
-				return 2;
+				yield 2;
 			default:
-				return 1;
-		}
+				yield 1;
+		};
 	}
 	
 	private int getRandomFishGroup(int group) {
@@ -10941,7 +10938,7 @@ public final class L2PcInstance extends L2Playable {
 		LOG.debug(formatted.getMessage());
 		sendDebugMessage(formatted.getMessage());
 	}
-
+	
 	public void debugFeature(String feature, String msg, Object... args) {
 		msg = feature + " (" + getName() + ") " + msg;
 		var formatted = MessageFormatter.format(msg, args);

@@ -35,6 +35,6 @@ public class ConditionPlayerFlyMounted extends Condition {
 	
 	@Override
 	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item) {
-		return effector.getActingPlayer() == null || effector.getActingPlayer().isFlyingMounted() == _val;
+		return (effector.getActingPlayer() == null) || (effector.getActingPlayer().isFlyingMounted() == _val);
 	}
 }

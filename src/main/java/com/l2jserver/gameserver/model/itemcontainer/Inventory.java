@@ -822,7 +822,7 @@ public abstract class Inventory extends ItemContainer {
 		
 		void notifyUnequiped(int slot, L2ItemInstance inst, Inventory inventory);
 	}
-
+	
 	// Recorder of alterations in inventory
 	private static final class ChangeRecorder implements PaperdollListener {
 		private final List<L2ItemInstance> _changed;
@@ -870,7 +870,7 @@ public abstract class Inventory extends ItemContainer {
 			return _changed.toArray(new L2ItemInstance[_changed.size()]);
 		}
 	}
-
+	
 	private static final class StatsListener implements PaperdollListener {
 		private static final StatsListener instance = new StatsListener();
 		

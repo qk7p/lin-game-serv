@@ -35,7 +35,7 @@ public class MapIntegerFloatConverterTest {
 	private static final MapIntegerFloatConverter CONVERTER = new MapIntegerFloatConverter();
 	
 	@ParameterizedTest
-    @MethodSource("provideKeyValues")
+	@MethodSource("provideKeyValues")
 	public void convertTest(String keyValues, Map<Integer, Float> expected) {
 		assertEquals(CONVERTER.convert(null, keyValues), expected);
 	}

@@ -36,7 +36,7 @@ public class ExNevitAdventTimeChange extends L2GameServerPacket {
 	protected void writeImpl() {
 		writeC(0xFE);
 		writeH(0xE1);
-		if (_paused && _time == hunting().getHuntingBonusMaxTime()) {
+		if (_paused && (_time == hunting().getHuntingBonusMaxTime())) {
 			writeD(0x02); // Quit
 		} else {
 			writeC(_paused ? 0x00 : 0x01); // 0=Paused - 1=Started

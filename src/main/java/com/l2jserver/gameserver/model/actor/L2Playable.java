@@ -183,7 +183,7 @@ public abstract class L2Playable extends L2Character {
 	
 	public boolean doesSkillNeedCtrl(L2Character target, Skill skill) {
 		if (target.isPlayable()) {
-			return !checkIfPvP(target) && target.getActingPlayer().getKarma() == 0;
+			return !checkIfPvP(target) && (target.getActingPlayer().getKarma() == 0);
 		}
 		
 		return false;
@@ -214,12 +214,12 @@ public abstract class L2Playable extends L2Character {
 			return false; // Target player is self
 		}
 		
-		// pvp zone is always pvp 
+		// pvp zone is always pvp
 		if (player.isInsideZone(ZoneId.PVP) && targetPlayer.isInsideZone(ZoneId.PVP)) {
 			return true;
 		}
-
-		if (player.getKarma() != 0 || targetPlayer.getKarma() != 0) {
+		
+		if ((player.getKarma() != 0) || (targetPlayer.getKarma() != 0)) {
 			return false; // Active player or target player has karma
 		}
 		
@@ -227,7 +227,7 @@ public abstract class L2Playable extends L2Character {
 			&& !targetPlayer.isAcademyMember()) {
 			return true; // Target player and player has war
 		}
-
+		
 		return targetPlayer.getPvpFlag() != 0;
 	}
 	

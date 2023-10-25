@@ -35,7 +35,7 @@ public class LocationConverterTest {
 	private static final LocationConverter CONVERTER = new LocationConverter();
 	
 	@ParameterizedTest
-    @MethodSource("provideLocations")
+	@MethodSource("provideLocations")
 	public void convertTest(String input, Location expected) {
 		assertEquals(CONVERTER.convert(null, input), expected);
 	}

@@ -138,7 +138,7 @@ public class CharacterSelect extends L2GameClientPacket {
 						cha.deleteMe();
 						return;
 					}
-
+					
 					client.setCharSelectionSlot(_charSlot);
 					cha.restoreStatusFromLoadedValues();
 					

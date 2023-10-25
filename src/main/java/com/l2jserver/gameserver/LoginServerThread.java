@@ -677,10 +677,10 @@ public class LoginServerThread extends Thread {
 	 */
 	public static void saveHexid(int serverId, String hexId) {
 		Path hexIdFilePath = Configuration.getCustomOrDefaultPath(HexIdConfiguration.FILENAME);
-
+		
 		hexId().setProperty(HexIdConfiguration.SERVERID_KEY, String.valueOf(serverId));
 		hexId().setProperty(HexIdConfiguration.HEXID_KEY, hexId);
-
+		
 		try (OutputStream out = Files.newOutputStream(hexIdFilePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			hexId().store(out, "the hexID to auth into login");
 			LOG.info("Saved {}.", hexIdFilePath);

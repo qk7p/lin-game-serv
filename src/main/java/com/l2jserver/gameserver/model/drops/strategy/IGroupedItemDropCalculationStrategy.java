@@ -112,7 +112,7 @@ public interface IGroupedItemDropCalculationStrategy {
 		if ((Rnd.nextDouble() * 100) < (normalized.getChance() % 100)) {
 			rolls++;
 		}
-
+		
 		List<ItemHolder> dropped = new ArrayList<>(rolls);
 		for (int i = 0; i < rolls; i++) {
 			// As further normalizing on already normalized drop group does nothing, we can just pass the calculation to DEFAULT_STRATEGY with precise calculation disabled as we handle it.
@@ -121,20 +121,20 @@ public interface IGroupedItemDropCalculationStrategy {
 				dropped.addAll(drops);
 			}
 		}
-
+		
 		if (general().preciseDropMultipleRollsAggregateDrops()) {
 			Map<Integer, Long> countByItemId = new HashMap<>();
 			for (ItemHolder drop : dropped) {
 				Long currentCount = countByItemId.getOrDefault(drop.getId(), 0L);
 				countByItemId.put(drop.getId(), currentCount + drop.getCount());
 			}
-
+			
 			dropped.clear();
 			for (Map.Entry<Integer, Long> entry : countByItemId.entrySet()) {
 				dropped.add(new ItemHolder(entry.getKey(), entry.getValue()));
 			}
 		}
-
+		
 		return dropped.isEmpty() ? null : dropped;
 	};
 	

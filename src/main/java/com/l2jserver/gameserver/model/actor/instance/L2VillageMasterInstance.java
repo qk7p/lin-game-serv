@@ -274,11 +274,17 @@ public class L2VillageMasterInstance extends L2NpcInstance {
 						subsAvailable = getAvailableSubClasses(player);
 						if ((subsAvailable != null) && !subsAvailable.isEmpty()) {
 							html.setFile(player.getHtmlPrefix(), "data/html/villagemaster/SubClass_Add.htm");
-							final StringBuilder content1 = StringUtil.startAppend(200);
-							for (PlayerClass subClass : subsAvailable) {
-								StringUtil.append(content1, "<a action=\"bypass -h npc_%objectId%_Subclass 4 ", String.valueOf(subClass.ordinal()), "\" msg=\"1268;", ClassListData.getInstance().getClass(subClass.ordinal()).getClassName(), "\">", ClassListData.getInstance().getClass(subClass.ordinal()).getClientCode(), "</a><br>");
+							final var list = new StringBuilder(200);
+							for (var subClass : subsAvailable) {
+								list.append("<a action=\"bypass -h npc_%objectId%_Subclass 4 ")
+									.append(String.valueOf(subClass.ordinal()))
+									.append("\" msg=\"1268;")
+									.append(ClassListData.getInstance().getClass(subClass.ordinal()).getClassName())
+									.append("\">")
+									.append(ClassListData.getInstance().getClass(subClass.ordinal()).getClientCode())
+									.append("</a><br>");
 							}
-							html.replace("%list%", content1.toString());
+							html.replace("%list%", list.toString());
 						} else {
 							if ((player.getRace() == Race.ELF) || (player.getRace() == Race.DARK_ELF)) {
 								html.setFile(player.getHtmlPrefix(), "data/html/villagemaster/SubClass_Fail_Elves.htm");

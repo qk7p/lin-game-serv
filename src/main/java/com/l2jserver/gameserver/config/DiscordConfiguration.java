@@ -41,25 +41,25 @@ import org.aeonbits.owner.Reloadable;
 @LoadPolicy(MERGE)
 @HotReload(value = 20, unit = MINUTES, type = ASYNC)
 public interface DiscordConfiguration extends Mutable, Reloadable {
-
+	
 	@Key("BotEnable")
 	Boolean enableBot();
-
+	
 	@Key("BotPrefix")
 	String getPrefix();
-
+	
 	@Key("BotToken")
 	String getBotToken();
-
+	
 	@Key("ServerId")
 	String getServerId();
-
+	
 	@Key("GameMasterId")
 	String getGameMasterId();
-
+	
 	@Key("ConsoleLogChannelId")
 	String getConsoleLogChannelId();
-
+	
 	@Key("GameChatChannelId")
 	String getGameChatChannelId();
 }

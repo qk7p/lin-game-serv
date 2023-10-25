@@ -39,7 +39,6 @@ public class ConditionPlayerBaseStats extends Condition {
 	 * @param value the value
 	 */
 	public ConditionPlayerBaseStats(L2Character player, BaseStat stat, int value) {
-		super();
 		_stat = stat;
 		_value = value;
 	}

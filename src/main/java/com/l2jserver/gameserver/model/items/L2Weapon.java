@@ -327,10 +327,13 @@ public final class L2Weapon extends L2Item {
 		
 		// notify quests of a skill use
 		if (caster instanceof L2PcInstance) {
-			caster.getKnownList().getKnownObjects().values().stream() //
-				.filter(Objects::nonNull) //
-				.filter(L2Object::isNpc) //
-				.filter(npc -> Util.checkIfInRange(1000, npc, caster, false)) //
+			caster.getKnownList()
+				.getKnownObjects()
+				.values()
+				.stream()
+				.filter(Objects::nonNull)
+				.filter(L2Object::isNpc)
+				.filter(npc -> Util.checkIfInRange(1000, npc, caster, false))
 				.forEach(npc -> EventDispatcher.getInstance().notifyEventAsync(new OnNpcSkillSee((L2Npc) npc, caster.getActingPlayer(), onMagicSkill, List.of(target), false), npc));
 		}
 		if (caster.isPlayer()) {

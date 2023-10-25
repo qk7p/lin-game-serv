@@ -37,7 +37,7 @@ public class ConditionOpResurrection extends Condition {
 	
 	@Override
 	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item) {
-		if (effected == null || !(effected.isPlayer() || effected.isPet()) || !effected.isDead()) {
+		if ((effected == null) || !(effected.isPlayer() || effected.isPet()) || !effected.isDead()) {
 			return false;
 		}
 		

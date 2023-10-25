@@ -338,7 +338,7 @@ public final class GameServer {
 		
 		printSection("Scripts");
 		ScriptEngineManager.getInstance().executeScriptList(new File(server().getDatapackRoot(), "data/scripts.cfg"));
-
+		
 		printSection("Spawns");
 		SpawnTable.getInstance().load();
 		DayNightSpawnManager.getInstance().trim().notifyChangeMode();
@@ -501,11 +501,8 @@ public final class GameServer {
 	}
 	
 	/**
-	 * Returns either the value of the L2J_HOME variable or null.
-	 * <br><br>
-	 * When the L2J_HOME variable can be found as system property or environment
-	 * variable, it's value is returned (favoring the system property). If the
-	 * variable is not available, null is returned.
+	 * Returns either the value of the L2J_HOME variable or null.<br>
+	 * When the L2J_HOME variable can be found as system property or environment variable, it's value is returned (favoring the system property). If the variable is not available, null is returned.
 	 * @return returns the value of the L2J_HOME variable or null
 	 */
 	public static String getL2jHomeVariable() {

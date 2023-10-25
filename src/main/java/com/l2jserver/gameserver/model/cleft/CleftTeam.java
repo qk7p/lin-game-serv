@@ -34,7 +34,7 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 public final class CleftTeam {
 	private final Team _team;
 	private final Map<Integer, CleftParticipant> _participants;
-	private AtomicInteger _points;
+	private final AtomicInteger _points;
 	private CleftCombatAerialTarget _combatAerialTarget;
 	
 	public CleftTeam(Team team) {

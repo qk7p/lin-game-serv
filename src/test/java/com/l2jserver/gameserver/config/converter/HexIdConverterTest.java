@@ -35,7 +35,7 @@ public class HexIdConverterTest {
 	private static final HexIdConverter CONVERTER = new HexIdConverter();
 	
 	@ParameterizedTest
-    @MethodSource("provideKeyValues")
+	@MethodSource("provideKeyValues")
 	public void convertTest(String hexId, BigInteger expected) {
 		assertEquals(CONVERTER.convert(null, hexId), expected);
 	}

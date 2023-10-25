@@ -53,7 +53,7 @@ public class RecommendationSystem {
 	/** recommendation bonus time paused by peace zone entrance */
 	private boolean _recoBonusPeacePause = true;
 	/** count of recommendation bonus time pauses by other mechanisms than peace zone entrance */
-	private AtomicInteger _recoBonusOtherPause = new AtomicInteger(0);
+	private final AtomicInteger _recoBonusOtherPause = new AtomicInteger(0);
 	
 	public RecommendationSystem(L2PcInstance player) {
 		Objects.requireNonNull(player);
@@ -142,11 +142,11 @@ public class RecommendationSystem {
 			_player.sendPacket(new ExVoteSystemInfo(_player));
 			return;
 		}
-
+		
 		int remainingTime = getBonusTime();
 		cancelBonusTask();
 		setBonusTime(remainingTime);
-
+		
 		_player.debugFeature("RecBonus", "Stopping task.");
 		_player.sendPacket(new ExVoteSystemInfo(_player));
 	}
@@ -154,8 +154,7 @@ public class RecommendationSystem {
 	/**
 	 * Method to be called by task which gets fired when the recommendation bonus time is up.
 	 */
-	public void finishBonusTask()
-	{
+	public void finishBonusTask() {
 		cancelBonusTask();
 		setBonusTime(0);
 		
@@ -211,7 +210,7 @@ public class RecommendationSystem {
 			cancelBonusTask();
 			scheduleBonusTask(time);
 		}
-
+		
 		_recoBonusTime = time;
 	}
 	
@@ -220,7 +219,7 @@ public class RecommendationSystem {
 		if (isBonusTaskActive()) {
 			return (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
 		}
-
+		
 		return _recoBonusTime;
 	}
 	
@@ -241,12 +240,12 @@ public class RecommendationSystem {
 	
 	/** @return Whether the recommendation bonus timer is paused */
 	public boolean isBonusPaused() {
-		return (getBonusTime() > 0 && _recoBonusPeacePause) || _recoBonusOtherPause.get() > 0;
+		return ((getBonusTime() > 0) && _recoBonusPeacePause) || (_recoBonusOtherPause.get() > 0);
 	}
 	
 	/** @return Whether the recommendation bonus end timer was scheduled */
 	public boolean isBonusTaskActive() {
-		return _recoBonusTask != null && !_recoBonusTask.isCancelled() && !_recoBonusTask.isDone();
+		return (_recoBonusTask != null) && !_recoBonusTask.isCancelled() && !_recoBonusTask.isDone();
 	}
 	
 	public boolean isTwoHoursGiven() {

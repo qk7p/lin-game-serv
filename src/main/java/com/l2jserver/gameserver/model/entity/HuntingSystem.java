@@ -92,7 +92,7 @@ public class HuntingSystem {
 	}
 	
 	public void startHuntingSystemTask() {
-		if ((_huntingBonusTask == null) && ((getHuntingBonusTime() < hunting().getHuntingBonusMaxTime() || !hunting().getHuntingBonusLimit()))) {
+		if ((_huntingBonusTask == null) && (((getHuntingBonusTime() < hunting().getHuntingBonusMaxTime()) || !hunting().getHuntingBonusLimit()))) {
 			_huntingBonusTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HuntingBonusTask(), 1000, 10000);
 			if (hunting().getHuntingBonusLimit()) {
 				getActiveChar().sendPacket(new ExNevitAdventTimeChange(getHuntingBonusTime(), false));
@@ -104,7 +104,7 @@ public class HuntingSystem {
 		@Override
 		public void run() {
 			setHuntingBonusTime(getHuntingBonusTime() + HUNTING_BONUS_REFRESH_RATE);
-			if (getHuntingBonusTime() >= hunting().getHuntingBonusMaxTime() && hunting().getHuntingBonusLimit()) {
+			if ((getHuntingBonusTime() >= hunting().getHuntingBonusMaxTime()) && hunting().getHuntingBonusLimit()) {
 				setHuntingBonusTime(hunting().getHuntingBonusMaxTime());
 				stopHuntingBonusTask(true);
 				return;

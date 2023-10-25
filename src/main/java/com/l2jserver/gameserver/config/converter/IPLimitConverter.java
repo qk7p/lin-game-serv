@@ -44,7 +44,7 @@ public class IPLimitConverter implements Converter<Map<Integer, Integer>> {
 			return map;
 		}
 		
-		final var tokens = input.replaceAll(" ", "").split(";");
+		final var tokens = input.replace(" ", "").split(";");
 		for (var token : tokens) {
 			final var splitToken = token.split(",");
 			try {

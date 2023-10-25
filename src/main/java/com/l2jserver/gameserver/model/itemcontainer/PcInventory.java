@@ -81,7 +81,7 @@ public class PcInventory extends Inventory {
 		addPaperdollListener(BowCrossRodListener.getInstance());
 		addPaperdollListener(ItemSkillsListener.getInstance());
 		addPaperdollListener(BraceletListener.getInstance());
-
+		
 		_owner = owner;
 		_lock = new Object();
 	}
@@ -882,7 +882,7 @@ public class PcInventory extends Inventory {
 			item.applyEnchantStats();
 		}
 	}
-
+	
 	private static final class BowCrossRodListener implements PaperdollListener {
 		private static final BowCrossRodListener instance = new BowCrossRodListener();
 		

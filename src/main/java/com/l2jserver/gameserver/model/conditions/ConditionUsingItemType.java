@@ -45,7 +45,7 @@ public final class ConditionUsingItemType extends Condition {
 		}
 		
 		if (!effector.isPlayer()) {
-			return !_armor && (_mask & effector.getAttackType().mask()) != 0;
+			return !_armor && ((_mask & effector.getAttackType().mask()) != 0);
 		}
 		
 		final Inventory inv = effector.getInventory();

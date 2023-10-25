@@ -46,10 +46,10 @@ import com.l2jserver.gameserver.config.converter.HexIdConverter;
 @LoadPolicy(MERGE)
 @HotReload(value = 20, unit = MINUTES, type = ASYNC)
 public interface HexIdConfiguration extends Mutable, Reloadable, Accessible {
-	public static final String FILENAME = "hexid.txt";
+	String FILENAME = "hexid.txt";
 	
-	public static final String SERVERID_KEY = "ServerID";
-	public static final String HEXID_KEY = "HexID";
+	String SERVERID_KEY = "ServerID";
+	String HEXID_KEY = "HexID";
 	
 	@Key(SERVERID_KEY)
 	Integer getServerID();

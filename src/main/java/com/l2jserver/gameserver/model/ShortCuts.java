@@ -44,7 +44,7 @@ public class ShortCuts implements IRestorable {
 	}
 	
 	public Shortcut[] getAllShortCuts() {
-		return _shortCuts.values().toArray(new Shortcut[_shortCuts.values().size()]);
+		return _shortCuts.values().toArray(new Shortcut[_shortCuts.size()]);
 	}
 	
 	public Shortcut getShortCut(int slot, int page) {

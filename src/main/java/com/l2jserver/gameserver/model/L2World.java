@@ -158,7 +158,7 @@ public final class L2World {
 	 * @return the players sorted by the comparator
 	 */
 	public L2PcInstance[] getPlayersSortedBy(Comparator<L2PcInstance> comparator) {
-		final L2PcInstance[] players = _allPlayers.values().toArray(new L2PcInstance[_allPlayers.values().size()]);
+		final L2PcInstance[] players = _allPlayers.values().toArray(new L2PcInstance[_allPlayers.size()]);
 		Arrays.sort(players, comparator);
 		return players;
 	}
@@ -385,12 +385,13 @@ public final class L2World {
 	 */
 	public List<L2Object> getVisibleObjects(L2Object object, L2Object target, int radius) {
 		final int sqRadius = radius * radius;
-		return target.getWorldRegion().getSurroundingRegions() //
-			.stream() //
-			.flatMap(r -> r.getVisibleObjects().values().stream()) //
-			.filter(Objects::nonNull) //
-			.filter(o -> !o.equals(object)) //
-			.filter(o -> sqRadius > target.calculateDistance(o, false, true)) //
+		return target.getWorldRegion()
+			.getSurroundingRegions()
+			.stream()
+			.flatMap(r -> r.getVisibleObjects().values().stream())
+			.filter(Objects::nonNull)
+			.filter(o -> !o.equals(object))
+			.filter(o -> sqRadius > target.calculateDistance(o, false, true))
 			.collect(Collectors.toList());
 	}
 	

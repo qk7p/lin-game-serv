@@ -38,22 +38,22 @@ import com.l2jserver.gameserver.model.skills.Skill;
  */
 @ExtendWith(MockitoExtension.class)
 public class TargetTypeTest {
-
-    @Mock
-    private Skill skill;
-    @Mock
-    private L2Character caster;
-    @Mock
-    private L2Object target;
-
-    @Test
-    public void doorTreasureShouldReturnNullIfTargetIsNull() {
-        L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, null);
-
-        assertThat(result).isNull();
-    }
-
-    @Test
+	
+	@Mock
+	private Skill skill;
+	@Mock
+	private L2Character caster;
+	@Mock
+	private L2Object target;
+	
+	@Test
+	public void doorTreasureShouldReturnNullIfTargetIsNull() {
+		L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, null);
+		
+		assertThat(result).isNull();
+	}
+	
+	@Test
     public void doorTreasureShouldReturnNullIfTargetIsNotADoorOrChest() {
         when(target.isDoor()).thenReturn(false);
 
@@ -61,8 +61,8 @@ public class TargetTypeTest {
 
         assertThat(result).isNull();
     }
-
-    @Test
+	
+	@Test
     public void doorTreasureShouldReturnTargetIfDoor() {
         when(target.isDoor()).thenReturn(true);
 
@@ -70,13 +70,13 @@ public class TargetTypeTest {
 
         assertThat(result).isSameAs(target);
     }
-
-    @Test
-    public void doorTreasureShouldReturnTargetIfChest() {
-        target = mock(L2ChestInstance.class);
-
-        L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
-
-        assertThat(result).isSameAs(target);
-    }
+	
+	@Test
+	public void doorTreasureShouldReturnTargetIfChest() {
+		target = mock(L2ChestInstance.class);
+		
+		L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
+		
+		assertThat(result).isSameAs(target);
+	}
 }

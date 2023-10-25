@@ -29,7 +29,6 @@ public class ExNeedToChangeName extends L2GameServerPacket {
 	private final String _name;
 	
 	public ExNeedToChangeName(int type, int subType, String name) {
-		super();
 		_type = type;
 		_subType = subType;
 		_name = name;

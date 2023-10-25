@@ -44,8 +44,7 @@ public final class RequestVoteNew extends L2GameClientPacket {
 		}
 		
 		L2Object object = activeChar.getTarget();
-		
-		if (!(object instanceof L2PcInstance)) {
+		if (!(object instanceof L2PcInstance target)) {
 			if (object == null) {
 				activeChar.sendPacket(SystemMessageId.SELECT_TARGET);
 			} else {
@@ -53,8 +52,6 @@ public final class RequestVoteNew extends L2GameClientPacket {
 			}
 			return;
 		}
-		
-		L2PcInstance target = (L2PcInstance) object;
 		
 		if (target.getObjectId() != _targetId) {
 			return;

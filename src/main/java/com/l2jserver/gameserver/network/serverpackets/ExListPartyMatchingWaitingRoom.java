@@ -42,8 +42,8 @@ public class ExListPartyMatchingWaitingRoom extends L2GameServerPacket {
 	
 	public ExListPartyMatchingWaitingRoom(int page, int minLevel, int maxLevel, Set<Integer> classes, String filter) {
 		final var matchingPlayers = PartyMatchWaitingList.getInstance().findPlayers(minLevel, maxLevel, classes, filter);
-		this.totalMatchingPlayers = matchingPlayers.size();
-		this.players = matchingPlayers.stream() //
+		totalMatchingPlayers = matchingPlayers.size();
+		players = matchingPlayers.stream() //
 			.skip((page - 1) * TOTAL) //
 			.limit(page * TOTAL) //
 			.collect(Collectors.toList());
