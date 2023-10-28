@@ -18,7 +18,6 @@
  */
 package com.l2jserver.gameserver.model.drops.strategy;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.l2jserver.commons.util.Rnd;
@@ -41,7 +40,7 @@ public interface IDropCalculationStrategy {
 				}
 			}
 			
-			return Collections.singletonList(new ItemHolder(item.getItemId(), Rnd.get(item.getMin(victim), item.getMax(victim)) * amountMultiply));
+			return List.of(new ItemHolder(item.getItemId(), Rnd.get(item.getMin(victim), item.getMax(victim)) * amountMultiply));
 		}
 		
 		return null;
