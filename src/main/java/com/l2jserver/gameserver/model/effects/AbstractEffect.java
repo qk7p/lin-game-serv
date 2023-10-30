@@ -20,12 +20,12 @@ package com.l2jserver.gameserver.model.effects;
 
 import static com.l2jserver.gameserver.config.Configuration.character;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.gameserver.handler.EffectHandler;
 import com.l2jserver.gameserver.model.StatsSet;
@@ -45,7 +45,8 @@ import com.l2jserver.gameserver.model.stats.functions.FuncTemplate;
  * @author Zoey76
  */
 public abstract class AbstractEffect {
-	protected static final Logger _log = Logger.getLogger(AbstractEffect.class.getName());
+	
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractEffect.class);
 	
 	// Conditions
 	/** Attach condition. */
@@ -80,25 +81,20 @@ public abstract class AbstractEffect {
 	 * @return the new effect
 	 */
 	public static AbstractEffect createEffect(Condition attachCond, Condition applyCond, StatsSet set, StatsSet params) {
-		final String name = set.getString("name");
-		final Class<? extends AbstractEffect> handler = EffectHandler.getInstance().getHandler(name);
+		final var name = set.getString("name");
+		final var handler = EffectHandler.getInstance().getHandler(name);
 		if (handler == null) {
-			_log.warning(AbstractEffect.class.getSimpleName() + ": Requested unexistent effect handler: " + name + " in skill[" + set.getInt("id") + "]");
-			return null;
-		}
-		
-		final Constructor<?> constructor;
-		try {
-			constructor = handler.getConstructor(Condition.class, Condition.class, StatsSet.class, StatsSet.class);
-		} catch (NoSuchMethodException | SecurityException e) {
-			_log.warning(AbstractEffect.class.getSimpleName() + ": Requested unexistent constructor for effect handler: " + name + " in skill[" + set.getInt("id") + "] : " + e.getMessage());
+			LOG.warn("Requested unexistent effect handler {} in skill Id {}!", name, set.getInt("id"));
 			return null;
 		}
 		
 		try {
-			return (AbstractEffect) constructor.newInstance(attachCond, applyCond, set, params);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			_log.warning(AbstractEffect.class.getSimpleName() + ": Unable to initialize effect handler: " + name + " in skill[" + set.getInt("id") + "] : " + e.getMessage());
+			final var constructor = handler.getConstructor(Condition.class, Condition.class, StatsSet.class, StatsSet.class);
+			return constructor.newInstance(attachCond, applyCond, set, params);
+		} catch (NoSuchMethodException | SecurityException ex) {
+			LOG.warn("Requested unexistent constructor for effect handler {} in skill Id {}!", name, set.getInt("id"), ex);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+			LOG.warn("Unable to initialize effect handler {} in skill Id {}!", name, set.getInt("id"), ex);
 		}
 		return null;
 	}
@@ -223,12 +219,12 @@ public abstract class AbstractEffect {
 	 */
 	public List<AbstractFunction> getStatFuncs(L2Character caster, L2Character target, Skill skill) {
 		if (getFuncTemplates() == null) {
-			return Collections.emptyList();
+			return List.of();
 		}
 		
-		final List<AbstractFunction> functions = new ArrayList<>(getFuncTemplates().size());
-		for (FuncTemplate functionTemplate : getFuncTemplates()) {
-			final AbstractFunction function = functionTemplate.getFunc(caster, target, skill, this);
+		final var functions = new ArrayList<AbstractFunction>(getFuncTemplates().size());
+		for (var functionTemplate : getFuncTemplates()) {
+			final var function = functionTemplate.getFunc(caster, target, skill, this);
 			if (function != null) {
 				functions.add(function);
 			}
