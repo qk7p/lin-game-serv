@@ -132,7 +132,7 @@ public abstract class AbstractAI implements Ctrl {
 	protected L2Character _followTarget;
 	
 	/** The skill we are currently casting by INTENTION_CAST */
-	Skill _skill;
+	protected Skill _skill;
 	
 	/** Different internal state flags */
 	private int _moveToPawnTimeout;

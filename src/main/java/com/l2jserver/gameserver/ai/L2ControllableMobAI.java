@@ -22,7 +22,6 @@ import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_ACTIVE;
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_ATTACK;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import com.l2jserver.commons.util.Rnd;
@@ -80,11 +79,11 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 	
 	@Override
 	protected void onEvtThink() {
-		if (isThinking()) {
+		if (_isThinking) {
 			return;
 		}
 		
-		setThinking(true);
+		_isThinking = true;
 		
 		try {
 			switch (getAlternateAI()) {
@@ -114,30 +113,31 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 					break;
 			}
 		} finally {
-			setThinking(false);
+			_isThinking = false;
 		}
 	}
 	
 	@Override
 	protected void thinkCast() {
-		L2Attackable npc = (L2Attackable) _actor;
-		if ((getAttackTarget() == null) || getAttackTarget().isAlikeDead()) {
+		final var attackTarget = getAttackTarget();
+		if ((attackTarget == null) || attackTarget.isAlikeDead()) {
 			setAttackTarget(findNextRndTarget());
 			clientStopMoving(null);
+			
+			if (attackTarget == null) {
+				return;
+			}
 		}
 		
-		if (getAttackTarget() == null) {
-			return;
-		}
-		
-		npc.setTarget(getAttackTarget());
+		final var actor = getActor();
+		actor.setTarget(attackTarget);
 		
 		if (!_actor.isMuted()) {
 			int max_range = 0;
 			// check distant skills
 			
 			for (Skill sk : _actor.getAllSkills()) {
-				if (Util.checkIfInRange(sk.getCastRange(), _actor, getAttackTarget(), true) && !_actor.isSkillDisabled(sk) && (_actor.getCurrentMp() > _actor.getStat().getMpConsume2(sk))) {
+				if (Util.checkIfInRange(sk.getCastRange(), _actor, attackTarget, true) && !_actor.isSkillDisabled(sk) && (_actor.getCurrentMp() > _actor.getStat().getMpConsume2(sk))) {
 					_actor.doCast(sk);
 					return;
 				}
@@ -146,7 +146,7 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 			}
 			
 			if (!isNotMoving()) {
-				moveToPawn(getAttackTarget(), max_range);
+				moveToPawn(attackTarget, max_range);
 			}
 		}
 	}
@@ -351,8 +351,8 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 			return false;
 		}
 		
-		final L2Attackable me = getActiveChar();
-		if (!me.isInsideRadius(target, me.getAggroRange(), false, false) || (Math.abs(_actor.getZ() - target.getZ()) > 100)) {
+		final var actor = getActor();
+		if (!_actor.isInsideRadius(target, actor.getAggroRange(), false, false) || (Math.abs(_actor.getZ() - target.getZ()) > 100)) {
 			return false;
 		}
 		
@@ -363,11 +363,11 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 				return false;
 			}
 		}
-		return me.isAggressive();
+		return actor.isAggressive();
 	}
 	
 	private L2Character findNextRndTarget() {
-		final List<L2Character> potentialTarget = _actor.getKnownList().getKnownCharactersInRadius(getActiveChar().getAggroRange()).stream().filter(this::checkAutoAttackCondition).collect(Collectors.toList());
+		final var potentialTarget = _actor.getKnownList().getKnownCharactersInRadius(getActor().getAggroRange()).stream().filter(this::checkAutoAttackCondition).collect(Collectors.toList());
 		if (potentialTarget.isEmpty()) {
 			return null;
 		}
@@ -411,20 +411,12 @@ public final class L2ControllableMobAI extends L2AttackableAI {
 		setForcedTarget(target);
 	}
 	
-	public boolean isThinking() {
-		return _isThinking;
-	}
-	
 	public boolean isNotMoving() {
 		return _isNotMoving;
 	}
 	
 	public void setNotMoving(boolean isNotMoving) {
 		_isNotMoving = isNotMoving;
-	}
-	
-	public void setThinking(boolean isThinking) {
-		_isThinking = isThinking;
 	}
 	
 	private L2Character getForcedTarget() {

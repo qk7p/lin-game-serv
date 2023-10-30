@@ -4108,7 +4108,7 @@ public final class L2PcInstance extends L2Playable {
 			oldTarget.removeStatusListener(this);
 		}
 		
-		if (newTarget instanceof final L2Character target) {
+		if (newTarget instanceof L2Character target) {
 			// Validate location of the new target.
 			if (newTarget.getObjectId() != getObjectId()) {
 				sendPacket(new ValidateLocation(target));
