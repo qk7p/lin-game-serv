@@ -806,7 +806,7 @@ public final class Castle extends AbstractResidence {
 	public void updateShowNpcCrest() {
 		try (var con = ConnectionFactory.getInstance().getConnection();
 			var ps = con.prepareStatement("UPDATE castle SET showNpcCrest = ? WHERE id = ?")) {
-			ps.setString(1, String.valueOf(getShowNpcCrest()));
+			ps.setBoolean(1, getShowNpcCrest());
 			ps.setInt(2, getResidenceId());
 			ps.execute();
 		} catch (Exception e) {

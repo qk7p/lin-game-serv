@@ -155,7 +155,7 @@ public final class MailManager {
 	
 	public void markAsReadInDb(int msgId) {
 		try (var con = ConnectionFactory.getInstance().getConnection();
-			var ps = con.prepareStatement("UPDATE messages SET isUnread = 'false' WHERE messageId = ?")) {
+			var ps = con.prepareStatement("UPDATE messages SET isUnread=FALSE WHERE messageId = ?")) {
 			ps.setInt(1, msgId);
 			ps.execute();
 		} catch (Exception ex) {
@@ -165,7 +165,7 @@ public final class MailManager {
 	
 	public void markAsDeletedBySenderInDb(int msgId) {
 		try (var con = ConnectionFactory.getInstance().getConnection();
-			var ps = con.prepareStatement("UPDATE messages SET isDeletedBySender = 'true' WHERE messageId = ?")) {
+			var ps = con.prepareStatement("UPDATE messages SET isDeletedBySender=TRUE WHERE messageId = ?")) {
 			ps.setInt(1, msgId);
 			ps.execute();
 		} catch (Exception ex) {
@@ -175,7 +175,7 @@ public final class MailManager {
 	
 	public void markAsDeletedByReceiverInDb(int msgId) {
 		try (var con = ConnectionFactory.getInstance().getConnection();
-			var ps = con.prepareStatement("UPDATE messages SET isDeletedByReceiver = 'true' WHERE messageId = ?")) {
+			var ps = con.prepareStatement("UPDATE messages SET isDeletedByReceiver=TRUE WHERE messageId = ?")) {
 			ps.setInt(1, msgId);
 			ps.execute();
 		} catch (Exception ex) {
@@ -185,7 +185,7 @@ public final class MailManager {
 	
 	public void removeAttachmentsInDb(int msgId) {
 		try (var con = ConnectionFactory.getInstance().getConnection();
-			var ps = con.prepareStatement("UPDATE messages SET hasAttachments = 'false' WHERE messageId = ?")) {
+			var ps = con.prepareStatement("UPDATE messages SET hasAttachments=FALSE WHERE messageId = ?")) {
 			ps.setInt(1, msgId);
 			ps.execute();
 		} catch (Exception ex) {

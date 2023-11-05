@@ -155,12 +155,12 @@ public class Message {
 		stmt.setString(5, msg._content);
 		stmt.setLong(6, msg._expiration);
 		stmt.setLong(7, msg._reqAdena);
-		stmt.setString(8, String.valueOf(msg._hasAttachments));
-		stmt.setString(9, String.valueOf(msg._unread));
-		stmt.setString(10, String.valueOf(msg._deletedBySender));
-		stmt.setString(11, String.valueOf(msg._deletedByReceiver));
+		stmt.setBoolean(8, msg._hasAttachments);
+		stmt.setBoolean(9, msg._unread);
+		stmt.setBoolean(10, msg._deletedBySender);
+		stmt.setBoolean(11, msg._deletedByReceiver);
 		stmt.setString(12, String.valueOf(msg._sendBySystem));
-		stmt.setString(13, String.valueOf(msg._returned));
+		stmt.setBoolean(13, msg._returned);
 		
 		return stmt;
 	}

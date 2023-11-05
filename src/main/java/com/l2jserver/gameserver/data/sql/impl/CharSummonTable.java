@@ -51,7 +51,7 @@ public class CharSummonTable {
 	private static final Map<Integer, Integer> _servitors = new ConcurrentHashMap<>();
 	
 	// SQL
-	private static final String INIT_PET = "SELECT ownerId, item_obj_id FROM pets WHERE restore = 'true'";
+	private static final String INIT_PET = "SELECT ownerId, item_obj_id FROM pets WHERE restore=TRUE";
 	
 	private static final String INIT_SUMMONS = "SELECT ownerId, summonSkillId FROM character_summons";
 	

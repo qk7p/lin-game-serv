@@ -947,17 +947,9 @@ public class L2Clan implements IIdentifiable, INamable {
 			var ps = con.prepareStatement("INSERT INTO clan_notices (clan_id,notice,enabled) values (?,?,?) ON DUPLICATE KEY UPDATE notice=?,enabled=?")) {
 			ps.setInt(1, getId());
 			ps.setString(2, notice);
-			if (enabled) {
-				ps.setString(3, "true");
-			} else {
-				ps.setString(3, "false");
-			}
+			ps.setBoolean(3, enabled);
 			ps.setString(4, notice);
-			if (enabled) {
-				ps.setString(5, "true");
-			} else {
-				ps.setString(5, "false");
-			}
+			ps.setBoolean(5, enabled);
 			ps.execute();
 		} catch (Exception e) {
 			_log.log(Level.WARNING, "Error could not store clan notice: " + e.getMessage(), e);

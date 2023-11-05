@@ -121,7 +121,7 @@ public class Hero {
 				hero.set(Olympiad.CLASS_ID, rs1.getInt(Olympiad.CLASS_ID));
 				hero.set(COUNT, rs1.getInt(COUNT));
 				hero.set(PLAYED, rs1.getInt(PLAYED));
-				hero.set(CLAIMED, Boolean.parseBoolean(rs1.getString(CLAIMED)));
+				hero.set(CLAIMED, rs1.getBoolean(CLAIMED));
 				
 				loadFights(charId);
 				loadDiary(charId);
@@ -604,7 +604,7 @@ public class Hero {
 							insert.setInt(2, hero.getInt(Olympiad.CLASS_ID));
 							insert.setInt(3, hero.getInt(COUNT));
 							insert.setInt(4, hero.getInt(PLAYED));
-							insert.setString(5, String.valueOf(hero.getBoolean(CLAIMED)));
+							insert.setBoolean(5, hero.getBoolean(CLAIMED));
 							insert.execute();
 						}
 						

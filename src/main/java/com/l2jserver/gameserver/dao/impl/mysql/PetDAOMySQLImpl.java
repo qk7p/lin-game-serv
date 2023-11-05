@@ -136,7 +136,7 @@ public class PetDAOMySQLImpl implements PetDAO {
 			ps.setInt(6, pet.getSp());
 			ps.setInt(7, pet.getCurrentFed());
 			ps.setInt(8, pet.getOwner().getObjectId());
-			ps.setString(9, String.valueOf(pet.isRestoreSummon())); // True restores pet on login
+			ps.setBoolean(9, pet.isRestoreSummon()); // True restores pet on login
 			ps.setInt(10, pet.getControlObjectId());
 			ps.executeUpdate();
 		} catch (Exception e) {

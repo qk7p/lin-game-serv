@@ -1069,7 +1069,7 @@ public class Siege implements Siegable {
 			var ps = con.prepareStatement("UPDATE castle SET siegeDate = ?, regTimeEnd = ?, regTimeOver = ?  WHERE id = ?")) {
 			ps.setLong(1, getSiegeDate().getTimeInMillis());
 			ps.setLong(2, getTimeRegistrationOverDate().getTimeInMillis());
-			ps.setString(3, String.valueOf(getIsTimeRegistrationOver()));
+			ps.setBoolean(3, getIsTimeRegistrationOver());
 			ps.setInt(4, getCastle().getResidenceId());
 			ps.execute();
 		} catch (Exception ex) {
