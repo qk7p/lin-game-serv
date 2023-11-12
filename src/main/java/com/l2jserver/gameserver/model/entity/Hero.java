@@ -139,7 +139,7 @@ public class Hero {
 				hero.set(Olympiad.CLASS_ID, rs2.getInt(Olympiad.CLASS_ID));
 				hero.set(COUNT, rs2.getInt(COUNT));
 				hero.set(PLAYED, rs2.getInt(PLAYED));
-				hero.set(CLAIMED, Boolean.parseBoolean(rs2.getString(CLAIMED)));
+				hero.set(CLAIMED, rs2.getBoolean(CLAIMED));
 				
 				processHeroes(ps, charId, hero);
 				
@@ -644,7 +644,7 @@ public class Hero {
 						try (var statement = con.prepareStatement(UPDATE_HERO)) {
 							statement.setInt(1, hero.getInt(COUNT));
 							statement.setInt(2, hero.getInt(PLAYED));
-							statement.setString(3, String.valueOf(hero.getBoolean(CLAIMED)));
+							statement.setBoolean(3, hero.getBoolean(CLAIMED));
 							statement.setInt(4, heroId);
 							statement.execute();
 						}
