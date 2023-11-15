@@ -18,10 +18,14 @@
  */
 package com.l2jserver.gameserver.model.skills.targets;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.l2jserver.gameserver.model.actor.instance.L2MonsterInstance;
+import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -38,45 +42,85 @@ import com.l2jserver.gameserver.model.skills.Skill;
  */
 @ExtendWith(MockitoExtension.class)
 public class TargetTypeTest {
-	
 	@Mock
 	private Skill skill;
-	@Mock
-	private L2Character caster;
-	@Mock
-	private L2Object target;
-	
+
 	@Test
 	public void doorTreasureShouldReturnNullIfTargetIsNull() {
-		L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, null);
-		
-		assertThat(result).isNull();
+		final var caster = mock(L2Character.class);
+
+		final var result = TargetType.DOOR_TREASURE.getTarget(skill, caster, null);
+
+		assertNull(result);
 	}
 	
 	@Test
     public void doorTreasureShouldReturnNullIfTargetIsNotADoorOrChest() {
+		final var target = mock(L2Object.class);
         when(target.isDoor()).thenReturn(false);
 
-        L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
+		final var caster = mock(L2Character.class);
 
-        assertThat(result).isNull();
+		final var result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
+
+		assertNull(result);
     }
 	
 	@Test
     public void doorTreasureShouldReturnTargetIfDoor() {
+		final var target = mock(L2Object.class);
         when(target.isDoor()).thenReturn(true);
 
-        L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
+		final var caster = mock(L2Character.class);
 
-        assertThat(result).isSameAs(target);
+		final var result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
+
+		assertEquals(target, result);
     }
 	
 	@Test
 	public void doorTreasureShouldReturnTargetIfChest() {
-		target = mock(L2ChestInstance.class);
-		
-		L2Object result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
-		
-		assertThat(result).isSameAs(target);
+		final var target = mock(L2ChestInstance.class);
+		final var caster = mock(L2Character.class);
+
+		final var result = TargetType.DOOR_TREASURE.getTarget(skill, caster, target);
+
+		assertEquals(target, result);
+	}
+
+	@Test
+	public void testMonstersCanUseEnemyOnlySkillsOnPc() {
+		final var caster = mock(L2MonsterInstance.class);
+		when(caster.getObjectId()).thenReturn(1);
+		when(caster.isPlayable()).thenReturn(false);
+
+		final var target = mock(L2PcInstance.class);
+		when(target.isCharacter()).thenReturn(true);
+		when(target.isDead()).thenReturn(false);
+		when(target.getObjectId()).thenReturn(2);
+		when(target.isAutoAttackable(any())).thenReturn(true);
+
+		final var result = TargetType.ENEMY_ONLY.getTarget(skill, caster, target);
+
+		assertEquals(target, result);
+	}
+
+	@Test
+	public void testPvpChecksReachedForEnemyOnlySkills() {
+		final var caster = mock(L2PcInstance.class);
+		when(caster.getObjectId()).thenReturn(1);
+		when(caster.isPlayable()).thenReturn(true);
+		when(caster.getActingPlayer()).thenReturn(caster);
+		when(caster.isInOlympiadMode()).thenReturn(true);
+
+		final var target = mock(L2PcInstance.class);
+		when(target.isCharacter()).thenReturn(true);
+		when(target.isDead()).thenReturn(false);
+		when(target.getObjectId()).thenReturn(2);
+		when(target.isAutoAttackable(any())).thenReturn(true);
+
+		final var result = TargetType.ENEMY_ONLY.getTarget(skill, caster, target);
+
+		assertNull(result);
 	}
 }

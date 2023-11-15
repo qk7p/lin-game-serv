@@ -139,12 +139,16 @@ public enum TargetType {
 				caster.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
+			if (!caster.isPlayable()) {
+				return target;
+			}
+
 			final var player = caster.getActingPlayer();
 			if (player == null) {
 				return null;
 			}
-			
+
 			// In Olympiad, different sides.
 			if (player.isInOlympiadMode()) {
 				final var targetPlayer = target.getActingPlayer();
@@ -154,7 +158,7 @@ public enum TargetType {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			final var targetCreature = (L2Character) target;
 			// In Duel, different sides.
 			if (player.isInDuelWith(targetCreature)) {
@@ -163,61 +167,61 @@ public enum TargetType {
 				final var teamA = duel.getTeamA();
 				final var teamB = duel.getTeamB();
 				if ((teamA.contains(player) && teamB.contains(targetPlayer)) || //
-					(teamB.contains(player) && teamA.contains(targetPlayer))) {
+						(teamB.contains(player) && teamA.contains(targetPlayer))) {
 					return target;
 				}
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			// Not in same party.
 			if (player.isInPartyWith(targetCreature)) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			// In PVP Zone.
 			if (player.isInsideZone(PVP)) {
 				return target;
 			}
-			
+
 			// Not in same clan.
 			if (player.isInClanWith(targetCreature)) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			// TODO(Zoey76): Validate.
 			// Not in same alliance.
 			if (player.isInAllyWith(targetCreature)) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			// TODO(Zoey76): Validate.
 			// Not in same command channel.
 			if (player.isInCommandChannelWith(targetCreature)) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			// Not on same Siege Side.
 			if (player.isOnSameSiegeSideWith(targetCreature)) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			// At Clan War.
 			if (player.isAtWarWith(targetCreature)) {
 				return target;
 			}
-			
+
 			// Cannot PvP.
 			if (!player.checkIfPvP(targetCreature) && (target.isPlayable() && (target.getActingPlayer().getKarma() == 0))) {
 				player.sendPacket(INCORRECT_TARGET);
 				return null;
 			}
-			
+
 			return target;
 		}
 	},
