@@ -2822,7 +2822,7 @@ public final class L2PcInstance extends L2Playable {
 				return null;
 			}
 			// Sends message to client if requested
-			if (sendMessage && ((!isCastingNow() && item.hasExImmediateEffect()) || !item.hasExImmediateEffect())) {
+			if (sendMessage) {
 				if (count > 1) {
 					if (process.equalsIgnoreCase("Sweeper") || process.equalsIgnoreCase("Quest")) {
 						SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S);
