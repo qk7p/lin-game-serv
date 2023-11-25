@@ -26,10 +26,9 @@ import java.net.Inet6Address;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -106,8 +105,8 @@ public class IPConfigData implements IXmlReader {
 	protected void autoIpConfig() {
 		String externalIp;
 		try {
-			URL autoIp = new URL("http://ip1.dynupdate.no-ip.com:8245/");
-			try (BufferedReader in = new BufferedReader(new InputStreamReader(autoIp.openStream()))) {
+			final var autoIp = URI.create("http://ip1.dynupdate.no-ip.com:8245/").toURL();
+			try (var in = new BufferedReader(new InputStreamReader(autoIp.openStream()))) {
 				externalIp = in.readLine();
 			}
 		} catch (IOException ex) {
@@ -116,11 +115,9 @@ public class IPConfigData implements IXmlReader {
 		}
 		
 		try {
-			Enumeration<NetworkInterface> niList = NetworkInterface.getNetworkInterfaces();
-			
+			final var niList = NetworkInterface.getNetworkInterfaces();
 			while (niList.hasMoreElements()) {
-				NetworkInterface ni = niList.nextElement();
-				
+				final var ni = niList.nextElement();
 				if (!ni.isUp() || ni.isVirtual()) {
 					continue;
 				}

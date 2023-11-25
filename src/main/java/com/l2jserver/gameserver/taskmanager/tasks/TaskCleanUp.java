@@ -35,7 +35,6 @@ public final class TaskCleanUp extends Task {
 	
 	@Override
 	public void onTimeElapsed(ExecutedTask task) {
-		System.runFinalization();
 		System.gc();
 	}
 }
