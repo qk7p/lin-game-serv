@@ -38,7 +38,7 @@ High Five part 5 client fully updated.
 Links
 ---
 
-- [Web Site](http://www.l2jserver.com)
+- [Web Site](http://www.l2jserver.com/)
 
 - [Forums](http://www.l2jserver.com/forum/)
 
