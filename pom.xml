@@ -86,6 +86,7 @@
 				<configuration>
 					<failBuildOnCVSS>8</failBuildOnCVSS>
 					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 				</configuration>
 				<executions>
 					<execution>
