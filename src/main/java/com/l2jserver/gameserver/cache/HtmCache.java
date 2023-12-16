@@ -64,7 +64,7 @@ public class HtmCache {
 		if (!general().lazyCache()) {
 			LOG.info("Html cache start...");
 			parseDir(f);
-			LOG.info(String.format("%.3f", getMemoryUsage()) + " megabytes on " + getLoadedFiles() + " files loaded");
+			LOG.info(String.format("%.3f", getMemoryUsage()) + " megabytes on " + getLoadedFiles() + " files loaded.");
 		} else {
 			HTML_CACHE.clear();
 			_loadedFiles = 0;

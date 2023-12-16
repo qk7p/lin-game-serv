@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -542,11 +541,10 @@ public class NpcData implements IXmlReader {
 	 * @return the template list for the given filter
 	 */
 	public List<L2NpcTemplate> getTemplates(Predicate<L2NpcTemplate> filter) {
-		//@formatter:off
-			return _npcs.values().stream()
+		return _npcs.values()
+			.stream()
 			.filter(filter)
-			.collect(Collectors.toList());
-		//@formatter:on
+			.toList();
 	}
 	
 	/**

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileFilter;
 
 /**
+ * Extension Filter.
  * @author lasarus
  */
 public class ExtFilter implements FileFilter {

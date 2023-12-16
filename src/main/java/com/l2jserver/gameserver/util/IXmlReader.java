@@ -23,7 +23,6 @@ import static com.l2jserver.gameserver.config.Configuration.server;
 import java.io.File;
 import java.io.FileFilter;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
@@ -77,13 +76,13 @@ public interface IXmlReader {
 			return;
 		}
 		
-		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		final var dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
 		dbf.setValidating(true);
 		dbf.setIgnoringComments(true);
 		try {
 			dbf.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
-			final DocumentBuilder db = dbf.newDocumentBuilder();
+			final var db = dbf.newDocumentBuilder();
 			db.setErrorHandler(new XMLErrorHandler());
 			parseDocument(db.parse(f), f);
 		} catch (SAXParseException e) {
@@ -91,34 +90,6 @@ public interface IXmlReader {
 		} catch (Exception e) {
 			LOG.warn("{}: Could not parse file {}", getClass().getSimpleName(), f.getName(), e);
 		}
-	}
-	
-	/**
-	 * Wrapper for {@link #parseDirectory(File, boolean)}.
-	 * @param file the path to the directory where the XML files are.
-	 * @return {@code false} if it fails to find the directory, {@code true} otherwise.
-	 */
-	default boolean parseDirectory(File file) {
-		return parseDirectory(file, false);
-	}
-	
-	/**
-	 * Wrapper for {@link #parseDirectory(File, boolean)}.
-	 * @param path the path to the directory where the XML files are.
-	 * @return {@code false} if it fails to find the directory, {@code true} otherwise.
-	 */
-	default boolean parseDirectory(String path) {
-		return parseDirectory(new File(path), false);
-	}
-	
-	/**
-	 * Wrapper for {@link #parseDirectory(File, boolean)}.
-	 * @param path the path to the directory where the XML files are.
-	 * @param recursive parses all sub folders if there is.
-	 * @return {@code false} if it fails to find the directory, {@code true} otherwise.
-	 */
-	default boolean parseDirectory(String path, boolean recursive) {
-		return parseDirectory(new File(path), recursive);
 	}
 	
 	/**
@@ -133,13 +104,13 @@ public interface IXmlReader {
 			return false;
 		}
 		
-		final File[] files = dir.listFiles();
+		final var files = dir.listFiles();
 		if (files != null) {
-			for (File f : files) {
-				if (recursive && f.isDirectory()) {
-					parseDirectory(f, recursive);
-				} else if (getCurrentFileFilter().accept(f)) {
-					parseFile(f);
+			for (var file : files) {
+				if (recursive && file.isDirectory()) {
+					parseDirectory(file, recursive);
+				} else if (getCurrentFileFilter().accept(file)) {
+					parseFile(file);
 				}
 			}
 		}
