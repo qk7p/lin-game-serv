@@ -91,23 +91,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
-				<version>${dependency-check-maven.version}</version>
-				<configuration>
-					<failBuildOnCVSS>8</failBuildOnCVSS>
-					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -201,4 +184,30 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>ci</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.owasp</groupId>
+						<artifactId>dependency-check-maven</artifactId>
+						<version>${dependency-check-maven.version}</version>
+						<configuration>
+							<failBuildOnCVSS>8</failBuildOnCVSS>
+							<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+							<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
