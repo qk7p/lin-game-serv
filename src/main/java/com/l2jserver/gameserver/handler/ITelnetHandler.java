@@ -20,14 +20,12 @@ package com.l2jserver.gameserver.handler;
 
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Logger;
 
 /**
+ * Telnet Handler interface.
  * @author UnAfraid
  */
 public interface ITelnetHandler {
-	Logger _log = Logger.getLogger(ITelnetHandler.class.getName());
-	
 	/**
 	 * this is the worker method that is called when someone uses an bypass command
 	 * @param command

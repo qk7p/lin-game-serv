@@ -23,8 +23,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -34,11 +35,16 @@ import com.l2jserver.gameserver.model.conditions.Condition;
 import com.l2jserver.gameserver.model.items.L2Item;
 
 /**
+ * Document Item.
  * @author mkizub
  * @author JIV
  */
 public final class DocumentItem extends DocumentBase {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(DocumentItem.class);
+	
 	private Item _currentItem = null;
+	
 	private final List<L2Item> _itemsInFile = new ArrayList<>();
 	
 	public DocumentItem(File file) {
@@ -62,18 +68,17 @@ public final class DocumentItem extends DocumentBase {
 	
 	@Override
 	protected void parseDocument(Document doc) {
-		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling()) {
+		for (var n = doc.getFirstChild(); n != null; n = n.getNextSibling()) {
 			if ("list".equalsIgnoreCase(n.getNodeName())) {
-				
-				for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling()) {
+				for (var d = n.getFirstChild(); d != null; d = d.getNextSibling()) {
 					if ("item".equalsIgnoreCase(d.getNodeName())) {
 						try {
 							_currentItem = new Item();
 							parseItem(d);
 							_itemsInFile.add(_currentItem.item);
 							resetTable();
-						} catch (Exception e) {
-							_log.log(Level.WARNING, "Cannot create item " + _currentItem.id, e);
+						} catch (Exception ex) {
+							LOG.warn("Cannot create item Id {}!", _currentItem.id, ex);
 						}
 					}
 				}

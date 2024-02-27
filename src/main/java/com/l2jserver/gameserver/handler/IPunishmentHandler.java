@@ -18,17 +18,14 @@
  */
 package com.l2jserver.gameserver.handler;
 
-import java.util.logging.Logger;
-
 import com.l2jserver.gameserver.model.punishment.PunishmentTask;
 import com.l2jserver.gameserver.model.punishment.PunishmentType;
 
 /**
+ * Punishment Handler interface.
  * @author UnAfraid
  */
 public interface IPunishmentHandler {
-	Logger _log = Logger.getLogger(IPunishmentHandler.class.getName());
-	
 	void onStart(PunishmentTask task);
 	
 	void onEnd(PunishmentTask task);

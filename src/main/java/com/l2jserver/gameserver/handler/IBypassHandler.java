@@ -18,17 +18,14 @@
  */
 package com.l2jserver.gameserver.handler;
 
-import java.util.logging.Logger;
-
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 
 /**
+ * Bypass Handler interface.
  * @author nBd
  */
 public interface IBypassHandler {
-	Logger _log = Logger.getLogger(IBypassHandler.class.getName());
-	
 	/**
 	 * This is the worker method that is called when someone uses an bypass command.
 	 * @param command

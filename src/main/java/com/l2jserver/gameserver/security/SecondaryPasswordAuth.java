@@ -22,8 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.commons.database.ConnectionFactory;
 import com.l2jserver.gameserver.LoginServerThread;
@@ -35,11 +36,12 @@ import com.l2jserver.gameserver.network.serverpackets.Ex2ndPasswordVerify;
 import com.l2jserver.gameserver.util.Util;
 
 /**
+ * Secondary Password Auth.
  * @author mrTJO
  */
 public class SecondaryPasswordAuth {
 	
-	private static final Logger _log = Logger.getLogger(SecondaryPasswordAuth.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(SecondaryPasswordAuth.class);
 	
 	private final L2GameClient _activeClient;
 	
@@ -81,14 +83,14 @@ public class SecondaryPasswordAuth {
 					}
 				}
 			}
-		} catch (Exception e) {
-			_log.log(Level.SEVERE, "Error while reading password.", e);
+		} catch (Exception ex) {
+			LOG.error("Error while reading password.", ex);
 		}
 	}
 	
 	public boolean savePassword(String password) {
 		if (passwordExist()) {
-			_log.warning("[SecondaryPasswordAuth]" + _activeClient.getAccountName() + " forced savePassword");
+			LOG.warn(_activeClient.getAccountName() + " forced save password!");
 			_activeClient.closeNow();
 			return false;
 		}
@@ -106,8 +108,8 @@ public class SecondaryPasswordAuth {
 			ps.setString(2, VAR_PWD);
 			ps.setString(3, password);
 			ps.execute();
-		} catch (Exception e) {
-			_log.log(Level.SEVERE, "Error while writing password.", e);
+		} catch (Exception ex) {
+			LOG.error("Error while writing password!", ex);
 			return false;
 		}
 		_password = password;
@@ -122,8 +124,8 @@ public class SecondaryPasswordAuth {
 			ps.setString(3, Integer.toString(attempts));
 			ps.setString(4, Integer.toString(attempts));
 			ps.execute();
-		} catch (Exception e) {
-			_log.log(Level.SEVERE, "Error while writing wrong attempts.", e);
+		} catch (Exception ex) {
+			LOG.error("Error while writing wrong attempts!", ex);
 			return false;
 		}
 		return true;
@@ -131,7 +133,7 @@ public class SecondaryPasswordAuth {
 	
 	public boolean changePassword(String oldPassword, String newPassword) {
 		if (!passwordExist()) {
-			_log.warning("[SecondaryPasswordAuth]" + _activeClient.getAccountName() + " forced changePassword");
+			LOG.warn(_activeClient.getAccountName() + " forced change password");
 			_activeClient.closeNow();
 			return false;
 		}
@@ -153,8 +155,8 @@ public class SecondaryPasswordAuth {
 			ps.setString(2, _activeClient.getAccountName());
 			ps.setString(3, VAR_PWD);
 			ps.execute();
-		} catch (Exception e) {
-			_log.log(Level.SEVERE, "Error while reading password.", e);
+		} catch (Exception ex) {
+			LOG.error("Error while reading password!", ex);
 			return false;
 		}
 		
@@ -178,7 +180,7 @@ public class SecondaryPasswordAuth {
 				LoginServerThread.getInstance().sendTempBan(accountName, hostAddress, banTime);
 				final var recoveryLink = SecondaryAuthData.getInstance().getRecoveryLink();
 				LoginServerThread.getInstance().sendMail(accountName, "SATempBan", hostAddress, Integer.toString(_wrongAttempts), Long.toString(banTime), recoveryLink);
-				_log.warning(_activeClient.getAccountName() + " - (" + hostAddress + ") has inputted the wrong password " + _wrongAttempts + " times in row.");
+				LOG.warn(_activeClient.getAccountName() + " - ({}) has inputted the wrong password {} times in row.", hostAddress, _wrongAttempts);
 				insertWrongAttempt(0);
 				_activeClient.close(new Ex2ndPasswordVerify(Ex2ndPasswordVerify.PASSWORD_BAN, SecondaryAuthData.getInstance().getMaxAttempts()));
 			}
@@ -210,12 +212,12 @@ public class SecondaryPasswordAuth {
 	
 	private String cryptPassword(String password) {
 		try {
-			MessageDigest md = MessageDigest.getInstance("SHA");
+			final var md = MessageDigest.getInstance("SHA");
 			byte[] raw = password.getBytes(StandardCharsets.UTF_8);
 			byte[] hash = md.digest(raw);
 			return Base64.getEncoder().encodeToString(hash);
-		} catch (NoSuchAlgorithmException e) {
-			_log.severe("[SecondaryPasswordAuth]Unsupported Algorithm");
+		} catch (NoSuchAlgorithmException ex) {
+			LOG.error("Unsupported Algorithm!", ex);
 		}
 		return null;
 	}

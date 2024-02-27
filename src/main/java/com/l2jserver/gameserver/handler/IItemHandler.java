@@ -18,8 +18,6 @@
  */
 package com.l2jserver.gameserver.handler;
 
-import java.util.logging.Logger;
-
 import com.l2jserver.gameserver.model.actor.L2Playable;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 
@@ -27,8 +25,6 @@ import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
  * Mother class of all Item Handlers.
  */
 public interface IItemHandler {
-	Logger _log = Logger.getLogger(IItemHandler.class.getName());
-	
 	/**
 	 * Launch task associated to the item.
 	 * @param playable the non-NPC character using the item

@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -142,12 +142,15 @@ import com.l2jserver.gameserver.model.stats.Stats;
 import com.l2jserver.gameserver.model.stats.functions.FuncTemplate;
 
 /**
+ * Document Base.
  * @author mkizub
  */
 public abstract class DocumentBase {
-	protected final Logger _log = Logger.getLogger(getClass().getName());
+	
+	private static final Logger LOG = LoggerFactory.getLogger(DocumentBase.class);
 	
 	private final File _file;
+	
 	protected final Map<String, String[]> _tables = new HashMap<>();
 	
 	protected DocumentBase(File pFile) {
@@ -162,8 +165,8 @@ public abstract class DocumentBase {
 			factory.setIgnoringComments(true);
 			doc = factory.newDocumentBuilder().parse(_file);
 			parseDocument(doc);
-		} catch (Exception e) {
-			_log.log(Level.SEVERE, "Error loading file " + _file, e);
+		} catch (Exception ex) {
+			LOG.error("Error loading file {}!", _file, ex);
 		}
 		return doc;
 	}
@@ -273,7 +276,7 @@ public abstract class DocumentBase {
 		final AbstractEffect effect = AbstractEffect.createEffect(attachCond, applyCond, set, parameters);
 		parseTemplate(n, effect);
 		if (template instanceof L2Item) {
-			_log.severe("Item " + template + " with effects!!!");
+			LOG.error("Item {} with effects!", template);
 		} else if (template instanceof Skill skill) {
 			if (effectScope != null) {
 				skill.addEffect(effectScope, effect);
@@ -338,7 +341,7 @@ public abstract class DocumentBase {
 			}
 		}
 		if ((cond.conditions == null) || (cond.conditions.length == 0)) {
-			_log.severe("Empty <and> condition in " + _file);
+			LOG.error("Empty <and> condition in file {}!", _file);
 		}
 		return cond;
 	}
@@ -351,7 +354,7 @@ public abstract class DocumentBase {
 			}
 		}
 		if ((cond.conditions == null) || (cond.conditions.length == 0)) {
-			_log.severe("Empty <or> condition in " + _file);
+			LOG.error("Empty <or> condition in file {}!", _file);
 		}
 		return cond;
 	}
@@ -362,7 +365,7 @@ public abstract class DocumentBase {
 				return new ConditionLogicNot(parseCondition(n, template));
 			}
 		}
-		_log.severe("Empty <not> condition in " + _file);
+		LOG.error("Empty <not> condition in file {}!", _file);
 		return null;
 	}
 	
@@ -653,12 +656,12 @@ public abstract class DocumentBase {
 					final var present = Boolean.parseBoolean(attributes[2]);
 					cond = joinAnd(cond, new ConditionOpExistNpc(npcIds, radius, present));
 				}
-				default -> _log.severe("Unrecognized <player> condition " + a.getNodeName().toLowerCase() + " in " + _file);
+				default -> LOG.error("Unrecognized <player> condition {} in file {}!", a.getNodeName().toLowerCase(), _file);
 			}
 		}
 		
 		if (cond == null) {
-			_log.severe("Unrecognized <player> condition in " + _file);
+			LOG.error("Unrecognized <player> condition in file {}!", _file);
 		}
 		return cond;
 	}
@@ -792,7 +795,7 @@ public abstract class DocumentBase {
 		}
 		
 		if (cond == null) {
-			_log.severe("Unrecognized <target> condition in " + _file);
+			LOG.error("Unrecognized <target> condition in file {}!", _file);
 		}
 		return cond;
 	}
@@ -822,7 +825,7 @@ public abstract class DocumentBase {
 						}
 						
 						if (old == mask) {
-							_log.info("[parseUsingCondition=\"kind\"] Unknown item type name: '" + item + "' in string '" + a.getNodeValue() + "'");
+							LOG.warn("[parseUsingCondition=\"kind\"] Unknown item type name: {} in string {}!", item, a.getNodeValue());
 						}
 					}
 					cond = joinAnd(cond, new ConditionUsingItemType(mask));
@@ -838,7 +841,7 @@ public abstract class DocumentBase {
 						}
 						
 						if (old == mask) {
-							_log.info("[parseUsingCondition=\"slot\"] Unknown item slot name: " + item);
+							LOG.warn("[parseUsingCondition=\"slot\"] Unknown item slot name {}!", item);
 						}
 					}
 					cond = joinAnd(cond, new ConditionUsingSlotType(mask));
@@ -865,7 +868,7 @@ public abstract class DocumentBase {
 		}
 		
 		if (cond == null) {
-			_log.severe("Unrecognized <using> condition in " + _file);
+			LOG.error("Unrecognized <using> condition in file {}!", _file);
 		}
 		return cond;
 	}
@@ -889,7 +892,7 @@ public abstract class DocumentBase {
 			}
 		}
 		if (cond == null) {
-			_log.severe("Unrecognized <game> condition in " + _file);
+			LOG.error("Unrecognized <game> condition in file {}!", _file);
 		}
 		return cond;
 	}

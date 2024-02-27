@@ -21,8 +21,9 @@ package com.l2jserver.gameserver.engines.skills;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -35,9 +36,11 @@ import com.l2jserver.gameserver.model.skills.EffectScope;
 import com.l2jserver.gameserver.model.skills.Skill;
 
 /**
+ * Document Skill.
  * @author mkizub
  */
 public class DocumentSkill extends DocumentBase {
+	
 	public static class SkillInfo {
 		public int id;
 		public String name;
@@ -55,7 +58,10 @@ public class DocumentSkill extends DocumentBase {
 		public List<Skill> currentSkills = new ArrayList<>();
 	}
 	
+	private static final Logger LOG = LoggerFactory.getLogger(DocumentSkill.class);
+	
 	private SkillInfo _currentSkill;
+	
 	private final List<Skill> _skillsInFile = new ArrayList<>();
 	
 	public DocumentSkill(File file) {
@@ -79,8 +85,8 @@ public class DocumentSkill extends DocumentBase {
 	protected String getTableValue(String name) {
 		try {
 			return _tables.get(name)[_currentSkill.currentLevel];
-		} catch (RuntimeException e) {
-			_log.log(Level.SEVERE, "Error in table: " + name + " of Skill Id " + _currentSkill.id, e);
+		} catch (RuntimeException ex) {
+			LOG.error("Error in table {} of Skill Id {}!", name, _currentSkill.id, ex);
 			return "";
 		}
 	}
@@ -89,8 +95,8 @@ public class DocumentSkill extends DocumentBase {
 	protected String getTableValue(String name, int idx) {
 		try {
 			return _tables.get(name)[idx - 1];
-		} catch (RuntimeException e) {
-			_log.log(Level.SEVERE, "wrong level count in skill Id " + _currentSkill.id + " name: " + name + " index : " + idx, e);
+		} catch (RuntimeException ex) {
+			LOG.error("Wrong level count in skill Id {} name {} index {}!", _currentSkill.id, name, idx, ex);
 			return "";
 		}
 	}
@@ -1049,94 +1055,93 @@ public class DocumentSkill extends DocumentBase {
 		int count = 0;
 		_currentSkill.currentSkills = new ArrayList<>(_currentSkill.sets.length + _currentSkill.enchsets1.length + _currentSkill.enchsets2.length + _currentSkill.enchsets3.length + _currentSkill.enchsets4.length + _currentSkill.enchsets5.length + _currentSkill.enchsets6.length
 			+ _currentSkill.enchsets7.length + _currentSkill.enchsets8.length);
-		StatsSet set;
 		for (int i = 0; i < _currentSkill.sets.length; i++) {
-			set = _currentSkill.sets[i];
+			final var set = _currentSkill.sets[i];
 			try {
 				_currentSkill.currentSkills.add(i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		int _count = count;
 		for (int i = 0; i < _currentSkill.enchsets1.length; i++) {
-			set = _currentSkill.enchsets1[i];
+			final var set = _currentSkill.enchsets1[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets2.length; i++) {
-			set = _currentSkill.enchsets2[i];
+			final var set = _currentSkill.enchsets2[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets3.length; i++) {
-			set = _currentSkill.enchsets3[i];
+			final var set = _currentSkill.enchsets3[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets4.length; i++) {
-			set = _currentSkill.enchsets4[i];
+			final var set = _currentSkill.enchsets4[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets5.length; i++) {
-			set = _currentSkill.enchsets5[i];
+			final var set = _currentSkill.enchsets5[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets6.length; i++) {
-			set = _currentSkill.enchsets6[i];
+			final var set = _currentSkill.enchsets6[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets7.length; i++) {
-			set = _currentSkill.enchsets7[i];
+			final var set = _currentSkill.enchsets7[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 		_count = count;
 		for (int i = 0; i < _currentSkill.enchsets8.length; i++) {
-			set = _currentSkill.enchsets8[i];
+			final var set = _currentSkill.enchsets8[i];
 			try {
 				_currentSkill.currentSkills.add(_count + i, new Skill(set));
 				count++;
 			} catch (Exception ex) {
-				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + " level=" + set.getInt("level"), ex);
+				LOG.error("Skill id={} level={}!", set.getInt("skill_id"), set.getInt("level"), ex);
 			}
 		}
 	}

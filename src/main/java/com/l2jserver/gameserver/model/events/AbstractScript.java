@@ -39,8 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.commons.util.Util;
@@ -160,7 +161,7 @@ import com.l2jserver.gameserver.util.MinionList;
  */
 public abstract class AbstractScript implements INamable {
 	
-	public static final Logger _log = Logger.getLogger(AbstractScript.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractScript.class);
 	
 	private final Map<ListenerRegisterType, Set<Integer>> _registeredIds = new ConcurrentHashMap<>();
 	
@@ -182,13 +183,17 @@ public abstract class AbstractScript implements INamable {
 				final ListenerRegisterType type = regType.value();
 				final EventType eventType = listener.value();
 				if (method.getParameterCount() != 1) {
-					_log.log(Level.WARNING, getClass().getSimpleName() + ": Non properly defined annotation listener on method: " + method.getName() + " expected parameter count is 1 but found: " + method.getParameterCount());
+					LOG.warn("Non properly defined annotation listener on method {} expected parameter count is 1 but found {}!", method.getName(), method.getParameterCount());
 					continue;
-				} else if (!eventType.isEventClass(method.getParameterTypes()[0])) {
-					_log.log(Level.WARNING, getClass().getSimpleName() + ": Non properly defined annotation listener on method: " + method.getName() + " expected parameter to be type of: " + eventType.getEventClass().getSimpleName() + " but found: " + method.getParameterTypes()[0].getSimpleName());
+				}
+				
+				if (!eventType.isEventClass(method.getParameterTypes()[0])) {
+					LOG.warn("Non properly defined annotation listener on method {} expected parameter to be type of {} but found {}!", method.getName(), eventType.getEventClass().getSimpleName(), method.getParameterTypes()[0].getSimpleName());
 					continue;
-				} else if (!eventType.isReturnClass(method.getReturnType())) {
-					_log.log(Level.WARNING, getClass().getSimpleName() + ": Non properly defined annotation listener on method: " + method.getName() + " expected return type to be one of: " + Arrays.toString(eventType.getReturnClasses()) + " but found: " + method.getReturnType().getSimpleName());
+				}
+				
+				if (!eventType.isReturnClass(method.getReturnType())) {
+					LOG.warn("Non properly defined annotation listener on method {} expected return type to be one of {} but found {}", method.getName(), Arrays.toString(eventType.getReturnClasses()), method.getReturnType().getSimpleName());
 					continue;
 				}
 				
@@ -197,7 +202,7 @@ public abstract class AbstractScript implements INamable {
 				// Clear the list
 				ids.clear();
 				
-				// Scan for possible Id filters
+				// Scan for possible ID filters
 				for (Annotation annotation : method.getAnnotations()) {
 					if (annotation instanceof Id npc) {
 						for (int id : npc.value()) {
@@ -211,7 +216,7 @@ public abstract class AbstractScript implements INamable {
 						}
 					} else if (annotation instanceof Range range) {
 						if (range.from() > range.to()) {
-							_log.log(Level.WARNING, getClass().getSimpleName() + ": Wrong " + annotation.getClass().getSimpleName() + " from is higher then to!");
+							LOG.warn("Wrong {} from is higher then to!", annotation.getClass().getSimpleName());
 							continue;
 						}
 						
@@ -221,7 +226,7 @@ public abstract class AbstractScript implements INamable {
 					} else if (annotation instanceof Ranges ranges) {
 						for (Range range : ranges.value()) {
 							if (range.from() > range.to()) {
-								_log.log(Level.WARNING, getClass().getSimpleName() + ": Wrong " + annotation.getClass().getSimpleName() + " from is higher then to!");
+								LOG.warn("Wrong {} from is higher then to!", annotation.getClass().getSimpleName());
 								continue;
 							}
 							
@@ -231,10 +236,10 @@ public abstract class AbstractScript implements INamable {
 						}
 					} else if (annotation instanceof NpcLevelRange range) {
 						if (range.from() > range.to()) {
-							_log.log(Level.WARNING, getClass().getSimpleName() + ": Wrong " + annotation.getClass().getSimpleName() + " from is higher then to!");
+							LOG.warn("Wrong {} from is higher then to!", annotation.getClass().getSimpleName());
 							continue;
 						} else if (type != ListenerRegisterType.NPC) {
-							_log.log(Level.WARNING, getClass().getSimpleName() + ": ListenerRegisterType " + type + " for " + annotation.getClass().getSimpleName() + " NPC is expected!");
+							LOG.warn("ListenerRegisterType {} for {} NPC is expected!", type, annotation.getClass().getSimpleName());
 							continue;
 						}
 						
@@ -242,14 +247,13 @@ public abstract class AbstractScript implements INamable {
 							final List<L2NpcTemplate> templates = NpcData.getInstance().getAllOfLevel(level);
 							templates.forEach(template -> ids.add(template.getId()));
 						}
-						
 					} else if (annotation instanceof NpcLevelRanges ranges) {
 						for (NpcLevelRange range : ranges.value()) {
 							if (range.from() > range.to()) {
-								_log.log(Level.WARNING, getClass().getSimpleName() + ": Wrong " + annotation.getClass().getSimpleName() + " from is higher then to!");
+								LOG.warn("Wrong {} from is higher then to!", annotation.getClass().getSimpleName());
 								continue;
 							} else if (type != ListenerRegisterType.NPC) {
-								_log.log(Level.WARNING, getClass().getSimpleName() + ": ListenerRegisterType " + type + " for " + annotation.getClass().getSimpleName() + " NPC is expected!");
+								LOG.warn("ListenerRegisterType {} for {} NPC is expected!", type, annotation.getClass().getSimpleName());
 								continue;
 							}
 							
@@ -781,7 +785,7 @@ public abstract class AbstractScript implements INamable {
 	// ---------------------------------------------------------------------------------------------------------------------------
 	
 	/**
-	 * Provides instant callback operation when {@link L2PcInstance} learn's a {@link Skill}.
+	 * Provides instant callback operation when {@link L2PcInstance} learns a {@link Skill}.
 	 * @param callback
 	 * @param npcIds
 	 * @return
@@ -791,7 +795,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Provides instant callback operation when {@link L2PcInstance} learn's a {@link Skill}.
+	 * Provides instant callback operation when {@link L2PcInstance} learns a {@link Skill}.
 	 * @param callback
 	 * @param npcIds
 	 * @return
@@ -968,8 +972,8 @@ public abstract class AbstractScript implements INamable {
 	
 	/**
 	 * Provides instant callback operation when {@link L2PcInstance} talk to {@link L2Item}.
-	 * @param callback
-	 * @param npcIds
+	 * @param callback the event callback
+	 * @param npcIds the NPC Ids
 	 * @return
 	 */
 	protected final List<AbstractEventListener> setItemTalkId(Consumer<OnItemTalk> callback, Collection<Integer> npcIds) {
@@ -980,7 +984,7 @@ public abstract class AbstractScript implements INamable {
 	
 	/**
 	 * Provides instant callback operation when Olympiad match finishes.
-	 * @param callback
+	 * @param callback the event callback
 	 * @return
 	 */
 	protected final List<AbstractEventListener> setOlympiadMatchResult(Consumer<OnOlympiadMatchResult> callback) {
@@ -991,8 +995,8 @@ public abstract class AbstractScript implements INamable {
 	
 	/**
 	 * Provides instant callback operation when castle siege begins
-	 * @param callback
-	 * @param castleIds
+	 * @param callback the event callback
+	 * @param castleIds the castle Ids
 	 * @return
 	 */
 	protected final List<AbstractEventListener> setCastleSiegeStartId(Consumer<OnCastleSiegeStart> callback, int... castleIds) {
@@ -1001,8 +1005,8 @@ public abstract class AbstractScript implements INamable {
 	
 	/**
 	 * Provides instant callback operation when castle siege begins
-	 * @param callback
-	 * @param castleIds
+	 * @param callback the event callback
+	 * @param castleIds the castle Ids
 	 * @return
 	 */
 	protected final List<AbstractEventListener> setCastleSiegeStartId(Consumer<OnCastleSiegeStart> callback, Collection<Integer> castleIds) {
@@ -1056,7 +1060,7 @@ public abstract class AbstractScript implements INamable {
 	// ---------------------------------------------------------------------------------------------------------------------------
 	
 	/**
-	 * Provides instant callback operation when player's profession has change
+	 * Provides instant callback operation when player's profession has changed.
 	 * @param callback
 	 * @return
 	 */
@@ -1126,7 +1130,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Method that registers runnable type of listeners (Listeners that doesn't needs parameters or return objects)
+	 * Method that registers runnable type of listeners (Listeners that doesn't need parameters or return objects).
 	 * @param callback
 	 * @param type
 	 * @param registerType
@@ -1138,7 +1142,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Method that registers runnable type of listeners (Listeners that doesn't needs parameters or return objects)
+	 * Method that registers runnable type of listeners (Listeners that doesn't need parameters or return objects).
 	 * @param callback
 	 * @param type
 	 * @param registerType
@@ -1150,7 +1154,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Method that registers runnable type of listeners (Listeners that doesn't needs parameters or return objects)
+	 * Method that registers runnable type of listeners (Listeners that doesn't need parameters or return objects).
 	 * @param callback
 	 * @param type
 	 * @param registerType
@@ -1163,7 +1167,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Method that registers runnable type of listeners (Listeners that doesn't needs parameters or return objects)
+	 * Method that registers runnable type of listeners (Listeners that doesn't need parameters or return objects).
 	 * @param callback
 	 * @param type
 	 * @param registerType
@@ -1176,7 +1180,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Method that registers dummy type of listeners (Listeners doesn't gets notification but just used to check if their type present or not)
+	 * Method that registers dummy type of listeners (Listeners doesn't get notification but just used to check if their type present or not).
 	 * @param type
 	 * @param registerType
 	 * @param npcIds
@@ -1187,7 +1191,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Method that registers dummy type of listeners (Listeners doesn't gets notification but just used to check if their type present or not)
+	 * Method that registers dummy type of listeners (Listeners doesn't get notification but just used to check if their type present or not).
 	 * @param type
 	 * @param registerType
 	 * @param npcIds
@@ -1243,7 +1247,7 @@ public abstract class AbstractScript implements INamable {
 							listeners.add(template.addListener(action.apply(template)));
 						}
 					}
-					default -> _log.log(Level.WARNING, getClass().getSimpleName() + ": Unhandled register type: " + registerType);
+					default -> LOG.warn("Unhandled register type {}", registerType);
 				}
 				
 				_registeredIds.putIfAbsent(registerType, ConcurrentHashMap.newKeySet(1));
@@ -1320,7 +1324,7 @@ public abstract class AbstractScript implements INamable {
 							listeners.add(template.addListener(action.apply(template)));
 						}
 					}
-					default -> _log.log(Level.WARNING, getClass().getSimpleName() + ": Unhandled register type: " + registerType);
+					default -> LOG.warn("Unhandled register type {}", registerType);
 				}
 			}
 			
@@ -1363,7 +1367,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Show an on screen message to the player.
+	 * Show an on-screen message to the player.
 	 * @param player the player to display the message to
 	 * @param text the message to display
 	 * @param time the duration of the message in milliseconds
@@ -1373,7 +1377,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Show an on screen message to the player.
+	 * Show an on-screen message to the player.
 	 * @param player the player to display the message to
 	 * @param npcString the NPC string to display
 	 * @param position the position of the message on the screen
@@ -1385,7 +1389,7 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Show an on screen message to the player.
+	 * Show an on-screen message to the player.
 	 * @param player the player to display the message to
 	 * @param systemMsg the system message to display
 	 * @param position the position of the message on the screen
@@ -1399,7 +1403,7 @@ public abstract class AbstractScript implements INamable {
 	/**
 	 * Show an on-screen message to the player.
 	 * @param player the player to display the message to
-	 * @param msgPosType he position of the message on the screen
+	 * @param msgPosType the position of the message on the screen
 	 * @param unk1 unknown value
 	 * @param fontSize font size (normal, small)
 	 * @param unk2 unknown value
@@ -1575,7 +1579,7 @@ public abstract class AbstractScript implements INamable {
 	public static L2Npc addSpawn(L2Npc summoner, int npcId, int x, int y, int z, int heading, boolean randomOffset, long despawnDelay, boolean isSummonSpawn, int instanceId) {
 		try {
 			if ((x == 0) && (y == 0)) {
-				_log.log(Level.SEVERE, "addSpawn(): invalid spawn coordinates for NPC #" + npcId + "!");
+				LOG.error("addSpawn(): invalid spawn coordinates for NPC #{}!", npcId);
 				return null;
 			}
 			
@@ -1610,10 +1614,9 @@ public abstract class AbstractScript implements INamable {
 				summoner.addSummonedNpc(npc);
 			}
 			return npc;
-		} catch (Exception e) {
-			_log.warning("Could not spawn NPC #" + npcId + "; error: " + e.getMessage());
+		} catch (Exception ex) {
+			LOG.warn("Could not spawn NPC #{}", npcId, ex);
 		}
-		
 		return null;
 	}
 	
@@ -1773,7 +1776,7 @@ public abstract class AbstractScript implements INamable {
 	 * Check for multiple items in player's inventory.
 	 * @param player the player whose inventory to check for quest items
 	 * @param itemIds a list of item IDs to check for
-	 * @return {@code true} if at least one items exist in player's inventory, {@code false} otherwise
+	 * @return {@code true} if at least one item exist in player's inventory, {@code false} otherwise
 	 */
 	public boolean hasAtLeastOneQuestItem(L2PcInstance player, int... itemIds) {
 		final PcInventory inv = player.getInventory();
@@ -2725,14 +2728,14 @@ public abstract class AbstractScript implements INamable {
 	}
 	
 	/**
-	 * Open a door if it is present on the instance and its not open.
+	 * Open a door if it is present on the instance and it's not open.
 	 * @param doorId the ID of the door to open
-	 * @param instanceId the ID of the instance the door is in (0 if the door is not not inside an instance)
+	 * @param instanceId the ID of the instance the door is in (0 if the door is not inside an instance)
 	 */
 	public void openDoor(int doorId, int instanceId) {
-		final L2DoorInstance door = getDoor(doorId, instanceId);
+		final var door = getDoor(doorId, instanceId);
 		if (door == null) {
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": called openDoor(" + doorId + ", " + instanceId + "); but door wasnt found!", new NullPointerException());
+			LOG.warn("Called openDoor({}, {}); but door wasn't found!", doorId, instanceId);
 		} else if (!door.getOpen()) {
 			door.openMe();
 		}
@@ -2741,12 +2744,12 @@ public abstract class AbstractScript implements INamable {
 	/**
 	 * Close a door if it is present in a specified the instance and its open.
 	 * @param doorId the ID of the door to close
-	 * @param instanceId the ID of the instance the door is in (0 if the door is not not inside an instance)
+	 * @param instanceId the ID of the instance the door is in (0 if the door is not inside an instance)
 	 */
 	public void closeDoor(int doorId, int instanceId) {
-		final L2DoorInstance door = getDoor(doorId, instanceId);
+		final var door = getDoor(doorId, instanceId);
 		if (door == null) {
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": called closeDoor(" + doorId + ", " + instanceId + "); but door wasnt found!", new NullPointerException());
+			LOG.warn("Called closeDoor({}, {}); but door wasn't found!", doorId, instanceId);
 		} else if (door.getOpen()) {
 			door.closeMe();
 		}
@@ -2755,7 +2758,7 @@ public abstract class AbstractScript implements INamable {
 	/**
 	 * Retrieve a door from an instance or the real world.
 	 * @param doorId the ID of the door to get
-	 * @param instanceId the ID of the instance the door is in (0 if the door is not not inside an instance)
+	 * @param instanceId the ID of the instance the door is in (0 if the door is not inside an instance)
 	 * @return the found door or {@code null} if no door with that ID and instance ID was found
 	 */
 	public L2DoorInstance getDoor(int doorId, int instanceId) {
@@ -2849,7 +2852,7 @@ public abstract class AbstractScript implements INamable {
 	
 	/**
 	 * Adds the desire to cast a skill to the given NPC.
-	 * @param npc the NPC whom cast the skill
+	 * @param npc the NPC who casts the skill
 	 * @param target the skill target
 	 * @param skill the skill to cast
 	 * @param desire the desire to cast the skill
@@ -2860,7 +2863,7 @@ public abstract class AbstractScript implements INamable {
 	
 	/**
 	 * Adds the desire to cast a skill to the given NPC.
-	 * @param npc the NPC whom cast the skill
+	 * @param npc the NPC who casts the skill
 	 * @param target the skill target
 	 * @param skill the skill to cast
 	 * @param desire the desire to cast the skill

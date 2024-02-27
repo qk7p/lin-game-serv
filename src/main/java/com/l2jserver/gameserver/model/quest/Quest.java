@@ -33,8 +33,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.commons.database.ConnectionFactory;
 import com.l2jserver.commons.util.Rnd;
@@ -78,6 +80,8 @@ import com.l2jserver.gameserver.scripting.ScriptManager;
  */
 public class Quest extends AbstractScript implements IIdentifiable {
 	
+	private static final Logger LOG = LoggerFactory.getLogger(Quest.class);
+	
 	/** Map containing lists of timers from the name of the timer. */
 	private volatile Map<String, List<QuestTimer>> _questTimers = null;
 	
@@ -92,7 +96,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	
 	private final int _questId;
 	private final String _name;
-	private final String _descr;
+	private final String _description;
 	private final byte _initialState = State.CREATED;
 	protected boolean _onEnterWorld = false;
 	private boolean _isCustom = false;
@@ -113,12 +117,12 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * Constructing a quest also calls the {@code init_LoadGlobalData} convenience method.
 	 * @param questId ID of the quest
 	 * @param name String corresponding to the name of the quest
-	 * @param descr String for the description of the quest
+	 * @param description String for the description of the quest
 	 */
-	public Quest(int questId, String name, String descr) {
+	public Quest(int questId, String name, String description) {
 		_questId = questId;
 		_name = name;
-		_descr = descr;
+		_description = description;
 		if (questId > 0) {
 			QuestManager.getInstance().addQuest(this);
 		} else {
@@ -214,7 +218,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * @return the description of the quest
 	 */
 	public String getDescr() {
-		return _descr;
+		return _description;
 	}
 	
 	/**
@@ -357,6 +361,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	// These are methods to call within the core to call the quest events.
 	
 	/**
+	 * Notify Attack event.
 	 * @param npc the NPC that was attacked
 	 * @param attacker the attacking player
 	 * @param damage the damage dealt to the NPC by the player
@@ -364,400 +369,467 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * @param skill the skill used to attack the NPC (can be null)
 	 */
 	public final void notifyAttack(L2Npc npc, L2PcInstance attacker, int damage, boolean isSummon, Skill skill) {
-		String res;
 		try {
-			res = onAttack(npc, attacker, damage, isSummon, skill);
-		} catch (Exception e) {
-			showError(attacker, e);
-			return;
+			final var result = onAttack(npc, attacker, damage, isSummon, skill);
+			showResult(attacker, result);
+		} catch (Exception ex) {
+			showError(attacker, ex);
 		}
-		showResult(attacker, res);
 	}
 	
 	/**
+	 * Notify Death event.
 	 * @param killer the character that killed the {@code victim}
 	 * @param victim the character that was killed by the {@code killer}
 	 * @param qs the quest state object of the player to be notified of this event
 	 */
 	public final void notifyDeath(L2Character killer, L2Character victim, QuestState qs) {
-		String res;
 		try {
-			res = onDeath(killer, victim, qs);
-		} catch (Exception e) {
-			showError(qs.getPlayer(), e);
-			return;
+			final var res = onDeath(killer, victim, qs);
+			showResult(qs.getPlayer(), res);
+		} catch (Exception ex) {
+			showError(qs.getPlayer(), ex);
 		}
-		showResult(qs.getPlayer(), res);
-	}
-	
-	public final void notifyItemUse(L2Item item, L2PcInstance player) {
-		String res;
-		try {
-			res = onItemUse(item, player);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		showResult(player, res);
-	}
-	
-	public final void notifySpellFinished(L2Npc instance, L2PcInstance player, Skill skill) {
-		String res;
-		try {
-			res = onSpellFinished(instance, player, skill);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		showResult(player, res);
 	}
 	
 	/**
-	 * Notify quest script when something happens with a trap.
+	 * Notify Item Use event.
+	 * @param item the item
+	 * @param player the player
+	 */
+	public final void notifyItemUse(L2Item item, L2PcInstance player) {
+		try {
+			final var result = onItemUse(item, player);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Spell Finished event.
+	 * @param npc the npc
+	 * @param player the player
+	 * @param skill the skill
+	 */
+	public final void notifySpellFinished(L2Npc npc, L2PcInstance player, Skill skill) {
+		try {
+			final var result = onSpellFinished(npc, player, skill);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Trap Action event.
 	 * @param trap the trap instance which triggers the notification
 	 * @param trigger the character which makes effect on the trap
 	 * @param action 0: trap casting its skill. 1: trigger detects the trap. 2: trigger removes the trap
 	 */
 	public final void notifyTrapAction(L2TrapInstance trap, L2Character trigger, TrapAction action) {
-		String res;
 		try {
-			res = onTrapAction(trap, trigger, action);
-		} catch (Exception e) {
+			final var result = onTrapAction(trap, trigger, action);
 			if (trigger.getActingPlayer() != null) {
-				showError(trigger.getActingPlayer(), e);
+				showResult(trigger.getActingPlayer(), result);
 			}
-			_log.log(Level.WARNING, "Exception on onTrapAction() in notifyTrapAction(): " + e.getMessage(), e);
-			return;
-		}
-		if (trigger.getActingPlayer() != null) {
-			showResult(trigger.getActingPlayer(), res);
+		} catch (Exception ex) {
+			if (trigger.getActingPlayer() != null) {
+				showError(trigger.getActingPlayer(), ex);
+			}
+			LOG.warn("Exception on onTrapAction() in notifyTrapAction()", ex);
 		}
 	}
 	
 	/**
+	 * Notify Spawn event.
 	 * @param npc the spawned NPC
 	 */
 	public final void notifySpawn(L2Npc npc) {
 		try {
 			onSpawn(npc);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onSpawn() in notifySpawn(): " + e.getMessage(), e);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onSpawn() in notifySpawn()", ex);
 		}
 	}
 	
 	/**
+	 * Notify Teleport event.
 	 * @param npc the teleport NPC
 	 */
 	public final void notifyTeleport(L2Npc npc) {
 		try {
 			onTeleport(npc);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onTeleport() in notifyTeleport(): " + e.getMessage(), e);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onTeleport() in notifyTeleport()", ex);
 		}
-	}
-	
-	public final void notifyEvent(String event, L2Npc npc, L2PcInstance player) {
-		String res;
-		try {
-			res = onAdvEvent(event, npc, player);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		showResult(player, res, npc);
 	}
 	
 	/**
+	 * Notify Event.
+	 * @param event the event
+	 * @param npc the NPC
+	 * @param player the player
+	 */
+	public final void notifyEvent(String event, L2Npc npc, L2PcInstance player) {
+		try {
+			final var result = onAdvEvent(event, npc, player);
+			showResult(player, result, npc);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Enter World event.
 	 * @param player the player entering the world
 	 */
 	public final void notifyEnterWorld(L2PcInstance player) {
-		String res;
 		try {
-			res = onEnterWorld(player);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
+			final var result = onEnterWorld(player);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
 		}
-		showResult(player, res);
-	}
-	
-	public final void notifyTutorialEvent(L2PcInstance player, String command) {
-		try {
-			onTutorialEvent(player, command);
-		} catch (Exception e) {
-			showError(player, e);
-		}
-	}
-	
-	public final void notifyTutorialClientEvent(L2PcInstance player, int event) {
-		try {
-			onTutorialClientEvent(player, event);
-		} catch (Exception e) {
-			showError(player, e);
-		}
-	}
-	
-	public final void notifyTutorialQuestionMark(L2PcInstance player, int number) {
-		String res;
-		try {
-			res = onTutorialQuestionMark(player, number);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		showResult(player, res);
-	}
-	
-	public final void notifyTutorialCmd(L2PcInstance player, String command) {
-		String res;
-		try {
-			res = onTutorialCmd(player, command);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		showResult(player, res);
-	}
-	
-	public final void notifyKill(L2Npc npc, L2PcInstance killer, boolean isSummon) {
-		String res;
-		try {
-			res = onKill(npc, killer, isSummon);
-		} catch (Exception e) {
-			showError(killer, e);
-			return;
-		}
-		showResult(killer, res);
-	}
-	
-	public final void notifyTalk(L2Npc npc, L2PcInstance player) {
-		String res;
-		try {
-			final String startConditionHtml = getStartConditionHtml(player);
-			if (!player.hasQuestState(_name) && (startConditionHtml != null)) {
-				res = startConditionHtml;
-			} else {
-				res = onTalk(npc, player);
-			}
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		player.setLastQuestNpcObject(npc.getObjectId());
-		showResult(player, res, npc);
 	}
 	
 	/**
-	 * Override the default NPC dialogs when a quest defines this for the given NPC.<br>
+	 * Notify Tutorial event.
+	 * @param player the player
+	 * @param command the command
+	 */
+	public final void notifyTutorialEvent(L2PcInstance player, String command) {
+		try {
+			onTutorialEvent(player, command);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Tutorial Client event.
+	 * @param player the player
+	 * @param event the event
+	 */
+	public final void notifyTutorialClientEvent(L2PcInstance player, int event) {
+		try {
+			onTutorialClientEvent(player, event);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Tutorial Question Mark event.
+	 * @param player the player
+	 * @param number the number
+	 */
+	public final void notifyTutorialQuestionMark(L2PcInstance player, int number) {
+		try {
+			final var result = onTutorialQuestionMark(player, number);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Tutorial Command event.
+	 * @param player the player
+	 * @param command the command
+	 */
+	public final void notifyTutorialCmd(L2PcInstance player, String command) {
+		try {
+			final var result = onTutorialCmd(player, command);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify Kill event.
+	 * @param npc the npc
+	 * @param killer the player
+	 * @param isSummon if the killer is a summoned creature
+	 */
+	public final void notifyKill(L2Npc npc, L2PcInstance killer, boolean isSummon) {
+		try {
+			final var result = onKill(npc, killer, isSummon);
+			showResult(killer, result);
+		} catch (Exception ex) {
+			showError(killer, ex);
+		}
+	}
+	
+	/**
+	 * Notify Talk event.
+	 * @param npc the npc
+	 * @param player the player
+	 */
+	public final void notifyTalk(L2Npc npc, L2PcInstance player) {
+		try {
+			String result;
+			final var startConditionHtml = getStartConditionHtml(player);
+			if (!player.hasQuestState(_name) && (startConditionHtml != null)) {
+				result = startConditionHtml;
+			} else {
+				result = onTalk(npc, player);
+			}
+			player.setLastQuestNpcObject(npc.getObjectId());
+			showResult(player, result, npc);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify First Talk event.<br>
+	 * Overrides the default NPC dialogs when a quest defines this for the given NPC.<br>
 	 * Note: If the default html for this npc needs to be shown, onFirstTalk should call npc.showChatWindow(player) and then return null.
 	 * @param npc the NPC whose dialogs to override
 	 * @param player the player talking to the NPC
 	 */
 	public final void notifyFirstTalk(L2Npc npc, L2PcInstance player) {
-		String res;
 		try {
-			res = onFirstTalk(npc, player);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
+			final var result = onFirstTalk(npc, player);
+			showResult(player, result, npc);
+		} catch (Exception ex) {
+			showError(player, ex);
 		}
-		showResult(player, res, npc);
 	}
 	
 	/**
-	 * Notify the quest engine that an skill has been acquired.
+	 * Notify Acquire Skill event.
 	 * @param npc the NPC
 	 * @param player the player
 	 * @param skill the skill
 	 * @param type the skill learn type
 	 */
 	public final void notifyAcquireSkill(L2Npc npc, L2PcInstance player, Skill skill, AcquireSkillType type) {
-		String res;
 		try {
-			res = onAcquireSkill(npc, player, skill, type);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
+			final var result = onAcquireSkill(npc, player, skill, type);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
 		}
-		showResult(player, res);
 	}
 	
+	/**
+	 * Notify Item Talk event.
+	 * @param item the item
+	 * @param player the player
+	 */
 	public final void notifyItemTalk(L2ItemInstance item, L2PcInstance player) {
-		String res;
 		try {
-			res = onItemTalk(item, player);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
+			final var result = onItemTalk(item, player);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
 		}
-		showResult(player, res);
 	}
 	
-	public String onItemTalk(L2ItemInstance item, L2PcInstance player) {
-		return null;
-	}
-	
+	/**
+	 * Notify Item event.
+	 * @param item the item
+	 * @param player the player
+	 * @param event the event
+	 */
 	public final void notifyItemEvent(L2ItemInstance item, L2PcInstance player, String event) {
-		String res;
 		try {
-			res = onItemEvent(item, player, event);
-			if (res != null) {
-				if (res.equalsIgnoreCase("true") || res.equalsIgnoreCase("false")) {
+			final var result = onItemEvent(item, player, event);
+			if (result != null) {
+				if (result.equalsIgnoreCase("true") || result.equalsIgnoreCase("false")) {
 					return;
 				}
 			}
-		} catch (Exception e) {
-			showError(player, e);
-			return;
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
 		}
-		showResult(player, res);
-	}
-	
-	public final void notifySkillSee(L2Npc npc, L2PcInstance caster, Skill skill, List<L2Object> targets, boolean isSummon) {
-		String res;
-		try {
-			res = onSkillSee(npc, caster, skill, targets, isSummon);
-		} catch (Exception e) {
-			showError(caster, e);
-			return;
-		}
-		showResult(caster, res);
-	}
-	
-	public final void notifyFactionCall(L2Npc npc, L2Npc caller, L2PcInstance attacker, boolean isSummon) {
-		String res;
-		try {
-			res = onFactionCall(npc, caller, attacker, isSummon);
-		} catch (Exception e) {
-			showError(attacker, e);
-			return;
-		}
-		showResult(attacker, res);
-	}
-	
-	public final void notifyAggroRangeEnter(L2Npc npc, L2PcInstance player, boolean isSummon) {
-		String res;
-		try {
-			res = onAggroRangeEnter(npc, player, isSummon);
-		} catch (Exception e) {
-			showError(player, e);
-			return;
-		}
-		showResult(player, res);
 	}
 	
 	/**
+	 * Notify Skill See event.
+	 * @param npc the npc
+	 * @param caster the player
+	 * @param skill the skill
+	 * @param targets the targets
+	 * @param isSummon if the caster is a summoned creature
+	 */
+	public final void notifySkillSee(L2Npc npc, L2PcInstance caster, Skill skill, List<L2Object> targets, boolean isSummon) {
+		try {
+			final var result = onSkillSee(npc, caster, skill, targets, isSummon);
+			showResult(caster, result);
+		} catch (Exception ex) {
+			showError(caster, ex);
+		}
+	}
+	
+	/**
+	 * Notify Faction Call event.
+	 * @param npc the npc
+	 * @param caller the caller npc
+	 * @param attacker the attacker player
+	 * @param isSummon if the attacker is a summoned creature
+	 */
+	public final void notifyFactionCall(L2Npc npc, L2Npc caller, L2PcInstance attacker, boolean isSummon) {
+		try {
+			final var result = onFactionCall(npc, caller, attacker, isSummon);
+			showResult(attacker, result);
+		} catch (Exception ex) {
+			showError(attacker, ex);
+		}
+	}
+	
+	/**
+	 * Notify Aggro Range Enter event.
+	 * @param npc the npc
+	 * @param player the player
+	 * @param isSummon if the aggressor is a summoned creature
+	 */
+	public final void notifyAggroRangeEnter(L2Npc npc, L2PcInstance player, boolean isSummon) {
+		try {
+			final var result = onAggroRangeEnter(npc, player, isSummon);
+			showResult(player, result);
+		} catch (Exception ex) {
+			showError(player, ex);
+		}
+	}
+	
+	/**
+	 * Notify See Creature event.
 	 * @param npc the NPC that sees the creature
 	 * @param creature the creature seen by the NPC
-	 * @param isSummon
+	 * @param isSummon if the seen creature is a summoned creature
 	 */
 	public final void notifySeeCreature(L2Npc npc, L2Character creature, boolean isSummon) {
-		L2PcInstance player = null;
-		if (isSummon || creature.isPlayer()) {
-			player = creature.getActingPlayer();
-		}
-		String res;
+		final var player = creature.getActingPlayer();
 		try {
-			res = onSeeCreature(npc, creature, isSummon);
-		} catch (Exception e) {
+			final var result = onSeeCreature(npc, creature, isSummon);
 			if (player != null) {
-				showError(player, e);
+				showResult(player, result);
 			}
-			return;
-		}
-		if (player != null) {
-			showResult(player, res);
+		} catch (Exception ex) {
+			if (player != null) {
+				showError(player, ex);
+			}
 		}
 	}
 	
 	/**
-	 * @param eventName - name of event
-	 * @param sender - NPC, who sent event
-	 * @param receiver - NPC, who received event
-	 * @param reference - L2Object to pass, if needed
+	 * Notify Event Received event.
+	 * @param eventName the name of event
+	 * @param sender the NPC, who sent event
+	 * @param receiver the NPC, who received event
+	 * @param reference the reference object to pass, if needed
 	 */
 	public final void notifyEventReceived(String eventName, L2Npc sender, L2Npc receiver, L2Object reference) {
 		try {
 			onEventReceived(eventName, sender, receiver, reference);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onEventReceived() in notifyEventReceived(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final void notifyEnterZone(L2Character character, L2ZoneType zone) {
-		L2PcInstance player = character.getActingPlayer();
-		String res;
-		try {
-			res = onEnterZone(character, zone);
-		} catch (Exception e) {
-			if (player != null) {
-				showError(player, e);
-			}
-			return;
-		}
-		if (player != null) {
-			showResult(player, res);
-		}
-	}
-	
-	public final void notifyExitZone(L2Character character, L2ZoneType zone) {
-		L2PcInstance player = character.getActingPlayer();
-		String res;
-		try {
-			res = onExitZone(character, zone);
-		} catch (Exception e) {
-			if (player != null) {
-				showError(player, e);
-			}
-			return;
-		}
-		if (player != null) {
-			showResult(player, res);
-		}
-	}
-	
-	public final void notifyOlympiadMatch(Participant winner, Participant looser, CompetitionType type) {
-		try {
-			onOlympiadMatchFinish(winner, looser, type);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Execution on onOlympiadMatchFinish() in notifyOlympiadMatch(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final void notifyMoveFinished(L2Npc npc) {
-		try {
-			onMoveFinished(npc);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onMoveFinished() in notifyMoveFinished(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final void notifyNodeArrived(L2Npc npc) {
-		try {
-			onNodeArrived(npc);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onNodeArrived() in notifyNodeArrived(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final void notifyRouteFinished(L2Npc npc) {
-		try {
-			onRouteFinished(npc);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onRouteFinished() in notifyRouteFinished(): " + e.getMessage(), e);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onEventReceived() in notifyEventReceived()", ex);
 		}
 	}
 	
 	/**
-	 * @param npc
-	 * @param player
-	 * @return {@code true} if player can see this npc, {@code false} otherwise.
+	 * Notify Enter Zone event.
+	 * @param creature the creature
+	 * @param zoneType the zone type
+	 */
+	public final void notifyEnterZone(L2Character creature, L2ZoneType zoneType) {
+		final var player = creature.getActingPlayer();
+		try {
+			final var result = onEnterZone(creature, zoneType);
+			if (player != null) {
+				showResult(player, result);
+			}
+		} catch (Exception ex) {
+			if (player != null) {
+				showError(player, ex);
+			}
+		}
+	}
+	
+	/**
+	 * Notify Exit Zone event.
+	 * @param creature the creature
+	 * @param zoneType the zone type
+	 */
+	public final void notifyExitZone(L2Character creature, L2ZoneType zoneType) {
+		final var player = creature.getActingPlayer();
+		try {
+			final var result = onExitZone(creature, zoneType);
+			if (player != null) {
+				showResult(player, result);
+			}
+		} catch (Exception ex) {
+			if (player != null) {
+				showError(player, ex);
+			}
+		}
+	}
+	
+	/**
+	 * Notify Olympiad Match event.
+	 * @param winner the winner
+	 * @param loser the loser
+	 */
+	public final void notifyOlympiadMatch(Participant winner, Participant loser, CompetitionType type) {
+		try {
+			onOlympiadMatchFinish(winner, loser, type);
+		} catch (Exception ex) {
+			LOG.warn("Execution on onOlympiadMatchFinish() in notifyOlympiadMatch()", ex);
+		}
+	}
+	
+	/**
+	 * Notify Move Finished event.
+	 * @param npc the npc
+	 */
+	public final void notifyMoveFinished(L2Npc npc) {
+		try {
+			onMoveFinished(npc);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onMoveFinished() in notifyMoveFinished()", ex);
+		}
+	}
+	
+	/**
+	 * Notify Node Arrived event.
+	 * @param npc the npc
+	 */
+	public final void notifyNodeArrived(L2Npc npc) {
+		try {
+			onNodeArrived(npc);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onNodeArrived() in notifyNodeArrived()", ex);
+		}
+	}
+	
+	/**
+	 * Notify Router Finished event.
+	 * @param npc the npc
+	 */
+	public final void notifyRouteFinished(L2Npc npc) {
+		try {
+			onRouteFinished(npc);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onRouteFinished() in notifyRouteFinished()", ex);
+		}
+	}
+	
+	/**
+	 * Notify On Can See Me event.
+	 * @param npc the npc
+	 * @param player the player
+	 * @return {@code true} if player can see this npc, {@code false} otherwise
 	 */
 	public final boolean notifyOnCanSeeMe(L2Npc npc, L2PcInstance player) {
 		try {
 			return onCanSeeMe(npc, player);
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception on onCanSeeMe() in notifyOnCanSeeMe(): " + e.getMessage(), e);
+		} catch (Exception ex) {
+			LOG.warn("Exception on onCanSeeMe() in notifyOnCanSeeMe()", ex);
 		}
 		return false;
 	}
@@ -822,7 +894,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * @param player this parameter contains a reference to the player participating in this function.<br>
 	 *            It may be the player speaking to the NPC, or the player who caused a timer to start (and owns that timer).<br>
 	 *            This parameter may be {@code null} in certain circumstances.
-	 * @return the text returned by the event (may be {@code null}, a filename or just text)
+	 * @return the text returned by the event (maybe {@code null}, a filename or just text)
 	 */
 	public String onAdvEvent(String event, L2Npc npc, L2PcInstance player) {
 		if (player != null) {
@@ -847,7 +919,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 *            In the case of timers, this will be the name of the timer.<br>
 	 *            This parameter serves as a sort of identifier.
 	 * @param qs this parameter contains a reference to the quest state of the player who used the link or started the timer.
-	 * @return the text returned by the event (may be {@code null}, a filename or just text)
+	 * @return the text returned by the event (maybe {@code null}, a filename or just text)
 	 */
 	public String onEvent(String event, QuestState qs) {
 		return null;
@@ -858,7 +930,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * @param npc this parameter contains a reference to the exact instance of the NPC that got killed.
 	 * @param killer this parameter contains a reference to the exact instance of the player who killed the NPC.
 	 * @param isSummon this parameter if it's {@code false} it denotes that the attacker was indeed the player, else it specifies that the killer was the player's pet.
-	 * @return the text returned by the event (may be {@code null}, a filename or just text)
+	 * @return the text returned by the event (maybe {@code null}, a filename or just text)
 	 */
 	public String onKill(L2Npc npc, L2PcInstance killer, boolean isSummon) {
 		return null;
@@ -868,7 +940,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * This function is called whenever a player clicks to the "Quest" link of an NPC that is registered for the quest.
 	 * @param npc this parameter contains a reference to the exact instance of the NPC that the player is talking with.
 	 * @param talker this parameter contains a reference to the exact instance of the player who is talking to the NPC.
-	 * @return the text returned by the event (may be {@code null}, a filename or just text)
+	 * @return the text returned by the event (maybe {@code null}, a filename or just text)
 	 */
 	public String onTalk(L2Npc npc, L2PcInstance talker) {
 		return null;
@@ -889,12 +961,27 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * If you wish to show the default HTML, within onFirstTalk do npc.showChatWindow(player) and then return ""<br>
 	 * @param npc this parameter contains a reference to the exact instance of the NPC that the player is talking with.
 	 * @param player this parameter contains a reference to the exact instance of the player who is talking to the NPC.
-	 * @return the text returned by the event (may be {@code null}, a filename or just text)
+	 * @return the text returned by the event (maybe {@code null}, a filename or just text)
 	 */
 	public String onFirstTalk(L2Npc npc, L2PcInstance player) {
 		return null;
 	}
 	
+	/**
+	 * On Item Talk event.
+	 * @param item the item
+	 * @param player the player
+	 */
+	public String onItemTalk(L2ItemInstance item, L2PcInstance player) {
+		return null;
+	}
+	
+	/**
+	 * On Item event.
+	 * @param item the item
+	 * @param player the player
+	 * @param event the event
+	 */
 	public String onItemEvent(L2ItemInstance item, L2PcInstance player, String event) {
 		return null;
 	}
@@ -965,9 +1052,9 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	
 	/**
 	 * This function is called whenever an NPC finishes casting a skill.
-	 * @param npc the NPC that casted the skill.
-	 * @param player the player who is the target of the skill. Can be {@code null}.
-	 * @param skill the actual skill that was used by the NPC.
+	 * @param npc the NPC that cast the skill
+	 * @param player the player who is the target of the skill, can be {@code null}
+	 * @param skill the actual skill that was used by the NPC
 	 * @return
 	 */
 	public String onSpellFinished(L2Npc npc, L2PcInstance player, Skill skill) {
@@ -987,7 +1074,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	
 	/**
 	 * This function is called whenever an NPC spawns or re-spawns and passes a reference to the newly (re)spawned NPC.<br>
-	 * Currently the only function that has no reference to a player.<br>
+	 * Currently, the only function that has no reference to a player.<br>
 	 * It is useful for initializations, starting quest timers, displaying chat (NpcSay), and more.
 	 * @param npc this parameter contains a reference to the exact instance of the NPC who just (re)spawned.
 	 * @return
@@ -1062,21 +1149,21 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	
 	/**
 	 * This function is called whenever a character enters a registered zone.
-	 * @param character this parameter contains a reference to the exact instance of the character who is entering the zone.
-	 * @param zone this parameter contains a reference to the zone.
+	 * @param creature the creature who is entering the zone.
+	 * @param zoneType this parameter contains a reference to the zone.
 	 * @return
 	 */
-	public String onEnterZone(L2Character character, L2ZoneType zone) {
+	public String onEnterZone(L2Character creature, L2ZoneType zoneType) {
 		return null;
 	}
 	
 	/**
 	 * This function is called whenever a character exits a registered zone.
-	 * @param character this parameter contains a reference to the exact instance of the character who is exiting the zone.
-	 * @param zone this parameter contains a reference to the zone.
+	 * @param creature the character who is exiting the zone
+	 * @param zoneType the zone.
 	 * @return
 	 */
-	public String onExitZone(L2Character character, L2ZoneType zone) {
+	public String onExitZone(L2Character creature, L2ZoneType zoneType) {
 		return null;
 	}
 	
@@ -1092,12 +1179,12 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * This function is called whenever a player wins an Olympiad Game.
-	 * @param winner in this match.
-	 * @param looser in this match.
-	 * @param type the competition type.
+	 * This function is called whenever a player wins an Olympiad Game
+	 * @param winner in this match
+	 * @param loser in this match
+	 * @param type the competition type
 	 */
-	public void onOlympiadMatchFinish(Participant winner, Participant looser, CompetitionType type) {
+	public void onOlympiadMatchFinish(Participant winner, Participant loser, CompetitionType type) {
 		
 	}
 	
@@ -1174,13 +1261,13 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * @return {@code false}
 	 */
 	public boolean showError(L2PcInstance player, Throwable t) {
-		_log.log(Level.WARNING, getClass().getSimpleName(), t);
+		LOG.warn("There has been an error on the script!", t);
 		if (t.getMessage() == null) {
-			_log.warning(getClass().getSimpleName() + ": " + t.getMessage());
+			LOG.warn(t.getMessage()); // TODO(Zoey76): Test and eventually remove it if duplicated.
 		}
 		if ((player != null) && player.getAccessLevel().isGm()) {
-			String res = "<html><body><title>Script error</title>" + Util.getStackTrace(t) + "</body></html>";
-			return showResult(player, res);
+			final var result = "<html><body><title>Script error</title>" + Util.getStackTrace(t) + "</body></html>";
+			return showResult(player, result);
 		}
 		return false;
 	}
@@ -1249,7 +1336,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 					// Search quest associated with the ID
 					Quest q = QuestManager.getInstance().getQuest(questId);
 					if (q == null) {
-						_log.finer("Unknown quest " + questId + " for player " + player.getName());
+						LOG.warn("Unknown quest {} for player {}!", questId, player.getName());
 						if (general().autoDeleteInvalidQuestData()) {
 							invalidQuestData.setInt(1, player.getObjectId());
 							invalidQuestData.setString(2, questId);
@@ -1275,7 +1362,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 						// Get the QuestState saved in the loop before
 						QuestState qs = player.getQuestState(questId);
 						if (qs == null) {
-							_log.finer("Lost variable " + var + " in quest " + questId + " for player " + player.getName());
+							LOG.warn("Lost variable {} in quest {} for player {}!", var, questId, player.getName());
 							if (general().autoDeleteInvalidQuestData()) {
 								invalidQuestDataVar.setInt(1, player.getObjectId());
 								invalidQuestDataVar.setString(2, questId);
@@ -1289,8 +1376,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 					}
 				}
 			}
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not insert char quest:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not insert char quest!", ex);
 		}
 		
 		// events
@@ -1301,7 +1388,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	
 	/**
 	 * Insert (or update) in the database variables that need to stay persistent for this quest after a reboot.<br>
-	 * This function is for storage of values that do not related to a specific player but are global for all characters.<br>
+	 * This function is for storage of values that do not relate to a specific player but are global for all characters.<br>
 	 * For example, if we need to disable a quest-gatekeeper until a certain time (as is done with some grand-boss gatekeepers), we can save that time in the DB.
 	 * @param var the name of the variable to save
 	 * @param value the value of the variable
@@ -1313,8 +1400,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			ps.setString(2, var);
 			ps.setString(3, value);
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not insert global quest variable:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not insert global quest variable!", ex);
 		}
 	}
 	
@@ -1338,8 +1425,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 					result = rs.getString(1);
 				}
 			}
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not load global quest variable:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not load global quest variable!", ex);
 		}
 		return result;
 	}
@@ -1354,8 +1441,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			ps.setString(1, getName());
 			ps.setString(2, var);
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not delete global quest variable:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not delete global quest variable!", ex);
 		}
 	}
 	
@@ -1367,8 +1454,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			var ps = con.prepareStatement("DELETE FROM quest_global_data WHERE quest_name = ?")) {
 			ps.setString(1, getName());
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not delete global quest variables:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not delete global quest variables!", ex);
 		}
 	}
 	
@@ -1387,8 +1474,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			ps.setString(4, value);
 			ps.setString(5, value);
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not insert char quest:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not insert char quest!", ex);
 		}
 	}
 	
@@ -1406,8 +1493,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			ps.setString(3, qs.getQuestName());
 			ps.setString(4, var);
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not update char quest:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not update char quest!", ex);
 		}
 	}
 	
@@ -1423,8 +1510,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 			ps.setString(2, qs.getQuestName());
 			ps.setString(3, var);
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "could not delete char quest:", e);
+		} catch (Exception ex) {
+			LOG.warn("Could not delete char quest!", ex);
 		}
 	}
 	
@@ -1442,8 +1529,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 				ps.setString(3, "<state>");
 			}
 			ps.executeUpdate();
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Unable to delete char quest!", e);
+		} catch (Exception ex) {
+			LOG.warn("Unable to delete char quest!", ex);
 		}
 	}
 	
@@ -1481,7 +1568,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 */
 	public static String getAlreadyCompletedMsg(L2PcInstance player) {
 		final String result = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/alreadycompleted.htm");
-		if ((result != null) && (result.length() > 0)) {
+		if ((result != null) && !result.isEmpty()) {
 			return result;
 		}
 		return DEFAULT_ALREADY_COMPLETED_MSG;
@@ -1894,7 +1981,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * Registers onCanSeeMe trigger whenever an npc info must be sent to player.
+	 * Registers onCanSeeMe trigger whenever a npc info must be sent to player.
 	 * @param npcIds
 	 */
 	public void addCanSeeMeId(int... npcIds) {
@@ -1902,7 +1989,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * Registers onCanSeeMe trigger whenever an npc info must be sent to player.
+	 * Registers onCanSeeMe trigger whenever a npc info must be sent to player.
 	 * @param npcIds
 	 */
 	public void addCanSeeMeId(Collection<Integer> npcIds) {
@@ -2260,8 +2347,8 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * @param prefix player's language prefix.
-	 * @param fileName the html file to be get.
+	 * @param prefix player's language prefix
+	 * @param fileName the html file to get
 	 * @return the HTML file contents
 	 */
 	public String getHtm(String prefix, String fileName) {
@@ -2370,7 +2457,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * If a quest is set as custom, it will display it's name in the NPC Quest List.<br>
+	 * If a quest is set as custom, it will display its name in the NPC Quest List.<br>
 	 * Retail quests are unhardcoded to display the name using a client string.
 	 * @param val if {@code true} the quest script will be set as custom quest.
 	 */

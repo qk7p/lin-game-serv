@@ -25,7 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.gameserver.data.xml.impl.RecipeData;
@@ -148,7 +150,9 @@ public class RecipeController {
 	}
 	
 	private static class RecipeItemMaker implements Runnable {
-		private static final Logger _log = Logger.getLogger(RecipeItemMaker.class.getName());
+		
+		private static final Logger LOG = LoggerFactory.getLogger(RecipeItemMaker.class);
+		
 		protected boolean _isValid;
 		protected List<TempItem> _items = null;
 		protected final L2RecipeList _recipeList;
@@ -267,24 +271,36 @@ public class RecipeController {
 				return;
 			}
 			
-			if ((_player == null) || (_target == null)) {
-				_log.warning("player or target == null (disconnected?), aborting" + _target + _player);
+			if (_player == null) {
+				LOG.warn("Cannot perform craft, player is null!");
 				abort();
 				return;
 			}
 			
-			if (!_player.isOnline() || !_target.isOnline()) {
-				_log.warning("player or target is not online, aborting " + _target + _player);
+			if (_target == null) {
+				LOG.warn("Cannot perform craft, target is null!");
+				abort();
+				return;
+			}
+			
+			if (!_player.isOnline()) {
+				LOG.warn("Cannot perform craft, player is not online!");
+				abort();
+				return;
+			}
+			
+			if (!_target.isOnline()) {
+				LOG.warn("Cannot perform craft, target is not online!");
 				abort();
 				return;
 			}
 			
 			if (character().alternativeCrafting() && !_activeMakers.containsKey(_player.getObjectId())) {
 				if (_target != _player) {
-					_target.sendMessage("Manufacture aborted");
-					_player.sendMessage("Manufacture aborted");
+					_target.sendMessage("Manufacture aborted!");
+					_player.sendMessage("Manufacture aborted!");
 				} else {
-					_player.sendMessage("Item creation aborted");
+					_player.sendMessage("Item creation aborted!");
 				}
 				
 				abort();
@@ -305,8 +321,7 @@ public class RecipeController {
 					_delay = (int) (character().getCraftingSpeed() * _player.getMReuseRate(_skill) * GameTimeController.TICKS_PER_SECOND * GameTimeController.MILLIS_IN_TICK);
 					
 					// FIXME: please fix this packet to show crafting animation (somebody)
-					MagicSkillUse msk = new MagicSkillUse(_player, _skillId, _skillLevel, _delay, 0);
-					_player.broadcastPacket(msk);
+					_player.broadcastPacket(new MagicSkillUse(_player, _skillId, _skillLevel, _delay, 0));
 					
 					_player.sendPacket(new SetupGauge(0, _delay));
 					ThreadPoolManager.getInstance().scheduleGeneral(this, 100 + _delay);

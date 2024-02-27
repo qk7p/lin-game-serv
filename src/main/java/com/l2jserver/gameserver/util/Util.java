@@ -32,7 +32,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 import java.util.StringJoiner;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.ThreadPoolManager;
@@ -54,7 +56,7 @@ import com.l2jserver.gameserver.util.file.filter.ExtFilter;
  */
 public final class Util {
 	
-	private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 	
 	private static final NumberFormat ADENA_FORMATTER = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	
@@ -441,7 +443,7 @@ public final class Util {
 			}
 			
 			if (general().htmlActionCacheDebug()) {
-				LOGGER.info("Cached html bypass(" + scope.toString() + "): '" + bypass + "'");
+				LOG.info("Cached html bypass({}): '{}'", scope.toString(), bypass);
 			}
 			player.addHtmlAction(scope, bypass);
 			bypassStart = htmlLower.indexOf("=\"bypass ", bypassEnd);
@@ -462,17 +464,17 @@ public final class Util {
 			
 			String htmlLink = html.substring(linkStartEnd, linkEnd).trim();
 			if (htmlLink.isEmpty()) {
-				LOGGER.warning("Html link path is empty!");
+				LOG.warn("Html link path is empty!");
 				continue;
 			}
 			
 			if (htmlLink.contains("..")) {
-				LOGGER.warning("Html link path is invalid: " + htmlLink);
+				LOG.warn("Html link path is invalid {}!", htmlLink);
 				continue;
 			}
 			
 			if (general().htmlActionCacheDebug()) {
-				LOGGER.info("Cached html link(" + scope.toString() + "): '" + htmlLink + "'");
+				LOG.info("Cached html link({}): '{}'", scope.toString(), htmlLink);
 			}
 			// let's keep an action cache with "link " lowercase literal kept
 			player.addHtmlAction(scope, "link " + htmlLink);
@@ -495,7 +497,7 @@ public final class Util {
 		}
 		
 		if (general().htmlActionCacheDebug()) {
-			LOGGER.info("Set html action npc(" + scope.toString() + "): " + npcObjId);
+			LOG.info("Set html action npc({}): {}", scope.toString(), npcObjId);
 		}
 		player.setHtmlActionOriginObjectId(scope, npcObjId);
 		buildHtmlBypassCache(player, scope, html);

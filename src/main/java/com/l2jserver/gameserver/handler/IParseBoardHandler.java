@@ -18,8 +18,6 @@
  */
 package com.l2jserver.gameserver.handler;
 
-import java.util.logging.Logger;
-
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 
 /**
@@ -27,8 +25,6 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
  * @author Zoey76
  */
 public interface IParseBoardHandler {
-	Logger LOG = Logger.getLogger(IParseBoardHandler.class.getName());
-	
 	/**
 	 * Parses a community board command.
 	 * @param command the command

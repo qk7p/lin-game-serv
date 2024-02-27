@@ -23,7 +23,9 @@ import static com.l2jserver.gameserver.config.Configuration.npc;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.l2jserver.commons.util.Rnd;
 import com.l2jserver.gameserver.ThreadPoolManager;
@@ -36,11 +38,12 @@ import com.l2jserver.gameserver.model.holders.MinionHolder;
 import com.l2jserver.gameserver.taskmanager.DecayTaskManager;
 
 /**
+ * Minion List.
  * @author luisantonioa
  * @author DS
  */
 public class MinionList {
-	private static final Logger _log = Logger.getLogger(MinionList.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(MinionList.class);
 	
 	protected final L2MonsterInstance _master;
 	/** List containing the current spawned minions */
@@ -330,7 +333,8 @@ public class MinionList {
 		minion.spawnMe(newX, newY, master.getZ());
 		
 		if (general().debug()) {
-			_log.info("Spawned minion template " + minion.getId() + " with objid: " + minion.getObjectId() + " to boss " + master.getObjectId() + " ,at: " + minion.getX() + " x, " + minion.getY() + " y, " + minion.getZ() + " z");
+			LOG.info("Spawned minion template {} with object Id: {} to boss object Id {}, at: {} x, {} y, {} z", //
+				minion.getId(), minion.getObjectId(), master.getObjectId(), minion.getX(), minion.getY(), minion.getZ());
 		}
 		
 		return minion;
