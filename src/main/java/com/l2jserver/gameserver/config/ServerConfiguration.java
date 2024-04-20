@@ -42,7 +42,9 @@ import com.l2jserver.gameserver.idfactory.IdFactoryType;
 @Sources({
 	"file:${L2J_HOME}/custom/game/config/server.properties",
 	"file:./config/server.properties",
-	"classpath:config/server.properties"
+	"classpath:config/server.properties",
+	"system:properties",
+	"system:env"
 })
 @LoadPolicy(MERGE)
 @HotReload(value = 20, unit = MINUTES, type = ASYNC)
@@ -90,4 +92,7 @@ public interface ServerConfiguration extends Mutable, Reloadable {
 	
 	@Key("BadIdChecking")
 	Boolean badIdChecking();
+	
+	@Key("L2J_HOME")
+	String getL2jHome();
 }

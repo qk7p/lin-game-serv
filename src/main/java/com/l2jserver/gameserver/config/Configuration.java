@@ -22,8 +22,6 @@ import java.nio.file.Path;
 
 import org.aeonbits.owner.ConfigFactory;
 
-import com.l2jserver.gameserver.GameServer;
-
 /**
  * Configuration.
  * @author Zoey76
@@ -242,11 +240,10 @@ public class Configuration {
 	 * @return either the custom or default path to the config file
 	 */
 	public static Path getCustomOrDefaultPath(String filename) {
-		String l2jHome = GameServer.getL2jHomeVariable();
+		var l2jHome = server().getL2jHome();
 		if (l2jHome == null) {
 			return Path.of(getDefaultPath(filename));
 		}
-		
 		return Path.of(l2jHome, getCustomSubpath(filename));
 	}
 }

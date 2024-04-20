@@ -22,6 +22,8 @@ import static com.l2jserver.gameserver.config.Configuration.general;
 import static com.l2jserver.gameserver.config.Configuration.hexId;
 import static com.l2jserver.gameserver.config.Configuration.ip;
 import static com.l2jserver.gameserver.config.Configuration.server;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -32,8 +34,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
@@ -676,14 +676,16 @@ public class LoginServerThread extends Thread {
 	 * @param hexId the hexadecimal ID to store
 	 */
 	public static void saveHexid(int serverId, String hexId) {
-		Path hexIdFilePath = Configuration.getCustomOrDefaultPath(HexIdConfiguration.FILENAME);
-		
+		final var hexIdFilePath = Configuration.getCustomOrDefaultPath(HexIdConfiguration.FILENAME);
 		hexId().setProperty(HexIdConfiguration.SERVERID_KEY, String.valueOf(serverId));
 		hexId().setProperty(HexIdConfiguration.HEXID_KEY, hexId);
 		
-		try (OutputStream out = Files.newOutputStream(hexIdFilePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			hexId().store(out, "the hexID to auth into login");
-			LOG.info("Saved {}.", hexIdFilePath);
+		try {
+			Files.createDirectories(hexIdFilePath.getParent());
+			try (var out = Files.newOutputStream(hexIdFilePath, CREATE, TRUNCATE_EXISTING)) {
+				hexId().store(out, "the hexID to auth into login");
+				LOG.info("Saved {}.", hexIdFilePath);
+			}
 		} catch (Exception ex) {
 			LOG.warn("Failed to save {}.", hexIdFilePath, ex);
 		}
