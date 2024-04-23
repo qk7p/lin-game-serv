@@ -63,8 +63,8 @@ public interface BufferServiceConfiguration extends Reloadable {
 	@Key("ForbidInEvents")
 	Boolean getForbidInEvents();
 	
-	@Key("ForbidInDuell")
-	Boolean getForbidInDuell();
+	@Key("ForbidInDuel")
+	Boolean getForbidInDuel();
 	
 	@Key("ForbidInFight")
 	Boolean getForbidInFight();
