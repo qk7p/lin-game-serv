@@ -744,7 +744,7 @@ public final class QuestState {
 	
 	/**
 	 * Start a timed event for a quest.<br>
-	 * Will call an event in onEvent/onAdvEvent.
+	 * Will call an event in onEvent.
 	 * @param name the name of the timer/event
 	 * @param time time in milliseconds till the event is executed
 	 */
@@ -754,7 +754,7 @@ public final class QuestState {
 	
 	/**
 	 * Start a timed event for a quest.<br>
-	 * Will call an event in onEvent/onAdvEvent.
+	 * Will call an event in onEvent.
 	 * @param name the name of the timer/event
 	 * @param time time in milliseconds till the event is executed
 	 * @param npc the L2Npc associated with this event
@@ -765,7 +765,7 @@ public final class QuestState {
 	
 	/**
 	 * Start a repeating timed event for a quest.<br>
-	 * Will call an event in onEvent/onAdvEvent.
+	 * Will call an event in onEvent.
 	 * @param name the name of the timer/event
 	 * @param time time in milliseconds till the event is executed/repeated
 	 */
@@ -775,7 +775,7 @@ public final class QuestState {
 	
 	/**
 	 * Start a repeating timed event for a quest.<br>
-	 * Will call an event in onEvent/onAdvEvent.
+	 * Will call an event in onEvent.
 	 * @param name the name of the timer/event
 	 * @param time time in milliseconds till the event is executed/repeated
 	 * @param npc the L2Npc associated with this event
