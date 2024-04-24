@@ -19,6 +19,8 @@
 package com.l2jserver.gameserver.model.quest;
 
 import static com.l2jserver.gameserver.config.Configuration.general;
+import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LEARN_SKILL_REQUESTED;
+import static com.l2jserver.gameserver.model.events.ListenerRegisterType.NPC;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +61,7 @@ import com.l2jserver.gameserver.model.base.AcquireSkillType;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.events.AbstractScript;
 import com.l2jserver.gameserver.model.events.EventType;
+import com.l2jserver.gameserver.model.events.impl.character.player.LearnSkillRequestedEvent;
 import com.l2jserver.gameserver.model.events.listeners.AbstractEventListener;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
@@ -987,14 +990,11 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * This function is called whenever a player request a skill list.<br>
-	 * TODO: Re-implement, since Skill Trees rework it's support was removed.
-	 * @param npc this parameter contains a reference to the exact instance of the NPC that the player requested the skill list.
-	 * @param player this parameter contains a reference to the exact instance of the player who requested the skill list.
-	 * @return
+	 * On Learn Skill Requested.
+	 * @param event the event
 	 */
-	public String onAcquireSkillList(L2Npc npc, L2PcInstance player) {
-		return null;
+	public void onLearnSkillRequested(LearnSkillRequestedEvent event) {
+		
 	}
 	
 	/**
@@ -1620,6 +1620,14 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 */
 	public void addAcquireSkillId(Collection<Integer> npcIds) {
 		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.getTrainer(), event.getActiveChar(), event.getSkill(), event.getAcquireType()), npcIds);
+	}
+	
+	/**
+	 * Binds the NPCs to the Learn Skill Requested event.
+	 * @param npcIds the IDs of the NPCs
+	 */
+	public void bindLearnSkillRequested(int... npcIds) {
+		registerConsumer((LearnSkillRequestedEvent event) -> onLearnSkillRequested(event), PLAYER_LEARN_SKILL_REQUESTED, NPC, npcIds);
 	}
 	
 	/**

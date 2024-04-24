@@ -47,6 +47,7 @@ import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAtt
 import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableHate;
 import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableKill;
 import com.l2jserver.gameserver.model.events.impl.character.playable.OnPlayableExpChanged;
+import com.l2jserver.gameserver.model.events.impl.character.player.LearnSkillRequestedEvent;
 import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerAugment;
 import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerBypass;
 import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerChat;
@@ -224,6 +225,7 @@ public enum EventType {
 	ON_PLAYER_SELECT(OnPlayerSelect.class, void.class, TerminateReturn.class),
 	ON_PLAYER_SIT(OnPlayerSit.class, TerminateReturn.class),
 	ON_PLAYER_SKILL_LEARN(OnPlayerSkillLearn.class, void.class),
+	PLAYER_LEARN_SKILL_REQUESTED(LearnSkillRequestedEvent.class, void.class),
 	ON_PLAYER_STAND(OnPlayerSit.class, TerminateReturn.class),
 	ON_PLAYER_SUMMON_SPAWN(OnPlayerSummonSpawn.class, void.class),
 	ON_PLAYER_SUMMON_TALK(OnPlayerSummonTalk.class, void.class),
