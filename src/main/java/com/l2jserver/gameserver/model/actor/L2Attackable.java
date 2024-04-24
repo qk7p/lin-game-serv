@@ -66,9 +66,9 @@ import com.l2jserver.gameserver.model.actor.tasks.attackable.CommandChannelTimer
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.drops.DropListScope;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableAggroRangeEnter;
-import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableAttack;
-import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableKill;
+import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.AttackableAggroRangeEnter;
+import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.AttackableAttack;
+import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.AttackableKill;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
@@ -300,7 +300,7 @@ public class L2Attackable extends L2Npc {
 		
 		if ((killer != null) && killer.isPlayable()) {
 			// Delayed notification
-			EventDispatcher.getInstance().notifyEventAsyncDelayed(new OnAttackableKill(killer.getActingPlayer(), this, killer.isSummon()), this, _onKillDelay);
+			EventDispatcher.getInstance().notifyEventAsyncDelayed(new AttackableKill(killer.getActingPlayer(), this, killer.isSummon()), this, _onKillDelay);
 		}
 		
 		// Notify to minions if there are.
@@ -572,7 +572,7 @@ public class L2Attackable extends L2Npc {
 				
 				final L2PcInstance player = attacker.getActingPlayer();
 				if (player != null) {
-					EventDispatcher.getInstance().notifyEventAsync(new OnAttackableAttack(player, this, damage, skill, attacker.isSummon()), this);
+					EventDispatcher.getInstance().notifyEventAsync(new AttackableAttack(player, this, damage, skill, attacker.isSummon()), this);
 				}
 			} catch (Exception ex) {
 				LOG.error("Error adding damage!", ex);
@@ -612,7 +612,7 @@ public class L2Attackable extends L2Npc {
 			}
 			
 			// Notify to scripts
-			EventDispatcher.getInstance().notifyEventAsync(new OnAttackableAggroRangeEnter(this, targetPlayer, attacker.isSummon()), this);
+			EventDispatcher.getInstance().notifyEventAsync(new AttackableAggroRangeEnter(this, targetPlayer, attacker.isSummon()), this);
 		} else if ((targetPlayer == null) && (aggro == 0)) {
 			aggro = 1;
 			ai.addHate(1);

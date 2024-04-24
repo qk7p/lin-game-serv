@@ -32,8 +32,8 @@ import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
 import com.l2jserver.gameserver.model.events.ListenersContainer;
-import com.l2jserver.gameserver.model.events.impl.character.OnCreatureZoneEnter;
-import com.l2jserver.gameserver.model.events.impl.character.OnCreatureZoneExit;
+import com.l2jserver.gameserver.model.events.impl.character.CreatureZoneEnter;
+import com.l2jserver.gameserver.model.events.impl.character.CreatureZoneExit;
 import com.l2jserver.gameserver.model.interfaces.ILocational;
 import com.l2jserver.gameserver.network.serverpackets.L2GameServerPacket;
 
@@ -370,7 +370,7 @@ public abstract class L2ZoneType extends ListenersContainer {
 			// Was the character not yet inside this zone?
 			if (!_characterList.containsKey(character.getObjectId())) {
 				// Notify to scripts.
-				EventDispatcher.getInstance().notifyEventAsync(new OnCreatureZoneEnter(character, this), this);
+				EventDispatcher.getInstance().notifyEventAsync(new CreatureZoneEnter(character, this), this);
 				
 				// Register player.
 				_characterList.put(character.getObjectId(), character);
@@ -391,7 +391,7 @@ public abstract class L2ZoneType extends ListenersContainer {
 		// Was the character inside this zone?
 		if (_characterList.containsKey(character.getObjectId())) {
 			// Notify to scripts.
-			EventDispatcher.getInstance().notifyEventAsync(new OnCreatureZoneExit(character, this), this);
+			EventDispatcher.getInstance().notifyEventAsync(new CreatureZoneExit(character, this), this);
 			
 			// Unregister player.
 			_characterList.remove(character.getObjectId());

@@ -20,6 +20,7 @@ package com.l2jserver.gameserver.model.quest;
 
 import static com.l2jserver.gameserver.config.Configuration.general;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LEARN_SKILL_REQUESTED;
+import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LOGIN;
 import static com.l2jserver.gameserver.model.events.ListenerRegisterType.NPC;
 
 import java.util.ArrayList;
@@ -60,8 +61,7 @@ import com.l2jserver.gameserver.model.actor.instance.L2TrapInstance;
 import com.l2jserver.gameserver.model.base.AcquireSkillType;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.events.AbstractScript;
-import com.l2jserver.gameserver.model.events.EventType;
-import com.l2jserver.gameserver.model.events.impl.character.player.LearnSkillRequestedEvent;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLearnSkillRequested;
 import com.l2jserver.gameserver.model.events.listeners.AbstractEventListener;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
@@ -993,7 +993,7 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	 * On Learn Skill Requested.
 	 * @param event the event
 	 */
-	public void onLearnSkillRequested(LearnSkillRequestedEvent event) {
+	public void onLearnSkillRequested(PlayerLearnSkillRequested event) {
 		
 	}
 	
@@ -1575,437 +1575,470 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * Add the quest to the NPC's startQuest
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the start NPC event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addStartNpc(int... npcIds) {
+	public void bindStartNpc(int... npcIds) {
 		setNpcQuestStartId(npcIds);
 	}
 	
 	/**
-	 * Add the quest to the NPC's startQuest
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the start NPC event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addStartNpc(Collection<Integer> npcIds) {
+	public void bindStartNpc(Collection<Integer> npcIds) {
 		setNpcQuestStartId(npcIds);
 	}
 	
 	/**
-	 * Add the quest to the NPC's first-talk (default action dialog).
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the first talk event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addFirstTalkId(int... npcIds) {
-		setNpcFirstTalkId(event -> notifyFirstTalk(event.getNpc(), event.getActiveChar()), npcIds);
+	public void bindFirstTalk(int... npcIds) {
+		setNpcFirstTalkId(event -> notifyFirstTalk(event.npc(), event.player()), npcIds);
 	}
 	
 	/**
-	 * Add the quest to the NPC's first-talk (default action dialog).
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the first talk event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addFirstTalkId(Collection<Integer> npcIds) {
-		setNpcFirstTalkId(event -> notifyFirstTalk(event.getNpc(), event.getActiveChar()), npcIds);
+	public void bindFirstTalk(Collection<Integer> npcIds) {
+		setNpcFirstTalkId(event -> notifyFirstTalk(event.npc(), event.player()), npcIds);
 	}
 	
 	/**
-	 * Add the NPC to the AcquireSkill dialog.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the acquire skill event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addAcquireSkillId(int... npcIds) {
-		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.getTrainer(), event.getActiveChar(), event.getSkill(), event.getAcquireType()), npcIds);
+	public void bindAcquireSkill(int... npcIds) {
+		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.trainer(), event.player(), event.skill(), event.type()), npcIds);
 	}
 	
 	/**
-	 * Add the NPC to the AcquireSkill dialog.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the acquire skill event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addAcquireSkillId(Collection<Integer> npcIds) {
-		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.getTrainer(), event.getActiveChar(), event.getSkill(), event.getAcquireType()), npcIds);
+	public void bindAcquireSkill(Collection<Integer> npcIds) {
+		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.trainer(), event.player(), event.skill(), event.type()), npcIds);
 	}
 	
 	/**
 	 * Binds the NPCs to the Learn Skill Requested event.
 	 * @param npcIds the IDs of the NPCs
 	 */
-	public void bindLearnSkillRequested(int... npcIds) {
-		registerConsumer((LearnSkillRequestedEvent event) -> onLearnSkillRequested(event), PLAYER_LEARN_SKILL_REQUESTED, NPC, npcIds);
+	public void bindPlayerLearnSkillRequested(int... npcIds) {
+		registerConsumer((PlayerLearnSkillRequested event) -> onLearnSkillRequested(event), PLAYER_LEARN_SKILL_REQUESTED, NPC, npcIds);
 	}
 	
 	/**
-	 * Add the Item to the notify when player speaks with it.
-	 * @param itemIds the IDs of the Item to register
+	 * Binds the Item to the notify when player speaks with it.
+	 * @param itemIds the IDs of the Item
 	 */
-	public void addItemBypassEventId(int... itemIds) {
-		setItemBypassEvenId(event -> notifyItemEvent(event.getItem(), event.getActiveChar(), event.getEvent()), itemIds);
+	public void bindItemBypass(int... itemIds) {
+		setItemBypass(event -> notifyItemEvent(event.item(), event.player(), event.event()), itemIds);
 	}
 	
 	/**
-	 * Add the Item to the notify when player speaks with it.
-	 * @param itemIds the IDs of the Item to register
+	 * Binds the Item to the item bypass event.
+	 * @param itemIds the IDs of the Item
 	 */
-	public void addItemBypassEventId(Collection<Integer> itemIds) {
-		setItemBypassEvenId(event -> notifyItemEvent(event.getItem(), event.getActiveChar(), event.getEvent()), itemIds);
+	public void bindItemBypass(Collection<Integer> itemIds) {
+		setItemBypassEvenId(event -> notifyItemEvent(event.item(), event.player(), event.event()), itemIds);
 	}
 	
 	/**
-	 * Add the Item to the notify when player speaks with it.
-	 * @param itemIds the IDs of the Item to register
+	 * Binds the Item to the item talk event.
+	 * @param itemIds the IDs of the Item
 	 */
-	public void addItemTalkId(int... itemIds) {
-		setItemTalkId(event -> notifyItemTalk(event.getItem(), event.getActiveChar()), itemIds);
+	public void bindItemTalk(int... itemIds) {
+		setItemTalkId(event -> notifyItemTalk(event.item(), event.player()), itemIds);
 	}
 	
 	/**
-	 * Add the Item to the notify when player speaks with it.
-	 * @param itemIds the IDs of the Item to register
+	 * Binds the Item to the item talk event.
+	 * @param itemIds the IDs of the Item
 	 */
-	public void addItemTalkId(Collection<Integer> itemIds) {
-		setItemTalkId(event -> notifyItemTalk(event.getItem(), event.getActiveChar()), itemIds);
+	public void addItemTalk(Collection<Integer> itemIds) {
+		setItemTalkId(event -> notifyItemTalk(event.item(), event.player()), itemIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed mob will respond to for attack events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Attack event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addAttackId(int... npcIds) {
-		setAttackableAttackId(attack -> notifyAttack(attack.getTarget(), attack.getAttacker(), attack.getDamage(), attack.isSummon(), attack.getSkill()), npcIds);
+	public void bindAttack(int... npcIds) {
+		setAttackableAttackId(attack -> notifyAttack(attack.target(), attack.attacker(), attack.damage(), attack.isSummon(), attack.skill()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed mob will respond to for attack events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Attack event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addAttackId(Collection<Integer> npcIds) {
-		setAttackableAttackId(attack -> notifyAttack(attack.getTarget(), attack.getAttacker(), attack.getDamage(), attack.isSummon(), attack.getSkill()), npcIds);
+	public void bindAttack(Collection<Integer> npcIds) {
+		setAttackableAttackId(attack -> notifyAttack(attack.target(), attack.attacker(), attack.damage(), attack.isSummon(), attack.skill()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed mob will respond to for kill events.
-	 * @param npcIds
+	 * Binds the NPCs to the Kill event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addKillId(int... npcIds) {
-		setAttackableKillId(kill -> notifyKill(kill.getTarget(), kill.getAttacker(), kill.isSummon()), npcIds);
+	public void bindKill(int... npcIds) {
+		setAttackableKillId(kill -> notifyKill(kill.target(), kill.attacker(), kill.isSummon()), npcIds);
 	}
 	
 	/**
-	 * Add this quest event to the collection of NPC IDs that will respond to for on kill events.
-	 * @param npcIds the collection of NPC IDs
+	 * Binds the NPCs to the Kill event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addKillId(Collection<Integer> npcIds) {
-		setAttackableKillId(kill -> notifyKill(kill.getTarget(), kill.getAttacker(), kill.isSummon()), npcIds);
+	public void bindKill(Collection<Integer> npcIds) {
+		setAttackableKillId(kill -> notifyKill(kill.target(), kill.attacker(), kill.isSummon()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for Talk Events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Talk event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addTalkId(int... npcIds) {
-		setNpcTalkId(npcIds);
-	}
-	
-	public void addTalkId(Collection<Integer> npcIds) {
+	public void bindTalk(int... npcIds) {
 		setNpcTalkId(npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for Teleport Events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Talk event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addTeleportId(int... npcIds) {
-		setNpcTeleportId(event -> notifyTeleport(event.getNpc()), npcIds);
+	public void bindTalk(Collection<Integer> npcIds) {
+		setNpcTalkId(npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for Teleport Events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Teleport event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addTeleportId(Collection<Integer> npcIds) {
-		setNpcTeleportId(event -> notifyTeleport(event.getNpc()), npcIds);
+	public void bindTeleport(int... npcIds) {
+		setNpcTeleportId(event -> notifyTeleport(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for spawn events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Teleport event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSpawnId(int... npcIds) {
-		setNpcSpawnId(event -> notifySpawn(event.getNpc()), npcIds);
+	public void bindTeleport(Collection<Integer> npcIds) {
+		setNpcTeleportId(event -> notifyTeleport(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for spawn events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Spawn event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSpawnId(Collection<Integer> npcIds) {
-		setNpcSpawnId(event -> notifySpawn(event.getNpc()), npcIds);
+	public void bindSpawn(int... npcIds) {
+		setNpcSpawnId(event -> notifySpawn(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for skill see events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Spawn event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSkillSeeId(int... npcIds) {
-		setNpcSkillSeeId(event -> notifySkillSee(event.getTarget(), event.getCaster(), event.getSkill(), event.getTargets(), event.isSummon()), npcIds);
+	public void bindSpawn(Collection<Integer> npcIds) {
+		setNpcSpawnId(event -> notifySpawn(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for skill see events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Skill See event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSkillSeeId(Collection<Integer> npcIds) {
-		setNpcSkillSeeId(event -> notifySkillSee(event.getTarget(), event.getCaster(), event.getSkill(), event.getTargets(), event.isSummon()), npcIds);
+	public void bindSkillSee(int... npcIds) {
+		setNpcSkillSeeId(event -> notifySkillSee(event.npc(), event.caster(), event.skill(), event.targets(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Skill See event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSpellFinishedId(int... npcIds) {
-		setNpcSkillFinishedId(event -> notifySpellFinished(event.getCaster(), event.getTarget(), event.getSkill()), npcIds);
+	public void bindSkillSee(Collection<Integer> npcIds) {
+		setNpcSkillSeeId(event -> notifySkillSee(event.npc(), event.caster(), event.skill(), event.targets(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Spell Finished event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSpellFinishedId(Collection<Integer> npcIds) {
-		setNpcSkillFinishedId(event -> notifySpellFinished(event.getCaster(), event.getTarget(), event.getSkill()), npcIds);
+	public void bindSpellFinished(int... npcIds) {
+		setNpcSkillFinishedId(event -> notifySpellFinished(event.caster(), event.target(), event.skill()), npcIds);
 	}
 	
 	/**
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Spell Finished event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addTrapActionId(int... npcIds) {
-		setTrapActionId(event -> notifyTrapAction(event.getTrap(), event.getTrigger(), event.getAction()), npcIds);
+	public void bindSpellFinished(Collection<Integer> npcIds) {
+		setNpcSkillFinishedId(event -> notifySpellFinished(event.caster(), event.target(), event.skill()), npcIds);
 	}
 	
 	/**
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Trap Action event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addTrapActionId(Collection<Integer> npcIds) {
-		setTrapActionId(event -> notifyTrapAction(event.getTrap(), event.getTrigger(), event.getAction()), npcIds);
+	public void bindTrapAction(int... npcIds) {
+		setTrapActionId(event -> notifyTrapAction(event.trap(), event.trigger(), event.action()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for faction call events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Trap Action event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addFactionCallId(int... npcIds) {
-		setAttackableFactionIdId(event -> notifyFactionCall(event.getNpc(), event.getCaller(), event.getAttacker(), event.isSummon()), npcIds);
+	public void bindTrapAction(Collection<Integer> npcIds) {
+		setTrapActionId(event -> notifyTrapAction(event.trap(), event.trigger(), event.action()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for faction call events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Faction Call event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addFactionCallId(Collection<Integer> npcIds) {
-		setAttackableFactionIdId(event -> notifyFactionCall(event.getNpc(), event.getCaller(), event.getAttacker(), event.isSummon()), npcIds);
+	public void bindFactionCall(int... npcIds) {
+		setAttackableFactionIdId(event -> notifyFactionCall(event.npc(), event.caller(), event.attacker(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for character see events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Faction Call event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addAggroRangeEnterId(int... npcIds) {
-		setAttackableAggroRangeEnterId(event -> notifyAggroRangeEnter(event.getNpc(), event.getActiveChar(), event.isSummon()), npcIds);
+	public void bindFactionCall(Collection<Integer> npcIds) {
+		setAttackableFactionIdId(event -> notifyFactionCall(event.npc(), event.caller(), event.attacker(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * Add this quest to the list of quests that the passed npc will respond to for character see events.
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Aggro Range Enter event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addAggroRangeEnterId(Collection<Integer> npcIds) {
-		setAttackableAggroRangeEnterId(event -> notifyAggroRangeEnter(event.getNpc(), event.getActiveChar(), event.isSummon()), npcIds);
+	public void bindAggroRangeEnter(int... npcIds) {
+		setAttackableAggroRangeEnterId(event -> notifyAggroRangeEnter(event.npc(), event.player(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Aggro Range Enter event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSeeCreatureId(int... npcIds) {
-		setNpcCreatureSeeId(event -> notifySeeCreature(event.getNpc(), event.getCreature(), event.isSummon()), npcIds);
+	public void bindAggroRangeEnter(Collection<Integer> npcIds) {
+		setAttackableAggroRangeEnterId(event -> notifyAggroRangeEnter(event.npc(), event.player(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the See Creature event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSeeCreatureId(Collection<Integer> npcIds) {
-		setNpcCreatureSeeId(event -> notifySeeCreature(event.getNpc(), event.getCreature(), event.isSummon()), npcIds);
+	public void bindSeeCreature(int... npcIds) {
+		setNpcCreatureSeeId(event -> notifySeeCreature(event.npc(), event.creature(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * Register onEnterZone trigger for zone
-	 * @param zoneId the ID of the zone to register
+	 * Binds the NPCs to the See Creature event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addEnterZoneId(int zoneId) {
-		setCreatureZoneEnterId(event -> notifyEnterZone(event.getCreature(), event.getZone()), zoneId);
+	public void bindSeeCreature(Collection<Integer> npcIds) {
+		setNpcCreatureSeeId(event -> notifySeeCreature(event.npc(), event.creature(), event.isSummon()), npcIds);
 	}
 	
 	/**
-	 * Register onEnterZone trigger for zones
-	 * @param zoneIds the IDs of the zones to register
+	 * Binds the Zones to the Enter Zone event.
+	 * @param zoneIds the IDs of the zones
 	 */
-	public void addEnterZoneId(int... zoneIds) {
-		setCreatureZoneEnterId(event -> notifyEnterZone(event.getCreature(), event.getZone()), zoneIds);
+	public void bindEnterZone(int... zoneIds) {
+		setCreatureZoneEnterId(event -> notifyEnterZone(event.creature(), event.zone()), zoneIds);
 	}
 	
 	/**
-	 * Register onEnterZone trigger for zones
-	 * @param zoneIds the IDs of the zones to register
+	 * Binds the Zones to the Enter Zone event.
+	 * @param zoneIds the IDs of the zones
 	 */
-	public void addEnterZoneId(Collection<Integer> zoneIds) {
-		setCreatureZoneEnterId(event -> notifyEnterZone(event.getCreature(), event.getZone()), zoneIds);
+	public void bindEnterZone(Collection<Integer> zoneIds) {
+		setCreatureZoneEnterId(event -> notifyEnterZone(event.creature(), event.zone()), zoneIds);
 	}
 	
 	/**
-	 * Register onExitZone trigger for zone
-	 * @param zoneId the ID of the zone to register
+	 * Binds the Zones to the Exit Zone event.
+	 * @param zoneIds the IDs of the zones
 	 */
-	public void addExitZoneId(int zoneId) {
-		setCreatureZoneExitId(event -> notifyExitZone(event.getCreature(), event.getZone()), zoneId);
+	public void bindExitZone(int... zoneIds) {
+		setCreatureZoneExitId(event -> notifyExitZone(event.creature(), event.zone()), zoneIds);
 	}
 	
 	/**
-	 * Register onExitZone trigger for zones
-	 * @param zoneIds the IDs of the zones to register
+	 * Binds the Zones to the Exit Zone event.
+	 * @param zoneIds the IDs of the zones
 	 */
-	public void addExitZoneId(int... zoneIds) {
-		setCreatureZoneExitId(event -> notifyExitZone(event.getCreature(), event.getZone()), zoneIds);
+	public void bindExitZone(Collection<Integer> zoneIds) {
+		setCreatureZoneExitId(event -> notifyExitZone(event.creature(), event.zone()), zoneIds);
 	}
 	
 	/**
-	 * Register onExitZone trigger for zones
-	 * @param zoneIds the IDs of the zones to register
+	 * Binds the NPCs to the Event Received event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addExitZoneId(Collection<Integer> zoneIds) {
-		setCreatureZoneExitId(event -> notifyExitZone(event.getCreature(), event.getZone()), zoneIds);
+	public void bindEventReceived(int... npcIds) {
+		setNpcEventReceivedId(event -> notifyEventReceived(event.eventName(), event.sender(), event.receiver(), event.reference()), npcIds);
 	}
 	
 	/**
-	 * Register onEventReceived trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Event Received event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addEventReceivedId(int... npcIds) {
-		setNpcEventReceivedId(event -> notifyEventReceived(event.getEventName(), event.getSender(), event.getReceiver(), event.getReference()), npcIds);
+	public void bindEventReceived(Collection<Integer> npcIds) {
+		setNpcEventReceivedId(event -> notifyEventReceived(event.eventName(), event.sender(), event.receiver(), event.reference()), npcIds);
 	}
 	
 	/**
-	 * Register onEventReceived trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Move Finished event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addEventReceivedId(Collection<Integer> npcIds) {
-		setNpcEventReceivedId(event -> notifyEventReceived(event.getEventName(), event.getSender(), event.getReceiver(), event.getReference()), npcIds);
+	public void bindMoveFinished(int... npcIds) {
+		setNpcMoveFinishedId(event -> notifyMoveFinished(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Register onMoveFinished trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Move Finished event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addMoveFinishedId(int... npcIds) {
-		setNpcMoveFinishedId(event -> notifyMoveFinished(event.getNpc()), npcIds);
+	public void bindMoveFinished(Collection<Integer> npcIds) {
+		setNpcMoveFinishedId(event -> notifyMoveFinished(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Register onMoveFinished trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Node Arrived event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addMoveFinishedId(Collection<Integer> npcIds) {
-		setNpcMoveFinishedId(event -> notifyMoveFinished(event.getNpc()), npcIds);
+	public void bindNodeArrived(int... npcIds) {
+		setNpcMoveNodeArrivedId(event -> notifyNodeArrived(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Register onNodeArrived trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Node Arrived event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addNodeArrivedId(int... npcIds) {
-		setNpcMoveNodeArrivedId(event -> notifyNodeArrived(event.getNpc()), npcIds);
+	public void bindNodeArrived(Collection<Integer> npcIds) {
+		setNpcMoveNodeArrivedId(event -> notifyNodeArrived(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Register onNodeArrived trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Route Finished event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addNodeArrivedId(Collection<Integer> npcIds) {
-		setNpcMoveNodeArrivedId(event -> notifyNodeArrived(event.getNpc()), npcIds);
+	public void bindRouteFinished(int... npcIds) {
+		setNpcMoveRouteFinishedId(event -> notifyRouteFinished(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Register onRouteFinished trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the Route Finished event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addRouteFinishedId(int... npcIds) {
-		setNpcMoveRouteFinishedId(event -> notifyRouteFinished(event.getNpc()), npcIds);
+	public void bindRouteFinished(Collection<Integer> npcIds) {
+		setNpcMoveRouteFinishedId(event -> notifyRouteFinished(event.npc()), npcIds);
 	}
 	
 	/**
-	 * Register onRouteFinished trigger for NPC
-	 * @param npcIds the IDs of the NPCs to register
+	 * Binds the NPCs to the NPC Hate event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addRouteFinishedId(Collection<Integer> npcIds) {
-		setNpcMoveRouteFinishedId(event -> notifyRouteFinished(event.getNpc()), npcIds);
+	public void bindNpcHate(int... npcIds) {
+		addNpcHateId(event -> new TerminateReturn(!onNpcHate(event.npc(), event.player(), event.isSummon()), false, false), npcIds);
 	}
 	
 	/**
-	 * Register onNpcHate trigger for NPC
-	 * @param npcIds
+	 * Binds the NPCs to the NPC Hate event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addNpcHateId(int... npcIds) {
-		addNpcHateId(event -> new TerminateReturn(!onNpcHate(event.getNpc(), event.getActiveChar(), event.isSummon()), false, false), npcIds);
+	public void bindNpcHate(Collection<Integer> npcIds) {
+		addNpcHateId(event -> new TerminateReturn(!onNpcHate(event.npc(), event.player(), event.isSummon()), false, false), npcIds);
 	}
 	
 	/**
-	 * Register onNpcHate trigger for NPC
-	 * @param npcIds
+	 * Binds the NPCs to the Summon Spawn event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addNpcHateId(Collection<Integer> npcIds) {
-		addNpcHateId(event -> new TerminateReturn(!onNpcHate(event.getNpc(), event.getActiveChar(), event.isSummon()), false, false), npcIds);
+	public void bindSummonSpawn(int... npcIds) {
+		setPlayerSummonSpawnId(event -> onSummonSpawn(event.summon()), npcIds);
 	}
 	
 	/**
-	 * Register onSummonSpawn trigger when summon is spawned.
-	 * @param npcIds
+	 * Binds the NPCs to the Summon Spawn event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSummonSpawnId(int... npcIds) {
-		setPlayerSummonSpawnId(event -> onSummonSpawn(event.getSummon()), npcIds);
+	public void bindSummonSpawn(Collection<Integer> npcIds) {
+		setPlayerSummonSpawnId(event -> onSummonSpawn(event.summon()), npcIds);
 	}
 	
 	/**
-	 * Register onSummonSpawn trigger when summon is spawned.
-	 * @param npcIds
+	 * Binds the NPCs to the Summon Talk event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSummonSpawnId(Collection<Integer> npcIds) {
-		setPlayerSummonSpawnId(event -> onSummonSpawn(event.getSummon()), npcIds);
+	public void bindSummonTalk(int... npcIds) {
+		setPlayerSummonTalkId(event -> onSummonTalk(event.summon()), npcIds);
 	}
 	
 	/**
-	 * Register onSummonTalk trigger when master talked to summon.
-	 * @param npcIds
+	 * Binds the NPCs to the Summon Talk event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSummonTalkId(int... npcIds) {
-		setPlayerSummonTalkId(event -> onSummonTalk(event.getSummon()), npcIds);
+	public void bindSummonTalk(Collection<Integer> npcIds) {
+		setPlayerSummonTalkId(event -> onSummonTalk(event.summon()), npcIds);
 	}
 	
 	/**
-	 * Register onSummonTalk trigger when summon is spawned.
-	 * @param npcIds
+	 * Binds the NPCs to the Can See Me event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addSummonTalkId(Collection<Integer> npcIds) {
-		setPlayerSummonTalkId(event -> onSummonTalk(event.getSummon()), npcIds);
+	public void bindCanSeeMe(int... npcIds) {
+		addNpcHateId(event -> new TerminateReturn(!notifyOnCanSeeMe(event.npc(), event.player()), false, false), npcIds);
 	}
 	
 	/**
-	 * Registers onCanSeeMe trigger whenever a npc info must be sent to player.
-	 * @param npcIds
+	 * Binds the NPCs to the Can See Me event.
+	 * @param npcIds the IDs of the NPCs
 	 */
-	public void addCanSeeMeId(int... npcIds) {
-		addNpcHateId(event -> new TerminateReturn(!notifyOnCanSeeMe(event.getNpc(), event.getActiveChar()), false, false), npcIds);
+	public void bindCanSeeMe(Collection<Integer> npcIds) {
+		addNpcHateId(event -> new TerminateReturn(!notifyOnCanSeeMe(event.npc(), event.player()), false, false), npcIds);
 	}
 	
 	/**
-	 * Registers onCanSeeMe trigger whenever a npc info must be sent to player.
-	 * @param npcIds
+	 * Binds the Quest to the Olympiad Match Finish event.
 	 */
-	public void addCanSeeMeId(Collection<Integer> npcIds) {
-		addNpcHateId(event -> new TerminateReturn(!notifyOnCanSeeMe(event.getNpc(), event.getActiveChar()), false, false), npcIds);
+	public void bindOlympiadMatchFinish() {
+		setOlympiadMatchResult(event -> notifyOlympiadMatch(event.winner(), event.loser(), event.competitionType()));
 	}
 	
-	public void addOlympiadMatchFinishId() {
-		setOlympiadMatchResult(event -> notifyOlympiadMatch(event.getWinner(), event.getLoser(), event.getCompetitionType()));
+	public void setOnEnterWorld(boolean state) {
+		if (state) {
+			setPlayerLoginId(event -> notifyEnterWorld(event.player()));
+		} else {
+			getListeners().stream().filter(listener -> listener.getType() == PLAYER_LOGIN).forEach(AbstractEventListener::unregisterMe);
+		}
+	}
+	
+	/**
+	 * Binds the Quest to the Tutorial event.
+	 */
+	public void bindTutorial() {
+		setPlayerTutorialEvent(event -> notifyTutorialEvent(event.player(), event.command()));
+	}
+	
+	/**
+	 * Binds the Quest to the Tutorial Client event.
+	 */
+	public void bindTutorialClient() {
+		setPlayerTutorialClientEvent(event -> notifyTutorialClientEvent(event.player(), event.event()));
+	}
+	
+	/**
+	 * Binds the Quest to the Tutorial Question Mark event.
+	 */
+	public void bindTutorialQuestionMark() {
+		setPlayerTutorialQuestionMark(event -> notifyTutorialQuestionMark(event.player(), event.number()));
+	}
+	
+	/**
+	 * Binds the Quest to the Tutorial Cmd event.
+	 */
+	public void bindTutorialCmd() {
+		setPlayerTutorialCmd(event -> notifyTutorialCmd(event.player(), event.command()));
 	}
 	
 	/**
@@ -2438,30 +2471,6 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	@Override
 	public ScriptManager<?> getManager() {
 		return QuestManager.getInstance();
-	}
-	
-	public void setOnEnterWorld(boolean state) {
-		if (state) {
-			setPlayerLoginId(event -> notifyEnterWorld(event.getActiveChar()));
-		} else {
-			getListeners().stream().filter(listener -> listener.getType() == EventType.ON_PLAYER_LOGIN).forEach(AbstractEventListener::unregisterMe);
-		}
-	}
-	
-	public void registerTutorialEvent() {
-		setPlayerTutorialEvent(event -> notifyTutorialEvent(event.getActiveChar(), event.getCommand()));
-	}
-	
-	public void registerTutorialClientEvent() {
-		setPlayerTutorialClientEvent(event -> notifyTutorialClientEvent(event.getActiveChar(), event.getEvent()));
-	}
-	
-	public void registerTutorialQuestionMark() {
-		setPlayerTutorialQuestionMark(event -> notifyTutorialQuestionMark(event.getActiveChar(), event.getNumber()));
-	}
-	
-	public void registerTutorialCmd() {
-		setPlayerTutorialCmd(event -> notifyTutorialCmd(event.getActiveChar(), event.getCommand()));
 	}
 	
 	/**

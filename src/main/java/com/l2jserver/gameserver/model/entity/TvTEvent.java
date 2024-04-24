@@ -45,10 +45,10 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PetInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2ServitorInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.events.OnTvTEventFinish;
-import com.l2jserver.gameserver.model.events.impl.events.OnTvTEventKill;
-import com.l2jserver.gameserver.model.events.impl.events.OnTvTEventRegistrationStart;
-import com.l2jserver.gameserver.model.events.impl.events.OnTvTEventStart;
+import com.l2jserver.gameserver.model.events.impl.events.TvTEventFinish;
+import com.l2jserver.gameserver.model.events.impl.events.TvTEventKill;
+import com.l2jserver.gameserver.model.events.impl.events.TvTEventRegistrationStart;
+import com.l2jserver.gameserver.model.events.impl.events.TvTEventStart;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.holders.SkillHolder;
 import com.l2jserver.gameserver.model.skills.Skill;
@@ -125,7 +125,7 @@ public class TvTEvent {
 		}
 		
 		setState(EventState.PARTICIPATING);
-		EventDispatcher.getInstance().notifyEventAsync(new OnTvTEventRegistrationStart());
+		EventDispatcher.getInstance().notifyEventAsync(new TvTEventRegistrationStart());
 		return true;
 	}
 	
@@ -266,7 +266,7 @@ public class TvTEvent {
 		}
 		
 		// Notify to scripts.
-		EventDispatcher.getInstance().notifyEventAsync(new OnTvTEventStart());
+		EventDispatcher.getInstance().notifyEventAsync(new TvTEventStart());
 		return true;
 	}
 	
@@ -307,7 +307,7 @@ public class TvTEvent {
 		rewardTeam(team);
 		
 		// Notify to scripts.
-		EventDispatcher.getInstance().notifyEventAsync(new OnTvTEventFinish());
+		EventDispatcher.getInstance().notifyEventAsync(new TvTEventFinish());
 		return "TvT Event: Event finish. Team " + team.getName() + " won with " + team.getPoints() + " kills.";
 	}
 	
@@ -670,7 +670,7 @@ public class TvTEvent {
 			}
 			
 			// Notify to scripts.
-			EventDispatcher.getInstance().notifyEventAsync(new OnTvTEventKill(killerPlayerInstance, killedPlayerInstance, killerTeam));
+			EventDispatcher.getInstance().notifyEventAsync(new TvTEventKill(killerPlayerInstance, killedPlayerInstance, killerTeam));
 		}
 	}
 	

@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 import com.l2jserver.gameserver.model.events.EventType;
 import com.l2jserver.gameserver.model.events.ListenersContainer;
-import com.l2jserver.gameserver.model.events.impl.IBaseEvent;
+import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
 
 /**
@@ -33,16 +33,16 @@ import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
  */
 public class FunctionEventListener extends AbstractEventListener {
 	private static final Logger _log = Logger.getLogger(FunctionEventListener.class.getName());
-	private final Function<IBaseEvent, ? extends AbstractEventReturn> _callback;
+	private final Function<BaseEvent, ? extends AbstractEventReturn> _callback;
 	
 	@SuppressWarnings("unchecked")
-	public FunctionEventListener(ListenersContainer container, EventType type, Function<? extends IBaseEvent, ? extends AbstractEventReturn> callback, Object owner) {
+	public FunctionEventListener(ListenersContainer container, EventType type, Function<? extends BaseEvent, ? extends AbstractEventReturn> callback, Object owner) {
 		super(container, type, owner);
-		_callback = (Function<IBaseEvent, ? extends AbstractEventReturn>) callback;
+		_callback = (Function<BaseEvent, ? extends AbstractEventReturn>) callback;
 	}
 	
 	@Override
-	public <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass) {
+	public <R extends AbstractEventReturn> R executeEvent(BaseEvent event, Class<R> returnBackClass) {
 		try {
 			return returnBackClass.cast(_callback.apply(event));
 			

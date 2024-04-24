@@ -20,7 +20,7 @@ package com.l2jserver.gameserver.model.events.listeners;
 
 import com.l2jserver.gameserver.model.events.EventType;
 import com.l2jserver.gameserver.model.events.ListenersContainer;
-import com.l2jserver.gameserver.model.events.impl.IBaseEvent;
+import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
 
 /**
@@ -81,7 +81,7 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 	 * @param returnBackClass
 	 * @return
 	 */
-	public abstract <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass);
+	public abstract <R extends AbstractEventReturn> R executeEvent(BaseEvent event, Class<R> returnBackClass);
 	
 	/**
 	 * Unregisters detaches and unregisters current listener.

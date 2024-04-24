@@ -43,7 +43,7 @@ import com.l2jserver.gameserver.model.actor.L2Attackable;
 import com.l2jserver.gameserver.model.actor.instance.L2EventMonsterInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.item.OnItemCreate;
+import com.l2jserver.gameserver.model.events.impl.item.ItemCreate;
 import com.l2jserver.gameserver.model.items.L2Armor;
 import com.l2jserver.gameserver.model.items.L2EtcItem;
 import com.l2jserver.gameserver.model.items.L2Item;
@@ -249,7 +249,7 @@ public class ItemTable {
 		}
 		
 		// Notify to scripts
-		EventDispatcher.getInstance().notifyEventAsync(new OnItemCreate(process, item, actor, reference), item.getItem());
+		EventDispatcher.getInstance().notifyEventAsync(new ItemCreate(process, item, actor, reference), item.getItem());
 		return item;
 	}
 	

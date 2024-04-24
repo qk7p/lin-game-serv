@@ -50,10 +50,10 @@ import com.l2jserver.gameserver.instancemanager.TerritoryWarManager;
 import com.l2jserver.gameserver.instancemanager.TerritoryWarManager.Territory;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.player.clan.OnPlayerClanJoin;
-import com.l2jserver.gameserver.model.events.impl.character.player.clan.OnPlayerClanLeaderChange;
-import com.l2jserver.gameserver.model.events.impl.character.player.clan.OnPlayerClanLeft;
-import com.l2jserver.gameserver.model.events.impl.character.player.clan.OnPlayerClanLvlUp;
+import com.l2jserver.gameserver.model.events.impl.character.player.clan.PlayerClanJoin;
+import com.l2jserver.gameserver.model.events.impl.character.player.clan.PlayerClanLeaderChange;
+import com.l2jserver.gameserver.model.events.impl.character.player.clan.PlayerClanLeave;
+import com.l2jserver.gameserver.model.events.impl.character.player.clan.PlayerClanLevelUp;
 import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
 import com.l2jserver.gameserver.model.interfaces.INamable;
 import com.l2jserver.gameserver.model.itemcontainer.ClanWarehouse;
@@ -207,7 +207,7 @@ public class L2Clan implements IIdentifiable, INamable {
 		final L2PcInstance exLeader = exMember.getPlayerInstance();
 		
 		// Notify to scripts
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerClanLeaderChange(exMember, member, this));
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerClanLeaderChange(exMember, member, this));
 		
 		if (exLeader != null) {
 			if (exLeader.isFlying()) {
@@ -311,7 +311,7 @@ public class L2Clan implements IIdentifiable, INamable {
 		addSkillEffects(player);
 		
 		// Notify to scripts
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerClanJoin(member, this));
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerClanJoin(member, this));
 	}
 	
 	/**
@@ -434,7 +434,7 @@ public class L2Clan implements IIdentifiable, INamable {
 		}
 		
 		// Notify to scripts
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerClanLeft(exMember, this));
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerClanLeave(exMember, this));
 	}
 	
 	public L2ClanMember[] getMembers() {
@@ -2107,7 +2107,7 @@ public class L2Clan implements IIdentifiable, INamable {
 		changeLevel(getLevel() + 1);
 		
 		// Notify to scripts
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerClanLvlUp(this));
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerClanLevelUp(this));
 		return true;
 	}
 	

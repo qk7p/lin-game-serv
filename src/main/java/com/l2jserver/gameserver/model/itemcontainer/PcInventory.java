@@ -34,10 +34,10 @@ import com.l2jserver.gameserver.model.TradeItem;
 import com.l2jserver.gameserver.model.TradeList;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.player.inventory.OnPlayerItemAdd;
-import com.l2jserver.gameserver.model.events.impl.character.player.inventory.OnPlayerItemDestroy;
-import com.l2jserver.gameserver.model.events.impl.character.player.inventory.OnPlayerItemDrop;
-import com.l2jserver.gameserver.model.events.impl.character.player.inventory.OnPlayerItemTransfer;
+import com.l2jserver.gameserver.model.events.impl.character.player.inventory.PlayerItemAdd;
+import com.l2jserver.gameserver.model.events.impl.character.player.inventory.PlayerItemDestroy;
+import com.l2jserver.gameserver.model.events.impl.character.player.inventory.PlayerItemDrop;
+import com.l2jserver.gameserver.model.events.impl.character.player.inventory.PlayerItemTransfer;
 import com.l2jserver.gameserver.model.holders.SkillHolder;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
@@ -427,7 +427,7 @@ public class PcInventory extends Inventory {
 		
 		if (item != null) {
 			// Notify to scripts
-			EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemAdd(actor, item), actor, item.getItem());
+			EventDispatcher.getInstance().notifyEventAsync(new PlayerItemAdd(actor, item), actor, item.getItem());
 		}
 		return item;
 	}
@@ -469,7 +469,7 @@ public class PcInventory extends Inventory {
 				actor.sendPacket(su);
 				
 				// Notify to scripts
-				EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemAdd(actor, item), actor, item.getItem());
+				EventDispatcher.getInstance().notifyEventAsync(new PlayerItemAdd(actor, item), actor, item.getItem());
 			}
 		}
 		return item;
@@ -498,7 +498,7 @@ public class PcInventory extends Inventory {
 		}
 		
 		// Notify to scripts
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemTransfer(actor, item, target), item.getItem());
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerItemTransfer(actor, item, target), item.getItem());
 		return item;
 	}
 	
@@ -537,7 +537,7 @@ public class PcInventory extends Inventory {
 		
 		// Notify to scripts
 		if (item != null) {
-			EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemDestroy(actor, item), item.getItem());
+			EventDispatcher.getInstance().notifyEventAsync(new PlayerItemDestroy(actor, item), item.getItem());
 		}
 		return item;
 	}
@@ -600,7 +600,7 @@ public class PcInventory extends Inventory {
 		
 		// Notify to scripts
 		if (item != null) {
-			EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemDrop(actor, item, item.getLocation()), item.getItem());
+			EventDispatcher.getInstance().notifyEventAsync(new PlayerItemDrop(actor, item, item.getLocation()), item.getItem());
 		}
 		return item;
 	}
@@ -628,7 +628,7 @@ public class PcInventory extends Inventory {
 		
 		// Notify to scripts
 		if (item != null) {
-			EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemDrop(actor, item, item.getLocation()), item.getItem());
+			EventDispatcher.getInstance().notifyEventAsync(new PlayerItemDrop(actor, item, item.getLocation()), item.getItem());
 		}
 		return item;
 	}

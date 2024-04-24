@@ -29,7 +29,7 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.conditions.Condition;
 import com.l2jserver.gameserver.model.conditions.ConditionGameChance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcSkillSee;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcSkillSee;
 import com.l2jserver.gameserver.model.holders.SkillHolder;
 import com.l2jserver.gameserver.model.items.type.ItemType1;
 import com.l2jserver.gameserver.model.items.type.ItemType2;
@@ -334,7 +334,7 @@ public final class L2Weapon extends L2Item {
 				.filter(Objects::nonNull)
 				.filter(L2Object::isNpc)
 				.filter(npc -> Util.checkIfInRange(1000, npc, caster, false))
-				.forEach(npc -> EventDispatcher.getInstance().notifyEventAsync(new OnNpcSkillSee((L2Npc) npc, caster.getActingPlayer(), onMagicSkill, List.of(target), false), npc));
+				.forEach(npc -> EventDispatcher.getInstance().notifyEventAsync(new NpcSkillSee((L2Npc) npc, caster.getActingPlayer(), onMagicSkill, List.of(target), false), npc));
 		}
 		if (caster.isPlayer()) {
 			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_HAS_BEEN_ACTIVATED);

@@ -78,11 +78,11 @@ import com.l2jserver.gameserver.model.entity.Fort;
 import com.l2jserver.gameserver.model.entity.clanhall.SiegableHall;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
 import com.l2jserver.gameserver.model.events.EventType;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcCanBeSeen;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcEventReceived;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcSkillFinished;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcSpawn;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcTeleport;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcCanBeSeen;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcEventReceived;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcSkillFinished;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcSpawn;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcTeleport;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.items.L2Item;
@@ -1019,10 +1019,10 @@ public class L2Npc extends L2Character {
 		_killingBlowWeaponId = 0;
 		
 		if (isTeleporting()) {
-			EventDispatcher.getInstance().notifyEventAsync(new OnNpcTeleport(this), this);
+			EventDispatcher.getInstance().notifyEventAsync(new NpcTeleport(this), this);
 		} else {
 			WalkingManager.getInstance().onSpawn(this);
-			EventDispatcher.getInstance().notifyEventAsync(new OnNpcSpawn(this), this);
+			EventDispatcher.getInstance().notifyEventAsync(new NpcSpawn(this), this);
 		}
 	}
 	
@@ -1235,7 +1235,7 @@ public class L2Npc extends L2Character {
 	@Override
 	protected final void notifyQuestEventSkillFinished(Skill skill, L2Object target) {
 		if ((target != null) && target.isPlayable()) {
-			EventDispatcher.getInstance().notifyEventAsync(new OnNpcSkillFinished(this, target.getActingPlayer(), skill), this);
+			EventDispatcher.getInstance().notifyEventAsync(new NpcSkillFinished(this, target.getActingPlayer(), skill), this);
 		}
 	}
 	
@@ -1404,8 +1404,8 @@ public class L2Npc extends L2Character {
 	 */
 	public void broadcastEvent(String eventName, int radius, L2Object reference) {
 		for (L2Object obj : L2World.getInstance().getVisibleObjects(this, radius)) {
-			if (obj.isNpc() && obj.hasListener(EventType.ON_NPC_EVENT_RECEIVED)) {
-				EventDispatcher.getInstance().notifyEventAsync(new OnNpcEventReceived(eventName, this, (L2Npc) obj, reference), obj);
+			if (obj.isNpc() && obj.hasListener(EventType.NPC_EVENT_RECEIVED)) {
+				EventDispatcher.getInstance().notifyEventAsync(new NpcEventReceived(eventName, this, (L2Npc) obj, reference), obj);
 			}
 		}
 	}
@@ -1417,7 +1417,7 @@ public class L2Npc extends L2Character {
 	 * @param reference the reference
 	 */
 	public void sendScriptEvent(String eventName, L2Object receiver, L2Object reference) {
-		EventDispatcher.getInstance().notifyEventAsync(new OnNpcEventReceived(eventName, this, (L2Npc) receiver, reference), receiver);
+		EventDispatcher.getInstance().notifyEventAsync(new NpcEventReceived(eventName, this, (L2Npc) receiver, reference), receiver);
 	}
 	
 	/**
@@ -1501,8 +1501,8 @@ public class L2Npc extends L2Character {
 	
 	@Override
 	public boolean isVisibleFor(L2PcInstance player) {
-		if (hasListener(EventType.ON_NPC_CAN_BE_SEEN)) {
-			final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new OnNpcCanBeSeen(this, player), this, TerminateReturn.class);
+		if (hasListener(EventType.NPC_CAN_BE_SEEN)) {
+			final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new NpcCanBeSeen(this, player), this, TerminateReturn.class);
 			if (term != null) {
 				return term.terminate();
 			}

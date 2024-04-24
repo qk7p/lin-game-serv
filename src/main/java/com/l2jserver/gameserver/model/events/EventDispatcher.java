@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.l2jserver.gameserver.ThreadPoolManager;
-import com.l2jserver.gameserver.model.events.impl.IBaseEvent;
+import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 import com.l2jserver.gameserver.model.events.listeners.AbstractEventListener;
 import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
 
@@ -37,19 +37,19 @@ public final class EventDispatcher {
 	protected EventDispatcher() {
 	}
 	
-	public <T extends AbstractEventReturn> T notifyEvent(IBaseEvent event) {
+	public <T extends AbstractEventReturn> T notifyEvent(BaseEvent event) {
 		return notifyEvent(event, null, null);
 	}
 	
-	public <T extends AbstractEventReturn> T notifyEvent(IBaseEvent event, Class<T> callbackClass) {
+	public <T extends AbstractEventReturn> T notifyEvent(BaseEvent event, Class<T> callbackClass) {
 		return notifyEvent(event, null, callbackClass);
 	}
 	
-	public <T extends AbstractEventReturn> T notifyEvent(IBaseEvent event, ListenersContainer container) {
+	public <T extends AbstractEventReturn> T notifyEvent(BaseEvent event, ListenersContainer container) {
 		return notifyEvent(event, container, null);
 	}
 	
-	public <T extends AbstractEventReturn> T notifyEvent(IBaseEvent event, ListenersContainer container, Class<T> callbackClass) {
+	public <T extends AbstractEventReturn> T notifyEvent(BaseEvent event, ListenersContainer container, Class<T> callbackClass) {
 		try {
 			return Containers.Global().hasListener(event.getType()) || ((container != null) && container.hasListener(event.getType())) ? notifyEventImpl(event, container, callbackClass) : null;
 		} catch (Exception e) {
@@ -63,7 +63,7 @@ public final class EventDispatcher {
 	 * @param event
 	 * @param containers
 	 */
-	public void notifyEventAsync(IBaseEvent event, ListenersContainer... containers) {
+	public void notifyEventAsync(BaseEvent event, ListenersContainer... containers) {
 		if (event == null) {
 			throw new NullPointerException("Event cannot be null!");
 		}
@@ -89,7 +89,7 @@ public final class EventDispatcher {
 	 * @param container
 	 * @param delay
 	 */
-	public void notifyEventAsyncDelayed(IBaseEvent event, ListenersContainer container, long delay) {
+	public void notifyEventAsyncDelayed(BaseEvent event, ListenersContainer container, long delay) {
 		if (Containers.Global().hasListener(event.getType()) || container.hasListener(event.getType())) {
 			ThreadPoolManager.getInstance().scheduleEvent(() -> notifyEvent(event, container, null), delay);
 		}
@@ -102,7 +102,7 @@ public final class EventDispatcher {
 	 * @param delay
 	 * @param unit
 	 */
-	public void notifyEventAsyncDelayed(IBaseEvent event, ListenersContainer container, long delay, TimeUnit unit) {
+	public void notifyEventAsyncDelayed(BaseEvent event, ListenersContainer container, long delay, TimeUnit unit) {
 		if (Containers.Global().hasListener(event.getType()) || container.hasListener(event.getType())) {
 			ThreadPoolManager.getInstance().scheduleEvent(() -> notifyEvent(event, container, null), delay, unit);
 		}
@@ -115,7 +115,7 @@ public final class EventDispatcher {
 	 * @param callbackClass
 	 * @return
 	 */
-	private <T extends AbstractEventReturn> T notifyEventToMultipleContainers(IBaseEvent event, ListenersContainer[] containers, Class<T> callbackClass) {
+	private <T extends AbstractEventReturn> T notifyEventToMultipleContainers(BaseEvent event, ListenersContainer[] containers, Class<T> callbackClass) {
 		if (event == null) {
 			throw new NullPointerException("Event cannot be null!");
 		}
@@ -150,7 +150,7 @@ public final class EventDispatcher {
 	 * @param callbackClass
 	 * @return {@link AbstractEventReturn} object that may keep data from the first listener, or last that breaks notification.
 	 */
-	private <T extends AbstractEventReturn> T notifyEventImpl(IBaseEvent event, ListenersContainer container, Class<T> callbackClass) {
+	private <T extends AbstractEventReturn> T notifyEventImpl(BaseEvent event, ListenersContainer container, Class<T> callbackClass) {
 		if (event == null) {
 			throw new NullPointerException("Event cannot be null!");
 		}
@@ -177,7 +177,7 @@ public final class EventDispatcher {
 	 * @param callback
 	 * @return
 	 */
-	private <T extends AbstractEventReturn> T notifyToListeners(Queue<AbstractEventListener> listeners, IBaseEvent event, Class<T> returnBackClass, T callback) {
+	private <T extends AbstractEventReturn> T notifyToListeners(Queue<AbstractEventListener> listeners, BaseEvent event, Class<T> returnBackClass, T callback) {
 		for (AbstractEventListener listener : listeners) {
 			try {
 				final T rb = listener.executeEvent(event, returnBackClass);

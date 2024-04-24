@@ -32,7 +32,7 @@ import com.l2jserver.gameserver.model.Location;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.olympiad.OnOlympiadMatchResult;
+import com.l2jserver.gameserver.model.events.impl.olympiad.OlympiadMatchResult;
 import com.l2jserver.gameserver.model.zone.type.L2OlympiadStadiumZone;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ExOlympiadMatchResult;
@@ -385,7 +385,7 @@ public abstract class OlympiadGameNormal extends AbstractOlympiadGame {
 					}
 					
 					// Notify to scripts
-					EventDispatcher.getInstance().notifyEventAsync(new OnOlympiadMatchResult(_playerOne, _playerTwo, getType()), Olympiad.getInstance());
+					EventDispatcher.getInstance().notifyEventAsync(new OlympiadMatchResult(_playerOne, _playerTwo, getType()), Olympiad.getInstance());
 				} else if (!_pTwoCrash) {
 					sm = SystemMessage.getSystemMessage(SystemMessageId.C1_HAS_WON_THE_GAME);
 					sm.addString(_playerTwo.getName());
@@ -418,7 +418,7 @@ public abstract class OlympiadGameNormal extends AbstractOlympiadGame {
 						_logResults.log(record);
 					}
 					// Notify to scripts
-					EventDispatcher.getInstance().notifyEventAsync(new OnOlympiadMatchResult(_playerTwo, _playerOne, getType()), Olympiad.getInstance());
+					EventDispatcher.getInstance().notifyEventAsync(new OlympiadMatchResult(_playerTwo, _playerOne, getType()), Olympiad.getInstance());
 				} else {
 					stadium.broadcastPacket(SystemMessage.getSystemMessage(SystemMessageId.THE_GAME_ENDED_IN_A_TIE));
 					
@@ -463,8 +463,8 @@ public abstract class OlympiadGameNormal extends AbstractOlympiadGame {
 				stadium.broadcastPacket(result);
 				
 				// Notify to scripts
-				EventDispatcher.getInstance().notifyEventAsync(new OnOlympiadMatchResult(null, _playerOne, getType()), Olympiad.getInstance());
-				EventDispatcher.getInstance().notifyEventAsync(new OnOlympiadMatchResult(null, _playerTwo, getType()), Olympiad.getInstance());
+				EventDispatcher.getInstance().notifyEventAsync(new OlympiadMatchResult(null, _playerOne, getType()), Olympiad.getInstance());
+				EventDispatcher.getInstance().notifyEventAsync(new OlympiadMatchResult(null, _playerTwo, getType()), Olympiad.getInstance());
 				return;
 			} catch (Exception e) {
 				_log.log(Level.WARNING, "Exception on validateWinner(): " + e.getMessage(), e);
@@ -525,7 +525,7 @@ public abstract class OlympiadGameNormal extends AbstractOlympiadGame {
 				rewardParticipant(_playerOne.getPlayer(), getReward());
 				
 				// Notify to scripts
-				EventDispatcher.getInstance().notifyEventAsync(new OnOlympiadMatchResult(_playerOne, _playerTwo, getType()), Olympiad.getInstance());
+				EventDispatcher.getInstance().notifyEventAsync(new OlympiadMatchResult(_playerOne, _playerTwo, getType()), Olympiad.getInstance());
 			} else if ((_playerOne.getPlayer() == null) || !_playerOne.getPlayer().isOnline() || ((playerOneHp == 0) && (playerTwoHp != 0)) || ((_damageP2 > _damageP1) && (playerOneHp != 0) && (playerTwoHp != 0))) {
 				sm = SystemMessage.getSystemMessage(SystemMessageId.C1_HAS_WON_THE_GAME);
 				sm.addString(_playerTwo.getName());
@@ -548,7 +548,7 @@ public abstract class OlympiadGameNormal extends AbstractOlympiadGame {
 				rewardParticipant(_playerTwo.getPlayer(), getReward());
 				
 				// Notify to scripts
-				EventDispatcher.getInstance().notifyEventAsync(new OnOlympiadMatchResult(_playerTwo, _playerOne, getType()), Olympiad.getInstance());
+				EventDispatcher.getInstance().notifyEventAsync(new OlympiadMatchResult(_playerTwo, _playerOne, getType()), Olympiad.getInstance());
 			} else {
 				// Save Fight Result
 				saveResults(_playerOne, _playerTwo, 0, _startTime, _fightTime, getType());

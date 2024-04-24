@@ -31,7 +31,7 @@ import com.l2jserver.gameserver.model.effects.EffectFlag;
 import com.l2jserver.gameserver.model.effects.L2EffectType;
 import com.l2jserver.gameserver.model.entity.Instance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.OnCreatureKill;
+import com.l2jserver.gameserver.model.events.impl.character.CreatureKill;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.quest.QuestState;
 import com.l2jserver.gameserver.model.skills.Skill;
@@ -94,7 +94,7 @@ public abstract class L2Playable extends L2Character {
 	
 	@Override
 	public boolean doDie(L2Character killer) {
-		final TerminateReturn returnBack = EventDispatcher.getInstance().notifyEvent(new OnCreatureKill(killer, this), this, TerminateReturn.class);
+		final TerminateReturn returnBack = EventDispatcher.getInstance().notifyEvent(new CreatureKill(killer, this), this, TerminateReturn.class);
 		if ((returnBack != null) && returnBack.terminate()) {
 			return false;
 		}

@@ -39,8 +39,8 @@ import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.entity.Hero;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcManorBypass;
-import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerBypass;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcManorBypass;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerBypass;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ActionFailed;
@@ -217,7 +217,7 @@ public final class RequestBypassToServer extends L2GameClientPacket {
 					final int ask = Integer.parseInt(split[0].split("=")[1]);
 					final int state = Integer.parseInt(split[1].split("=")[1]);
 					final boolean time = split[2].split("=")[1].equals("1");
-					EventDispatcher.getInstance().notifyEventAsync(new OnNpcManorBypass(activeChar, lastNpc, ask, state, time), lastNpc);
+					EventDispatcher.getInstance().notifyEventAsync(new NpcManorBypass(activeChar, lastNpc, ask, state, time), lastNpc);
 				}
 			} else {
 				final IBypassHandler handler = BypassHandler.getInstance().getHandler(_command);
@@ -256,7 +256,7 @@ public final class RequestBypassToServer extends L2GameClientPacket {
 			}
 		}
 		
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerBypass(activeChar, _command), activeChar);
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerBypass(activeChar, _command), activeChar);
 	}
 	
 	/**

@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 import com.l2jserver.gameserver.model.events.EventType;
 import com.l2jserver.gameserver.model.events.ListenersContainer;
-import com.l2jserver.gameserver.model.events.impl.IBaseEvent;
+import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
 
 /**
@@ -42,7 +42,7 @@ public class AnnotationEventListener extends AbstractEventListener {
 	}
 	
 	@Override
-	public <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass) {
+	public <R extends AbstractEventReturn> R executeEvent(BaseEvent event, Class<R> returnBackClass) {
 		try {
 			final Object result = _callback.invoke(getOwner(), event);
 			if (_callback.getReturnType() == returnBackClass) {

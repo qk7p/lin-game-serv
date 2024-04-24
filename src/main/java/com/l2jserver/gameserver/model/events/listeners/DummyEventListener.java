@@ -20,7 +20,7 @@ package com.l2jserver.gameserver.model.events.listeners;
 
 import com.l2jserver.gameserver.model.events.EventType;
 import com.l2jserver.gameserver.model.events.ListenersContainer;
-import com.l2jserver.gameserver.model.events.impl.IBaseEvent;
+import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 import com.l2jserver.gameserver.model.events.returns.AbstractEventReturn;
 
 /**
@@ -33,7 +33,7 @@ public class DummyEventListener extends AbstractEventListener {
 	}
 	
 	@Override
-	public <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass) {
+	public <R extends AbstractEventReturn> R executeEvent(BaseEvent event, Class<R> returnBackClass) {
 		return null;
 	}
 }

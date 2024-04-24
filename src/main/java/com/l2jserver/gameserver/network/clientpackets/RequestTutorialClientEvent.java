@@ -20,7 +20,7 @@ package com.l2jserver.gameserver.network.clientpackets;
 
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerTutorialClientEvent;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerTutorialClientEvent;
 
 public class RequestTutorialClientEvent extends L2GameClientPacket {
 	private static final String _C__88_REQUESTTUTORIALCLIENTEVENT = "[C] 88 RequestTutorialClientEvent";
@@ -38,7 +38,7 @@ public class RequestTutorialClientEvent extends L2GameClientPacket {
 		if (player == null) {
 			return;
 		}
-		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerTutorialClientEvent(player, eventId), player);
+		EventDispatcher.getInstance().notifyEventAsync(new PlayerTutorialClientEvent(player, eventId), player);
 	}
 	
 	@Override

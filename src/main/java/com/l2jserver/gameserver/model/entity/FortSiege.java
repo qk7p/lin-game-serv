@@ -55,8 +55,8 @@ import com.l2jserver.gameserver.model.actor.instance.L2DoorInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2FortCommanderInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.sieges.fort.OnFortSiegeFinish;
-import com.l2jserver.gameserver.model.events.impl.sieges.fort.OnFortSiegeStart;
+import com.l2jserver.gameserver.model.events.impl.sieges.fort.FortSiegeFinish;
+import com.l2jserver.gameserver.model.events.impl.sieges.fort.FortSiegeStart;
 import com.l2jserver.gameserver.network.NpcStringId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.clientpackets.Say2;
@@ -262,7 +262,7 @@ public class FortSiege implements Siegable {
 			_log.info("Siege of " + getFort().getName() + " fort finished.");
 			
 			// Notify to scripts.
-			EventDispatcher.getInstance().notifyEventAsync(new OnFortSiegeFinish(this), getFort());
+			EventDispatcher.getInstance().notifyEventAsync(new FortSiegeFinish(this), getFort());
 		}
 	}
 	
@@ -309,7 +309,7 @@ public class FortSiege implements Siegable {
 			_log.info("Siege of " + getFort().getName() + " fort started.");
 			
 			// Notify to scripts.
-			EventDispatcher.getInstance().notifyEventAsync(new OnFortSiegeStart(this), getFort());
+			EventDispatcher.getInstance().notifyEventAsync(new FortSiegeStart(this), getFort());
 		}
 	}
 	

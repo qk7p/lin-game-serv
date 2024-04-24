@@ -36,7 +36,7 @@ import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
 import com.l2jserver.gameserver.model.events.EventType;
-import com.l2jserver.gameserver.model.events.impl.character.npc.OnNpcFirstTalk;
+import com.l2jserver.gameserver.model.events.impl.character.npc.NpcFirstTalk;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.network.NpcStringId;
 import com.l2jserver.gameserver.network.clientpackets.Say2;
@@ -179,12 +179,12 @@ public class L2SepulcherNpcInstance extends L2Npc {
 				player.addItem("Quest", HALLS_KEY, 1, player, true);
 			}
 			default -> {
-				if (hasListener(EventType.ON_NPC_QUEST_START)) {
+				if (hasListener(EventType.NPC_QUEST_START)) {
 					player.setLastQuestNpcObject(getObjectId());
 				}
 				
-				if (hasListener(EventType.ON_NPC_FIRST_TALK)) {
-					EventDispatcher.getInstance().notifyEventAsync(new OnNpcFirstTalk(this, player), this);
+				if (hasListener(EventType.NPC_FIRST_TALK)) {
+					EventDispatcher.getInstance().notifyEventAsync(new NpcFirstTalk(this, player), this);
 				} else {
 					showChatWindow(player, 0);
 				}

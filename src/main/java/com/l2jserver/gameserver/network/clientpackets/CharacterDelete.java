@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import com.l2jserver.gameserver.model.CharSelectInfoPackage;
 import com.l2jserver.gameserver.model.events.Containers;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerDelete;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerDelete;
 import com.l2jserver.gameserver.network.serverpackets.CharDeleteFail;
 import com.l2jserver.gameserver.network.serverpackets.CharDeleteSuccess;
 import com.l2jserver.gameserver.network.serverpackets.CharSelectionInfo;
@@ -64,7 +64,7 @@ public final class CharacterDelete extends L2GameClientPacket {
 				case 0: // Success!
 					sendPacket(new CharDeleteSuccess());
 					final CharSelectInfoPackage charInfo = getClient().getCharSelection(_charSlot);
-					EventDispatcher.getInstance().notifyEvent(new OnPlayerDelete(charInfo.getObjectId(), charInfo.getName(), getClient()), Containers.Players());
+					EventDispatcher.getInstance().notifyEvent(new PlayerDelete(charInfo.getObjectId(), charInfo.getName(), getClient()), Containers.Players());
 					break;
 				case 1:
 					sendPacket(new CharDeleteFail(CharDeleteFail.REASON_YOU_MAY_NOT_DELETE_CLAN_MEMBER));

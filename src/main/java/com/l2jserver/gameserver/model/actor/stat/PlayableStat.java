@@ -28,8 +28,8 @@ import com.l2jserver.gameserver.data.json.ExperienceData;
 import com.l2jserver.gameserver.instancemanager.ZoneManager;
 import com.l2jserver.gameserver.model.actor.L2Playable;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.playable.OnPlayableExpChanged;
-import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerLevelChanged;
+import com.l2jserver.gameserver.model.events.impl.character.playable.PlayableExpChanged;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLevelChanged;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.model.zone.type.L2SwampZone;
@@ -93,7 +93,7 @@ public class PlayableStat extends CharStat {
 	public boolean addExp(long value) {
 		final long currentExp = getExp();
 		final long totalExp = currentExp + value;
-		final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new OnPlayableExpChanged(getActiveChar(), currentExp, totalExp), getActiveChar(), TerminateReturn.class);
+		final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new PlayableExpChanged(getActiveChar(), currentExp, totalExp), getActiveChar(), TerminateReturn.class);
 		if ((term != null) && term.terminate()) {
 			return false;
 		}
@@ -135,7 +135,7 @@ public class PlayableStat extends CharStat {
 					
 					if (tmp != currentLevel) {
 						int newLevel = tmp - currentLevel;
-						EventDispatcher.getInstance().notifyEventAsync(new OnPlayerLevelChanged(getActiveChar().getActingPlayer(), currentLevel, newLevel), getActiveChar());
+						EventDispatcher.getInstance().notifyEventAsync(new PlayerLevelChanged(getActiveChar().getActingPlayer(), currentLevel, newLevel), getActiveChar());
 						getActiveChar().addLevel(newLevel);
 					}
 					break;
@@ -154,7 +154,7 @@ public class PlayableStat extends CharStat {
 					
 					if (tmp != currentLevel) {
 						int newLevel = tmp - currentLevel;
-						EventDispatcher.getInstance().notifyEventAsync(new OnPlayerLevelChanged(getActiveChar().getActingPlayer(), currentLevel, newLevel), getActiveChar());
+						EventDispatcher.getInstance().notifyEventAsync(new PlayerLevelChanged(getActiveChar().getActingPlayer(), currentLevel, newLevel), getActiveChar());
 						getActiveChar().addLevel(newLevel);
 					}
 					break;

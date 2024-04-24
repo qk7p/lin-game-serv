@@ -31,7 +31,7 @@ import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.effects.L2EffectType;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
-import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerChat;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerChat;
 import com.l2jserver.gameserver.model.events.returns.ChatFilterReturn;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.network.SystemMessageId;
@@ -222,7 +222,7 @@ public final class Say2 extends L2GameClientPacket {
 			}
 		}
 		
-		final ChatFilterReturn filter = EventDispatcher.getInstance().notifyEvent(new OnPlayerChat(activeChar, L2World.getInstance().getPlayer(_target), _text, _type), ChatFilterReturn.class);
+		final ChatFilterReturn filter = EventDispatcher.getInstance().notifyEvent(new PlayerChat(activeChar, L2World.getInstance().getPlayer(_target), _text, _type), ChatFilterReturn.class);
 		if (filter != null) {
 			_text = filter.getFilteredText();
 		}
