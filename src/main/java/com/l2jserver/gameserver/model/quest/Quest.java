@@ -21,6 +21,8 @@ package com.l2jserver.gameserver.model.quest;
 import static com.l2jserver.gameserver.config.Configuration.general;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LEARN_SKILL_REQUESTED;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LOGIN;
+import static com.l2jserver.gameserver.model.events.EventType.PLAYER_MENU_SELECTED;
+import static com.l2jserver.gameserver.model.events.EventType.PLAYER_SKILL_LEARNED;
 import static com.l2jserver.gameserver.model.events.ListenerRegisterType.NPC;
 
 import java.util.ArrayList;
@@ -58,10 +60,12 @@ import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.L2Summon;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2TrapInstance;
-import com.l2jserver.gameserver.model.base.AcquireSkillType;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.events.AbstractScript;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLearnSkillRequested;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerMenuSelected;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerOneSkillSelected;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSkillLearned;
 import com.l2jserver.gameserver.model.events.listeners.AbstractEventListener;
 import com.l2jserver.gameserver.model.events.returns.TerminateReturn;
 import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
@@ -603,22 +607,6 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * Notify Acquire Skill event.
-	 * @param npc the NPC
-	 * @param player the player
-	 * @param skill the skill
-	 * @param type the skill learn type
-	 */
-	public final void notifyAcquireSkill(L2Npc npc, L2PcInstance player, Skill skill, AcquireSkillType type) {
-		try {
-			final var result = onAcquireSkill(npc, player, skill, type);
-			showResult(player, result);
-		} catch (Exception ex) {
-			showError(player, ex);
-		}
-	}
-	
-	/**
 	 * Notify Item Talk event.
 	 * @param item the item
 	 * @param player the player
@@ -963,7 +951,15 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * On Learn Skill Requested.
+	 * On Menu Selected event.
+	 * @param event the event
+	 */
+	public void onMenuSelected(PlayerMenuSelected event) {
+		
+	}
+	
+	/**
+	 * On Learn Skill Requested event.
 	 * @param event the event
 	 */
 	public void onLearnSkillRequested(PlayerLearnSkillRequested event) {
@@ -971,27 +967,19 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * This function is called whenever a player request a skill info.
-	 * @param npc this parameter contains a reference to the exact instance of the NPC that the player requested the skill info.
-	 * @param player this parameter contains a reference to the exact instance of the player who requested the skill info.
-	 * @param skill this parameter contains a reference to the skill that the player requested its info.
-	 * @return
+	 * On One Skill Selected event.
+	 * @param event the event
 	 */
-	public String onAcquireSkillInfo(L2Npc npc, L2PcInstance player, Skill skill) {
-		return null;
+	public void onOneSkillSelected(PlayerOneSkillSelected event) {
+		
 	}
 	
 	/**
-	 * This function is called whenever a player acquire a skill.<br>
-	 * TODO: Re-implement, since Skill Trees rework it's support was removed.
-	 * @param npc this parameter contains a reference to the exact instance of the NPC that the player requested the skill.
-	 * @param player this parameter contains a reference to the exact instance of the player who requested the skill.
-	 * @param skill this parameter contains a reference to the skill that the player requested.
-	 * @param type the skill learn type
-	 * @return
+	 * On Skill Learned event.
+	 * @param event the event
 	 */
-	public String onAcquireSkill(L2Npc npc, L2PcInstance player, Skill skill, AcquireSkillType type) {
-		return null;
+	public void onSkillLearned(PlayerSkillLearned event) {
+		
 	}
 	
 	/**
@@ -1580,27 +1568,27 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	/**
-	 * Binds the NPCs to the acquire skill event.
+	 * Binds the NPCs to the Menu Selected event.
 	 * @param npcIds the IDs of the NPCs
 	 */
-	public void bindAcquireSkill(int... npcIds) {
-		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.trainer(), event.player(), event.skill(), event.type()), npcIds);
-	}
-	
-	/**
-	 * Binds the NPCs to the acquire skill event.
-	 * @param npcIds the IDs of the NPCs
-	 */
-	public void bindAcquireSkill(Collection<Integer> npcIds) {
-		setPlayerSkillLearnId(event -> notifyAcquireSkill(event.trainer(), event.player(), event.skill(), event.type()), npcIds);
+	public void bindMenuSelected(int... npcIds) {
+		registerConsumer((PlayerMenuSelected event) -> onMenuSelected(event), PLAYER_MENU_SELECTED, NPC, npcIds);
 	}
 	
 	/**
 	 * Binds the NPCs to the Learn Skill Requested event.
 	 * @param npcIds the IDs of the NPCs
 	 */
-	public void bindPlayerLearnSkillRequested(int... npcIds) {
+	public void bindLearnSkillRequested(int... npcIds) {
 		registerConsumer((PlayerLearnSkillRequested event) -> onLearnSkillRequested(event), PLAYER_LEARN_SKILL_REQUESTED, NPC, npcIds);
+	}
+	
+	/**
+	 * Binds the NPCs to the Skill Learned event.
+	 * @param npcIds the IDs of the NPCs
+	 */
+	public void bindSkillLearned(int... npcIds) {
+		registerConsumer((PlayerSkillLearned event) -> onSkillLearned(event), PLAYER_SKILL_LEARNED, NPC, npcIds);
 	}
 	
 	/**
@@ -2284,24 +2272,23 @@ public class Quest extends AbstractScript implements IIdentifiable {
 	}
 	
 	public void showPage(L2PcInstance player, String fileName, boolean haveQuest) {
-		String content = getHtm(player.getHtmlPrefix(), fileName);
-		if (content != null) {
-			L2Npc npc = player.getLastFolkNPC();
-			if (haveQuest && (npc != null)) {
-				content = content.replace("%objectId%", npc.getObjectId() + "");
-			}
-			final NpcHtmlMessage npcReply = new NpcHtmlMessage(npc != null ? npc.getObjectId() : 0, content);
-			player.sendPacket(npcReply);
+		var content = getHtm(player.getHtmlPrefix(), fileName);
+		if (content == null) {
+			return;
 		}
+		
+		final var npc = player.getLastFolkNPC();
+		if (haveQuest && (npc != null)) {
+			content = content.replace("%objectId%", npc.getObjectId() + "");
+		}
+		player.sendPacket(new NpcHtmlMessage(npc != null ? npc.getObjectId() : 0, content));
 	}
 	
 	public void showQuestPage(L2PcInstance player, String fileName, int questId) {
-		String content = getHtm(player.getHtmlPrefix(), fileName);
+		final var content = getHtm(player.getHtmlPrefix(), fileName);
 		if (content != null) {
-			L2Npc npc = player.getLastFolkNPC();
-			NpcQuestHtmlMessage npcReply = new NpcQuestHtmlMessage(npc != null ? npc.getObjectId() : 0, questId);
-			npcReply.setHtml(content);
-			player.sendPacket(npcReply);
+			final var npc = player.getLastFolkNPC();
+			player.sendPacket(new NpcQuestHtmlMessage(npc != null ? npc.getObjectId() : 0, questId, content));
 		}
 	}
 	
@@ -2340,19 +2327,18 @@ public class Quest extends AbstractScript implements IIdentifiable {
 		
 		// Send message to client if message not empty
 		if (content != null) {
+			var npcObjId = 0;
 			if (npc != null) {
 				content = content.replaceAll("%objectId%", String.valueOf(npc.getObjectId()));
+				npcObjId = npc.getObjectId();
 			}
 			
+			content = content.replaceAll("%playername%", player.getName());
+			
 			if (questwindow && (questId > 0) && (questId < 20000) && (questId != 999)) {
-				NpcQuestHtmlMessage npcReply = new NpcQuestHtmlMessage(npc != null ? npc.getObjectId() : 0, questId);
-				npcReply.setHtml(content);
-				npcReply.replace("%playername%", player.getName());
-				player.sendPacket(npcReply);
+				player.sendPacket(new NpcQuestHtmlMessage(npcObjId, questId, content));
 			} else {
-				final NpcHtmlMessage npcReply = new NpcHtmlMessage(npc != null ? npc.getObjectId() : 0, content);
-				npcReply.replace("%playername%", player.getName());
-				player.sendPacket(npcReply);
+				player.sendPacket(new NpcHtmlMessage(npcObjId, content));
 			}
 			player.sendPacket(ActionFailed.STATIC_PACKET);
 		}

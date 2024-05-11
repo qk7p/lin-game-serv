@@ -30,6 +30,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import com.l2jserver.gameserver.enums.CategoryType;
+import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.util.IXmlReader;
 
 /**
@@ -78,6 +79,16 @@ public final class CategoryData implements IXmlReader {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Checks if ID is in category.
+	 * @param type the category type
+	 * @param classId the id to be checked
+	 * @return {@code true} if id is in category, {@code false} if id is not in category or category was not found
+	 */
+	public boolean isInCategory(CategoryType type, ClassId classId) {
+		return isInCategory(type, classId.getId());
 	}
 	
 	/**

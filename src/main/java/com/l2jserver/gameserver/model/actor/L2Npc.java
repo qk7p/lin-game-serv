@@ -67,7 +67,6 @@ import com.l2jserver.gameserver.model.actor.instance.L2DoormenInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2MerchantInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2TeleporterInstance;
-import com.l2jserver.gameserver.model.actor.instance.L2TrainerInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2WarehouseInstance;
 import com.l2jserver.gameserver.model.actor.knownlist.NpcKnownList;
 import com.l2jserver.gameserver.model.actor.stat.NpcStat;
@@ -772,7 +771,7 @@ public class L2Npc extends L2Character {
 		String temp = "data/html/default/" + pom + ".htm";
 		
 		if (!general().lazyCache()) {
-			// If not running lazy cache the file must be in the cache or it doesnt exist
+			// If not running lazy cache the file must be in the cache or it doesn't exist
 			if (HtmCache.getInstance().contains(temp)) {
 				return temp;
 			}
@@ -822,10 +821,12 @@ public class L2Npc extends L2Character {
 			player.sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}
+		
 		if (player.isCursedWeaponEquipped() && (!(player.getTarget() instanceof L2ClanHallManagerInstance) || !(player.getTarget() instanceof L2DoormenInstance))) {
 			player.setTarget(player);
 			return;
 		}
+		
 		if (player.getKarma() > 0) {
 			if (!character().karmaPlayerCanShop() && (this instanceof L2MerchantInstance)) {
 				if (showPkDenyChatWindow(player, "merchant")) {
@@ -882,7 +883,7 @@ public class L2Npc extends L2Character {
 				if (player.isNoble()) {
 					filename = Olympiad.OLYMPIAD_HTML_PATH + "noble_main.htm";
 				} else {
-					filename = (getHtmlPath(npcId, val));
+					filename = getHtmlPath(npcId, val);
 				}
 				break;
 			case 31690:
@@ -893,7 +894,7 @@ public class L2Npc extends L2Character {
 				if (player.isHero() || player.isNoble()) {
 					filename = Olympiad.OLYMPIAD_HTML_PATH + "hero_main.htm";
 				} else {
-					filename = (getHtmlPath(npcId, val));
+					filename = getHtmlPath(npcId, val);
 				}
 				break;
 			case 36402:
@@ -905,9 +906,9 @@ public class L2Npc extends L2Character {
 				break;
 			case 30298: // Blacksmith Pinter
 				if (player.isAcademyMember()) {
-					filename = (getHtmlPath(npcId, 1));
+					filename = getHtmlPath(npcId, 1);
 				} else {
-					filename = (getHtmlPath(npcId, val));
+					filename = getHtmlPath(npcId, val);
 				}
 				break;
 			default:
@@ -915,7 +916,7 @@ public class L2Npc extends L2Character {
 					return;
 				}
 				// Get the text of the selected HTML file in function of the npcId and of the page number
-				filename = (getHtmlPath(npcId, val));
+				filename = getHtmlPath(npcId, val);
 				break;
 		}
 		
@@ -1196,31 +1197,6 @@ public class L2Npc extends L2Character {
 				activeChar.sendPacket(new AbstractNpcInfo.NpcInfo(this, activeChar));
 			}
 		}
-	}
-	
-	public void showNoTeachHtml(L2PcInstance player) {
-		int npcId = getId();
-		String html = "";
-		
-		if (this instanceof L2WarehouseInstance) {
-			html = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/warehouse/" + npcId + "-noteach.htm");
-		} else if (this instanceof L2TrainerInstance) {
-			html = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/trainer/" + npcId + "-noteach.htm");
-			// Trainer Healer?
-			if (html == null) {
-				html = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "com/l2jserver/datapack/ai/npc/Trainers/HealerTrainer/" + npcId + "-noteach.html");
-			}
-		}
-		
-		final NpcHtmlMessage noTeachMsg = new NpcHtmlMessage(getObjectId());
-		if (html == null) {
-			LOG.warn("Npc {} missing noTeach html!", npcId);
-			noTeachMsg.setHtml("<html><body>I cannot teach you any skills.<br>You must find your current class teachers.</body></html>");
-		} else {
-			noTeachMsg.setHtml(html);
-			noTeachMsg.replace("%objectId%", String.valueOf(getObjectId()));
-		}
-		player.sendPacket(noTeachMsg);
 	}
 	
 	public L2Npc scheduleDespawn(long delay) {

@@ -51,7 +51,6 @@ import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LOGIN;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LOGOUT;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_PROFESSION_CANCEL;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_PROFESSION_CHANGE;
-import static com.l2jserver.gameserver.model.events.EventType.PLAYER_SKILL_LEARN;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_SUMMON_SPAWN;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_SUMMON_TALK;
 import static com.l2jserver.gameserver.model.events.EventType.PLAYER_TUTORIAL;
@@ -151,7 +150,6 @@ import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLogin;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLogout;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerProfessionCancel;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerProfessionChange;
-import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSkillLearn;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSummonSpawn;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSummonTalk;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerTutorial;
@@ -825,28 +823,6 @@ public abstract class AbstractScript implements INamable {
 	 */
 	protected final List<AbstractEventListener> setAttackableAggroRangeEnterId(Consumer<AttackableAggroRangeEnter> callback, Collection<Integer> npcIds) {
 		return registerConsumer(callback, ATTACKABLE_AGGRO_RANGE_ENTER, NPC, npcIds);
-	}
-	
-	// ---------------------------------------------------------------------------------------------------------------------------
-	
-	/**
-	 * Provides instant callback operation when {@link L2PcInstance} learns a {@link Skill}.
-	 * @param callback
-	 * @param npcIds
-	 * @return
-	 */
-	protected final List<AbstractEventListener> setPlayerSkillLearnId(Consumer<PlayerSkillLearn> callback, int... npcIds) {
-		return registerConsumer(callback, PLAYER_SKILL_LEARN, NPC, npcIds);
-	}
-	
-	/**
-	 * Provides instant callback operation when {@link L2PcInstance} learns a {@link Skill}.
-	 * @param callback
-	 * @param npcIds
-	 * @return
-	 */
-	protected final List<AbstractEventListener> setPlayerSkillLearnId(Consumer<PlayerSkillLearn> callback, Collection<Integer> npcIds) {
-		return registerConsumer(callback, PLAYER_SKILL_LEARN, NPC, npcIds);
 	}
 	
 	// ---------------------------------------------------------------------------------------------------------------------------

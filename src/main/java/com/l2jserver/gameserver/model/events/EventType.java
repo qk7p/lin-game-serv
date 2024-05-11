@@ -62,6 +62,8 @@ import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLearnSk
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLevelChanged;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLogin;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerLogout;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerMenuSelected;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerOneSkillSelected;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerPKChanged;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerProfessionCancel;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerProfessionChange;
@@ -70,7 +72,7 @@ import com.l2jserver.gameserver.model.events.impl.character.player.PlayerPvPKill
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerRestore;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSelect;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSit;
-import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSkillLearn;
+import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSkillLearned;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSummonSpawn;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerSummonTalk;
 import com.l2jserver.gameserver.model.events.impl.character.player.PlayerTransform;
@@ -226,8 +228,10 @@ public enum EventType {
 	PLAYER_RESTORE(PlayerRestore.class, void.class),
 	PLAYER_SELECT(PlayerSelect.class, void.class, TerminateReturn.class),
 	PLAYER_SIT(PlayerSit.class, TerminateReturn.class),
-	PLAYER_SKILL_LEARN(PlayerSkillLearn.class, void.class),
 	PLAYER_LEARN_SKILL_REQUESTED(PlayerLearnSkillRequested.class, void.class),
+	PLAYER_ONE_SKILL_SELECTED(PlayerOneSkillSelected.class, void.class),
+	PLAYER_SKILL_LEARNED(PlayerSkillLearned.class, void.class),
+	PLAYER_MENU_SELECTED(PlayerMenuSelected.class, void.class),
 	PLAYER_STAND(PlayerSit.class, TerminateReturn.class),
 	PLAYER_SUMMON_SPAWN(PlayerSummonSpawn.class, void.class),
 	PLAYER_SUMMON_TALK(PlayerSummonTalk.class, void.class),

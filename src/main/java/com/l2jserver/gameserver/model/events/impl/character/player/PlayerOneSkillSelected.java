@@ -18,22 +18,22 @@
  */
 package com.l2jserver.gameserver.model.events.impl.character.player;
 
-import static com.l2jserver.gameserver.model.events.EventType.PLAYER_LEARN_SKILL_REQUESTED;
+import static com.l2jserver.gameserver.model.events.EventType.PLAYER_ONE_SKILL_SELECTED;
 
+import com.l2jserver.gameserver.model.L2SkillLearn;
 import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
-import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.events.EventType;
 import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 
 /**
- * Player Learn Skill Requested event.
+ * Player One Skill Selected event.
  * @author Zoey76
  * @version 2.6.3.0
  */
-public record PlayerLearnSkillRequested(L2Npc npc, L2PcInstance player, ClassId classId) implements BaseEvent {
+public record PlayerOneSkillSelected(L2PcInstance player, L2Npc npc, L2SkillLearn skill, boolean needQuest, int unk) implements BaseEvent {
 	@Override
 	public EventType getType() {
-		return PLAYER_LEARN_SKILL_REQUESTED;
+		return PLAYER_ONE_SKILL_SELECTED;
 	}
 }

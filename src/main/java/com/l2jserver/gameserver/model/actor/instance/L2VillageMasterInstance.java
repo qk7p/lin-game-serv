@@ -20,10 +20,11 @@ package com.l2jserver.gameserver.model.actor.instance;
 
 import static com.l2jserver.gameserver.config.Configuration.character;
 import static com.l2jserver.gameserver.config.Configuration.clan;
+import static com.l2jserver.gameserver.model.base.AcquireSkillType.PLEDGE;
+import static com.l2jserver.gameserver.network.SystemMessageId.DO_NOT_HAVE_FURTHER_SKILLS_TO_LEARN_S1;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -40,9 +41,7 @@ import com.l2jserver.gameserver.instancemanager.SiegeManager;
 import com.l2jserver.gameserver.model.L2Clan;
 import com.l2jserver.gameserver.model.L2Clan.SubPledge;
 import com.l2jserver.gameserver.model.L2ClanMember;
-import com.l2jserver.gameserver.model.L2SkillLearn;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
-import com.l2jserver.gameserver.model.base.AcquireSkillType;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.base.PlayerClass;
 import com.l2jserver.gameserver.model.base.SubClass;
@@ -84,9 +83,7 @@ public class L2VillageMasterInstance extends L2NpcInstance {
 	
 	@Override
 	public void onBypassFeedback(L2PcInstance player, String command) {
-		
-		final StringTokenizer st = new StringTokenizer(command, " ");
-		
+		final var st = new StringTokenizer(command, " ");
 		switch (st.nextToken()) {
 			case "create_clan" -> {
 				if (st.hasMoreTokens()) {
@@ -893,6 +890,7 @@ public class L2VillageMasterInstance extends L2NpcInstance {
 	 * @param player
 	 */
 	public static void showPledgeSkillList(L2PcInstance player) {
+		// TODO(Zoey76): Unhardcode in Clan script.
 		if (!player.isClanLeader()) {
 			final NpcHtmlMessage html = new NpcHtmlMessage();
 			html.setFile(player.getHtmlPrefix(), "data/html/villagemaster/NotClanLeader.htm");
@@ -901,18 +899,10 @@ public class L2VillageMasterInstance extends L2NpcInstance {
 			return;
 		}
 		
-		final List<L2SkillLearn> skills = SkillTreesData.getInstance().getAvailablePledgeSkills(player.getClan());
-		final AcquireSkillList asl = new AcquireSkillList(AcquireSkillType.PLEDGE);
-		int counts = 0;
-		
-		for (L2SkillLearn s : skills) {
-			asl.addSkill(s.getSkillId(), s.getSkillLevel(), s.getSkillLevel(), s.getLevelUpSp(), s.getSocialClass().ordinal());
-			counts++;
-		}
-		
-		if (counts == 0) {
+		final var skills = SkillTreesData.getInstance().getAvailablePledgeSkills(player.getClan());
+		if (skills.size() == 0) {
 			if (player.getClan().getLevel() < 8) {
-				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.DO_NOT_HAVE_FURTHER_SKILLS_TO_LEARN_S1);
+				final var sm = SystemMessage.getSystemMessage(DO_NOT_HAVE_FURTHER_SKILLS_TO_LEARN_S1);
 				if (player.getClan().getLevel() < 5) {
 					sm.addInt(5);
 				} else {
@@ -920,14 +910,13 @@ public class L2VillageMasterInstance extends L2NpcInstance {
 				}
 				player.sendPacket(sm);
 			} else {
-				final NpcHtmlMessage html = new NpcHtmlMessage();
+				final var html = new NpcHtmlMessage();
 				html.setFile(player.getHtmlPrefix(), "data/html/villagemaster/NoMoreSkills.htm");
 				player.sendPacket(html);
 			}
 		} else {
-			player.sendPacket(asl);
+			player.sendPacket(new AcquireSkillList(PLEDGE, skills));
 		}
-		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
 	private static boolean isValidName(String name) {

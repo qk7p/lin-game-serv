@@ -19,7 +19,7 @@
 package com.l2jserver.gameserver.model.base;
 
 /**
- * Learning skill types.
+ * Skill Learn types.
  * @author Zoey76
  */
 public enum AcquireSkillType {

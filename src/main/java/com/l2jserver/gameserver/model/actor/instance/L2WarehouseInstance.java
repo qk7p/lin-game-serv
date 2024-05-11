@@ -21,7 +21,7 @@ package com.l2jserver.gameserver.model.actor.instance;
 import com.l2jserver.gameserver.enums.InstanceType;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 
-public class L2WarehouseInstance extends L2NpcInstance {
+public final class L2WarehouseInstance extends L2NpcInstance {
 	
 	public L2WarehouseInstance(L2NpcTemplate template) {
 		super(template);
@@ -31,16 +31,5 @@ public class L2WarehouseInstance extends L2NpcInstance {
 	@Override
 	public boolean isWarehouse() {
 		return true;
-	}
-	
-	@Override
-	public String getHtmlPath(int npcId, int val) {
-		String pom;
-		if (val == 0) {
-			pom = "" + npcId;
-		} else {
-			pom = npcId + "-" + val;
-		}
-		return "data/html/warehouse/" + pom + ".htm";
 	}
 }

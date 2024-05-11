@@ -18,7 +18,7 @@
  */
 package com.l2jserver.gameserver.model.events.impl.character.player;
 
-import static com.l2jserver.gameserver.model.events.EventType.PLAYER_SKILL_LEARN;
+import static com.l2jserver.gameserver.model.events.EventType.PLAYER_SKILL_LEARNED;
 
 import com.l2jserver.gameserver.model.actor.L2Npc;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
@@ -28,13 +28,13 @@ import com.l2jserver.gameserver.model.events.impl.BaseEvent;
 import com.l2jserver.gameserver.model.skills.Skill;
 
 /**
- * Player Skill Learn event.
+ * Player Skill Learned event.
  * @author UnAfraid
  * @author Zoey76
  */
-public record PlayerSkillLearn(L2Npc trainer, L2PcInstance player, Skill skill, AcquireSkillType type) implements BaseEvent {
+public record PlayerSkillLearned(L2Npc npc, L2PcInstance player, Skill skill, AcquireSkillType type) implements BaseEvent {
 	@Override
 	public EventType getType() {
-		return PLAYER_SKILL_LEARN;
+		return PLAYER_SKILL_LEARNED;
 	}
 }

@@ -19,12 +19,13 @@
 
 package com.l2jserver.gameserver.network.clientpackets;
 
-import com.l2jserver.gameserver.model.actor.L2Npc;
-import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import static com.l2jserver.gameserver.model.actor.L2Npc.INTERACTION_DISTANCE;
+
 import com.l2jserver.gameserver.network.serverpackets.NpcHtmlMessage;
 import com.l2jserver.gameserver.util.Util;
 
 /**
+ * RequestLinkHtml client packet implementation.
  * @author zabbix
  * @author HorridoJoho
  */
@@ -39,7 +40,7 @@ public final class RequestLinkHtml extends L2GameClientPacket {
 	
 	@Override
 	public void runImpl() {
-		L2PcInstance actor = getClient().getActiveChar();
+		final var actor = getClient().getActiveChar();
 		if (actor == null) {
 			return;
 		}
@@ -60,14 +61,15 @@ public final class RequestLinkHtml extends L2GameClientPacket {
 			return;
 		}
 		
-		if ((htmlObjectId > 0) && !Util.isInsideRangeOfObjectId(actor, htmlObjectId, L2Npc.INTERACTION_DISTANCE)) {
+		if ((htmlObjectId > 0) && !Util.isInsideRangeOfObjectId(actor, htmlObjectId, INTERACTION_DISTANCE)) {
 			// No logging here, this could be a common case
 			return;
 		}
 		
-		String filename = "data/html/" + _link;
-		final NpcHtmlMessage msg = new NpcHtmlMessage(htmlObjectId);
+		final var filename = "data/html/" + _link;
+		final var msg = new NpcHtmlMessage(htmlObjectId);
 		msg.setFile(actor.getHtmlPrefix(), filename);
+		msg.replace("%objectId%", String.valueOf(htmlObjectId));
 		sendPacket(msg);
 	}
 	

@@ -33,7 +33,7 @@ public interface IBypassHandler {
 	 * @param bypassOrigin
 	 * @return success
 	 */
-	boolean useBypass(String command, L2PcInstance activeChar, L2Character bypassOrigin);
+	boolean useBypass(String command, L2PcInstance player, L2Character bypassOrigin);
 	
 	/**
 	 * This method is called at initialization to register all bypasses automatically.
